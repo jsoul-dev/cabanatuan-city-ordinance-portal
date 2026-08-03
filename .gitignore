@@ -39,10 +39,12 @@ Thumbs.db
 next-env.d.ts
 
 # Custom project excludes (Agent rules, skills, internal docs, and unrelated markdown)
+*.pdf
 .agents/
 .assets/
 .gemini/
 .dumps/
 AGENTS.md
 CLAUDE.md
-*.pdf
+TEST_ACCOUNTS.md
+*test_accounts*.md
