@@ -55,23 +55,17 @@ Designed to bridge the gap between local law enforcement and citizens, the porta
 graph TD
     Client["Citizen / Admin Browser"] -->|"HTTPS / Next.js App Router"| Next["Next.js 16 Web Server"]
     
-    subgraph Frontend ["React 19 / Tailwind v4 / Zustand"]
-        Next -->|"Server Components & Actions"| UI["Responsive UI Components"]
-        UI -->|"Command Palette / Radix UI"| Modals["Interactive UI & Modals"]
-    end
+    Next -->|"Server Components & Actions"| UI["Responsive UI Components"]
+    UI -->|"Command Palette / Radix UI"| Modals["Interactive UI & Modals"]
     
-    subgraph Backend ["API Routes & Middleware"]
-        Next -->|"POST /api/chat"| ChatAPI["Gemini Chat Stream"]
-        Next -->|"POST /api/parse-ordinance"| ParseAPI["Multimodal PDF Parser"]
-        Next -->|"POST /api/upload"| UploadAPI["Supabase Storage Upload"]
-    end
+    Next -->|"POST /api/chat"| ChatAPI["Gemini Chat Stream"]
+    Next -->|"POST /api/parse-ordinance"| ParseAPI["Multimodal PDF Parser"]
+    Next -->|"POST /api/upload"| UploadAPI["Supabase Storage Upload"]
     
-    subgraph Cloud ["Cloud Infrastructure"]
-        ChatAPI -->|"Google GenAI SDK"| Gemini["Google Gemini 2.5 API"]
-        ParseAPI -->|"Multimodal Vision"| Gemini
-        Next -->|"Prisma 7 ORM"| Postgres["Supabase PostgreSQL"]
-        UploadAPI -->|"Signed / Public Buckets"| Storage["Supabase Storage PDFs"]
-    end
+    ChatAPI -->|"Google GenAI SDK"| Gemini["Google Gemini 2.5 API"]
+    ParseAPI -->|"Multimodal Vision"| Gemini
+    Next -->|"Prisma 7 ORM"| Postgres["Supabase PostgreSQL"]
+    UploadAPI -->|"Signed / Public Buckets"| Storage["Supabase Storage PDFs"]
 ```
 
 ---
