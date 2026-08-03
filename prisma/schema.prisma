@@ -96,7 +96,9 @@ model Ordinance {
   type             OrdinanceType   @default(BARANGAY)
   status           OrdinanceStatus @default(DRAFT)
 
+  description  String? @db.Text
   content      String? @db.Text
+  category     String? @default("General")
   penalties    String? @db.Text
   signatories  String? @db.Text
   pdfUrl       String? @map("pdf_url")
