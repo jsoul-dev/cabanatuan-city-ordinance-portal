@@ -9,9 +9,9 @@ interface LoginFormProps {
 
 /**
  * Premium Login Form — modeled after ultra-sleek dark glassmorphic auth portals (winauth.net style).
- * Includes theme support (Dark / Light toggle) and quick-fill test account chips for instant 1-click role testing.
+ * Includes global theme sync via Tailwind dark: utilities and quick-fill test account chips.
  */
-export function LoginForm({ theme = "dark" }: LoginFormProps) {
+export function LoginForm({ theme }: LoginFormProps) {
   const [state, formAction, isPending] = useActionState<
     LoginResult | undefined,
     FormData
@@ -19,8 +19,6 @@ export function LoginForm({ theme = "dark" }: LoginFormProps) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const isDark = theme === "dark";
 
   const handleQuickFill = (roleEmail: string) => {
     setEmail(roleEmail);
@@ -54,9 +52,7 @@ export function LoginForm({ theme = "dark" }: LoginFormProps) {
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="email-input"
-            className={`text-xs font-semibold ${
-              isDark ? "text-neutral-300" : "text-neutral-700"
-            }`}
+            className="text-xs font-semibold text-neutral-700 dark:text-neutral-300"
           >
             Email
           </label>
@@ -70,11 +66,7 @@ export function LoginForm({ theme = "dark" }: LoginFormProps) {
             autoComplete="email"
             required
             disabled={isPending}
-            className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50 ${
-              isDark
-                ? "border-white/10 bg-[#121815]/90 text-white placeholder-neutral-500"
-                : "border-neutral-300 bg-white text-neutral-900 placeholder-neutral-400 shadow-sm"
-            }`}
+            className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 shadow-sm outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50 dark:border-white/10 dark:bg-[#121815]/90 dark:text-white dark:placeholder-neutral-500"
           />
         </div>
 
@@ -83,19 +75,11 @@ export function LoginForm({ theme = "dark" }: LoginFormProps) {
           <div className="flex items-center justify-between">
             <label
               htmlFor="password-input"
-              className={`text-xs font-semibold ${
-                isDark ? "text-neutral-300" : "text-neutral-700"
-              }`}
+              className="text-xs font-semibold text-neutral-700 dark:text-neutral-300"
             >
               Password
             </label>
-            <span
-              className={`cursor-pointer text-xs transition-colors ${
-                isDark
-                  ? "text-neutral-400 hover:text-emerald-400"
-                  : "text-neutral-500 hover:text-emerald-600"
-              }`}
-            >
+            <span className="cursor-pointer text-xs transition-colors text-neutral-500 hover:text-emerald-600 dark:text-neutral-400 dark:hover:text-emerald-400">
               Forgot password?
             </span>
           </div>
@@ -109,11 +93,7 @@ export function LoginForm({ theme = "dark" }: LoginFormProps) {
             autoComplete="current-password"
             required
             disabled={isPending}
-            className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50 ${
-              isDark
-                ? "border-white/10 bg-[#121815]/90 text-white placeholder-neutral-500"
-                : "border-neutral-300 bg-white text-neutral-900 placeholder-neutral-400 shadow-sm"
-            }`}
+            className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 shadow-sm outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50 dark:border-white/10 dark:bg-[#121815]/90 dark:text-white dark:placeholder-neutral-500"
           />
         </div>
 
@@ -121,11 +101,7 @@ export function LoginForm({ theme = "dark" }: LoginFormProps) {
         <button
           type="submit"
           disabled={isPending}
-          className={`mt-2 flex w-full items-center justify-center rounded-xl px-4 py-3.5 text-sm font-semibold shadow-lg transition-all duration-200 active:scale-[0.99] disabled:opacity-60 ${
-            isDark
-              ? "bg-white text-black shadow-white/5 hover:bg-neutral-200"
-              : "bg-[#0a0f0d] text-white shadow-neutral-900/10 hover:bg-neutral-800"
-          }`}
+          className="mt-2 flex w-full items-center justify-center rounded-xl bg-[#0a0f0d] px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-neutral-900/10 transition-all duration-200 hover:bg-neutral-800 active:scale-[0.99] disabled:opacity-60 dark:bg-white dark:text-black dark:shadow-white/5 dark:hover:bg-neutral-200"
         >
           {isPending ? (
             <span className="flex items-center gap-2">
@@ -158,24 +134,12 @@ export function LoginForm({ theme = "dark" }: LoginFormProps) {
       </form>
 
       {/* Quick-Fill Test Accounts Selector */}
-      <div
-        className={`mt-2 border-t pt-5 ${
-          isDark ? "border-white/10" : "border-neutral-200"
-        }`}
-      >
+      <div className="mt-2 border-t border-neutral-200 pt-5 dark:border-white/10">
         <div className="mb-2.5 flex items-center justify-between">
-          <span
-            className={`text-[11px] font-medium tracking-wide uppercase ${
-              isDark ? "text-neutral-400" : "text-neutral-500"
-            }`}
-          >
+          <span className="text-[11px] font-medium tracking-wide text-neutral-500 uppercase dark:text-neutral-400">
             Quick-Fill Test Accounts
           </span>
-          <span
-            className={`text-[10px] font-mono ${
-              isDark ? "text-emerald-400" : "text-emerald-700 font-bold"
-            }`}
-          >
+          <span className="text-[10px] font-mono font-bold text-emerald-700 dark:font-normal dark:text-emerald-400">
             CLICK TO AUTO-FILL
           </span>
         </div>
@@ -184,26 +148,14 @@ export function LoginForm({ theme = "dark" }: LoginFormProps) {
           <button
             type="button"
             onClick={() => handleQuickFill("admin@cabanatuan.gov.ph")}
-            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs transition-all ${
-              isDark
-                ? "border-white/10 bg-white/5 text-neutral-300 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
-                : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900"
-            }`}
+            className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-left text-xs text-neutral-700 transition-all hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300 dark:hover:border-emerald-500/50 dark:hover:bg-emerald-500/10 dark:hover:text-white"
           >
             <span className="text-emerald-500 font-bold">🏛️</span>
             <div>
-              <div
-                className={`font-semibold ${
-                  isDark ? "text-white" : "text-neutral-900"
-                }`}
-              >
+              <div className="font-semibold text-neutral-900 dark:text-white">
                 LGU Admin
               </div>
-              <div
-                className={`text-[10px] truncate ${
-                  isDark ? "text-neutral-400" : "text-neutral-500"
-                }`}
-              >
+              <div className="text-[10px] truncate text-neutral-500 dark:text-neutral-400">
                 admin@cabanatuan
               </div>
             </div>
@@ -212,26 +164,14 @@ export function LoginForm({ theme = "dark" }: LoginFormProps) {
           <button
             type="button"
             onClick={() => handleQuickFill("captain.kapitan@cabanatuan.gov.ph")}
-            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs transition-all ${
-              isDark
-                ? "border-white/10 bg-white/5 text-neutral-300 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
-                : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900"
-            }`}
+            className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-left text-xs text-neutral-700 transition-all hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300 dark:hover:border-emerald-500/50 dark:hover:bg-emerald-500/10 dark:hover:text-white"
           >
             <span className="text-emerald-500 font-bold">🛡️</span>
             <div>
-              <div
-                className={`font-semibold ${
-                  isDark ? "text-white" : "text-neutral-900"
-                }`}
-              >
+              <div className="font-semibold text-neutral-900 dark:text-white">
                 Captain
               </div>
-              <div
-                className={`text-[10px] truncate ${
-                  isDark ? "text-neutral-400" : "text-neutral-500"
-                }`}
-              >
+              <div className="text-[10px] truncate text-neutral-500 dark:text-neutral-400">
                 captain.kapitan@
               </div>
             </div>
@@ -242,26 +182,14 @@ export function LoginForm({ theme = "dark" }: LoginFormProps) {
             onClick={() =>
               handleQuickFill("secretary.kalihim@cabanatuan.gov.ph")
             }
-            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs transition-all ${
-              isDark
-                ? "border-white/10 bg-white/5 text-neutral-300 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
-                : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900"
-            }`}
+            className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-left text-xs text-neutral-700 transition-all hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300 dark:hover:border-emerald-500/50 dark:hover:bg-emerald-500/10 dark:hover:text-white"
           >
             <span className="text-emerald-500 font-bold">📋</span>
             <div>
-              <div
-                className={`font-semibold ${
-                  isDark ? "text-white" : "text-neutral-900"
-                }`}
-              >
+              <div className="font-semibold text-neutral-900 dark:text-white">
                 Secretary
               </div>
-              <div
-                className={`text-[10px] truncate ${
-                  isDark ? "text-neutral-400" : "text-neutral-500"
-                }`}
-              >
+              <div className="text-[10px] truncate text-neutral-500 dark:text-neutral-400">
                 secretary.kalihim@
               </div>
             </div>
@@ -270,26 +198,14 @@ export function LoginForm({ theme = "dark" }: LoginFormProps) {
           <button
             type="button"
             onClick={() => handleQuickFill("citizen@cabanatuan.gov.ph")}
-            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs transition-all ${
-              isDark
-                ? "border-white/10 bg-white/5 text-neutral-300 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
-                : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900"
-            }`}
+            className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-left text-xs text-neutral-700 transition-all hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300 dark:hover:border-emerald-500/50 dark:hover:bg-emerald-500/10 dark:hover:text-white"
           >
             <span className="text-emerald-500 font-bold">👤</span>
             <div>
-              <div
-                className={`font-semibold ${
-                  isDark ? "text-white" : "text-neutral-900"
-                }`}
-              >
+              <div className="font-semibold text-neutral-900 dark:text-white">
                 Citizen
               </div>
-              <div
-                className={`text-[10px] truncate ${
-                  isDark ? "text-neutral-400" : "text-neutral-500"
-                }`}
-              >
+              <div className="text-[10px] truncate text-neutral-500 dark:text-neutral-400">
                 citizen@cabanatuan
               </div>
             </div>
