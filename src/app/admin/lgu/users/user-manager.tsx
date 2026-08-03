@@ -3,6 +3,7 @@
 import { useState, useTransition, useRef } from "react";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import { ConfirmDialog } from "@/components/dashboard/confirm-dialog";
+import { toast } from "sonner";
 import { createUser, deleteUser } from "../actions";
 
 type UserRole = "LGU_ADMIN" | "CAPTAIN" | "SECRETARY" | "KAGAWAD";
@@ -37,13 +38,7 @@ export function UserManager({ initialUsers, barangays }: Props) {
   const [isPending, startTransition] = useTransition();
   const [deleteId, setDeleteId] = useState<{ id: string; name: string } | null>(null);
   const [deleteTrigger, setDeleteTrigger] = useState<HTMLButtonElement | null>(null);
-  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const addBtnRef = useRef<HTMLButtonElement>(null);
-
-  const showToast = (msg: string, ok: boolean) => {
-    setToast({ msg, ok });
-    setTimeout(() => setToast(null), 3500);
-  };
 
   function formatDate(d: Date) {
     return new Date(d).toLocaleDateString("fil-PH", { month: "short", day: "numeric", year: "numeric" });
@@ -58,7 +53,9 @@ export function UserManager({ initialUsers, barangays }: Props) {
       const result = await createUser(fd);
       if (result.error) {
         setFormError(result.error);
+        toast.error(result.error);
       } else {
+        toast.success("Bagong user ay naidagdag.");
         // Reload via full refresh since we need server data
         window.location.reload();
       }
@@ -70,10 +67,10 @@ export function UserManager({ initialUsers, barangays }: Props) {
     startTransition(async () => {
       const result = await deleteUser(deleteId.id);
       if (result.error) {
-        showToast(result.error, false);
+        toast.error(result.error);
       } else {
         setUsers((prev) => prev.filter((u) => u.id !== deleteId.id));
-        showToast(`${deleteId.name} ay natanggal.`, true);
+        toast.success(`${deleteId.name} ay natanggal.`);
       }
       setDeleteId(null);
       deleteTrigger?.focus();
@@ -83,21 +80,6 @@ export function UserManager({ initialUsers, barangays }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Toast */}
-      {toast && (
-        <div
-          role="status"
-          aria-live="polite"
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-[var(--radius-md)] px-4 py-3 text-sm font-semibold shadow-lg border ${
-            toast.ok
-              ? "bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-900/30 dark:border-emerald-700 dark:text-emerald-300"
-              : "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-700 dark:text-red-300"
-          }`}
-        >
-          <span aria-hidden="true">{toast.ok ? "✅" : "❌"}</span>
-          {toast.msg}
-        </div>
-      )}
 
       {/* Toolbar */}
       <div className="flex items-center justify-between">

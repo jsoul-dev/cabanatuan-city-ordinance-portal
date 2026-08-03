@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useCallback, useEffect } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import { ConfirmDialog } from "@/components/dashboard/confirm-dialog";
 import { approveOrdinance, rejectOrdinance, deleteOrdinance } from "../actions";
@@ -47,7 +48,6 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
     title: string;
   }>({ type: null, id: "", title: "" });
   const [rejectReason, setRejectReason] = useState("");
-  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [triggerRef, setTriggerRef] = useState<HTMLButtonElement | null>(null);
 
   // Auto-open review dialog if URL has ?review=id
@@ -60,11 +60,6 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const showToast = (msg: string, ok: boolean) => {
-    setToast({ msg, ok });
-    setTimeout(() => setToast(null), 3500);
-  };
 
   const openDialog = useCallback(
     (type: "approve" | "reject" | "delete", id: string, title: string, btn: HTMLButtonElement) => {
@@ -93,17 +88,17 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
       else if (type === "delete")  result = await deleteOrdinance(id);
 
       if (result.error) {
-        showToast(result.error, false);
+        toast.error(result.error);
       } else {
         if (type === "approve") {
           setOrdinances((prev) => prev.map((o) => o.id === id ? { ...o, status: "APPROVED" } : o));
-          showToast("Ordinansa ay naaprubahan.", true);
+          toast.success("Ordinansa ay naaprubahan.");
         } else if (type === "reject") {
           setOrdinances((prev) => prev.map((o) => o.id === id ? { ...o, status: "REJECTED", rejectedReason: rejectReason } : o));
-          showToast("Ordinansa ay tinanggihan.", true);
+          toast.success("Ordinansa ay tinanggihan.");
         } else if (type === "delete") {
           setOrdinances((prev) => prev.filter((o) => o.id !== id));
-          showToast("Ordinansa ay natanggal.", true);
+          toast.success("Ordinansa ay natanggal.");
         }
       }
       closeDialog();
@@ -124,22 +119,6 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
 
   return (
     <div className="space-y-4">
-
-      {/* Toast */}
-      {toast && (
-        <div
-          role="status"
-          aria-live="polite"
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-[var(--radius-md)] px-4 py-3 text-sm font-semibold shadow-lg border ${
-            toast.ok
-              ? "bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-900/30 dark:border-emerald-700 dark:text-emerald-300"
-              : "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-700 dark:text-red-300"
-          }`}
-        >
-          <span aria-hidden="true">{toast.ok ? "✅" : "❌"}</span>
-          {toast.msg}
-        </div>
-      )}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">

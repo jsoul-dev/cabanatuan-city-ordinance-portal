@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useRef } from "react";
 import { StatusBadge } from "@/components/dashboard/status-badge";
+import { toast } from "sonner";
 import { submitOrdinance } from "../actions";
 
 type Ordinance = {
@@ -30,22 +31,21 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
   const [ordinances, setOrdinances] = useState(initialOrdinances);
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState("");
-  const [formSuccess, setFormSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
   const addBtnRef = useRef<HTMLButtonElement>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError("");
-    setFormSuccess(false);
     const fd = new FormData(e.currentTarget);
 
     startTransition(async () => {
       const result = await submitOrdinance(fd);
       if (result.error) {
         setFormError(result.error);
+        toast.error(result.error);
       } else {
-        setFormSuccess(true);
+        toast.success("Ordinansa ay matagumpay na naisumite para sa pagsusuri ng LGU.");
         setShowForm(false);
         addBtnRef.current?.focus();
         // Refresh via navigation to get updated server data
@@ -60,13 +60,6 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
 
   return (
     <div className="space-y-4">
-      {/* Success toast */}
-      {formSuccess && (
-        <div role="status" aria-live="polite" className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 rounded-[var(--radius-sm)] px-4 py-3 text-sm font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-          <span aria-hidden="true">✅</span>
-          Ordinansa ay matagumpay na naisumite para sa pagsusuri ng LGU.
-        </div>
-      )}
 
       {/* Toolbar */}
       {canSubmit && (
@@ -74,7 +67,7 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
           <button
             ref={addBtnRef}
             type="button"
-            onClick={() => { setShowForm((v) => !v); setFormError(""); setFormSuccess(false); }}
+            onClick={() => { setShowForm((v) => !v); setFormError(""); }}
             aria-expanded={showForm}
             aria-controls="submit-ordinance-form"
             className="min-h-[44px] rounded-[var(--radius-sm)] bg-[var(--accent-primary)] px-5 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-primary)]/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"

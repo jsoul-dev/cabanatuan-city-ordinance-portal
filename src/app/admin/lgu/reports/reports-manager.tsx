@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { StatusBadge } from "@/components/dashboard/status-badge";
+import { toast } from "sonner";
 import { updateReportStatus } from "../actions";
 
 type ReportStatus = "NEW" | "IN_PROGRESS" | "RESOLVED" | "DISMISSED";
@@ -23,15 +24,15 @@ type Report = {
 const TYPE_LABELS: Record<ReportType, string> = {
   TRASH_BURNING: "🔥 Pagsusunog ng Basura",
   NOISE:         "🔊 Ingay at Kaguluhan",
-  ROAD_OBSTRUCTION: "🚧 Harang sa Daan",
-  OTHER:         "📋 Iba pa",
+  ROAD_OBSTRUCTION: "🚧 Sagabal sa Kalsada",
+  OTHER:         "📌 Iba pang Reklamo",
 };
 
 const STATUS_OPTIONS: { value: ReportStatus; label: string }[] = [
-  { value: "NEW",         label: "🆕 Bago" },
-  { value: "IN_PROGRESS", label: "🔄 Isinasagawa" },
-  { value: "RESOLVED",    label: "✅ Nalutas" },
-  { value: "DISMISSED",   label: "🚫 Hindi Inaksyunan" },
+  { value: "NEW",         label: "🟢 Bago" },
+  { value: "IN_PROGRESS", label: "🟡 Inaaksyunan" },
+  { value: "RESOLVED",    label: "🔵 Nalutas" },
+  { value: "DISMISSED",   label: "⚫ Ibinasura" },
 ];
 
 interface Props {
@@ -42,23 +43,17 @@ export function ReportsManager({ initialReports }: Props) {
   const [reports, setReports] = useState(initialReports);
   const [statusFilter, setStatusFilter] = useState<ReportStatus | "ALL">("ALL");
   const [isPending, startTransition] = useTransition();
-  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
-
-  const showToast = (msg: string, ok: boolean) => {
-    setToast({ msg, ok });
-    setTimeout(() => setToast(null), 3500);
-  };
 
   const handleStatusChange = (reportId: string, newStatus: string) => {
     startTransition(async () => {
       const result = await updateReportStatus(reportId, newStatus);
       if (result.error) {
-        showToast(result.error, false);
+        toast.error(result.error);
       } else {
         setReports((prev) =>
           prev.map((r) => r.id === reportId ? { ...r, status: newStatus as ReportStatus } : r)
         );
-        showToast("Status ng ulat ay na-update.", true);
+        toast.success("Status ng ulat ay na-update.");
       }
     });
   };
@@ -73,21 +68,6 @@ export function ReportsManager({ initialReports }: Props) {
 
   return (
     <div className="space-y-4">
-      {toast && (
-        <div
-          role="status"
-          aria-live="polite"
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-[var(--radius-md)] px-4 py-3 text-sm font-semibold shadow-lg border ${
-            toast.ok
-              ? "bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-900/30 dark:border-emerald-700 dark:text-emerald-300"
-              : "bg-red-50 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-700 dark:text-red-300"
-          }`}
-        >
-          <span aria-hidden="true">{toast.ok ? "✅" : "❌"}</span>
-          {toast.msg}
-        </div>
-      )}
-
       {/* Filter */}
       <div role="tablist" aria-label="I-filter ayon sa status" className="flex flex-wrap gap-1 p-1 rounded-[var(--radius-sm)] bg-[var(--bg-canvas)] border border-[var(--border-hairline)] w-fit">
         {[{ value: "ALL" as const, label: "Lahat", icon: "📋" }, ...STATUS_OPTIONS.map((s) => ({ value: s.value, label: s.label.split(" ")[1], icon: s.label.split(" ")[0] }))].map((tab) => (
