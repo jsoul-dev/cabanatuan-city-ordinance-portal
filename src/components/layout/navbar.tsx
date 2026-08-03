@@ -45,7 +45,7 @@ export function Navbar() {
         >
           <Image
             src="/lgu-logo.png"
-            alt="Sagisag ng Lungsod ng Kabanatuan"
+            alt="Sagisag ng Lungsod ng Cabanatuan"
             width={36}
             height={36}
             className="rounded-full"

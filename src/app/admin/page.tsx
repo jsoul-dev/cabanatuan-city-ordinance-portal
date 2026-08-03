@@ -80,7 +80,7 @@ export default async function AdminDashboardPage() {
               {totalBarangays}
             </div>
             <p className="text-xs text-[var(--text-mute)] mt-1">
-              Sa Lungsod ng Kabanatuan
+              Sa Lungsod ng Cabanatuan
             </p>
           </CardContent>
         </Card>

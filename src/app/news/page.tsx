@@ -8,7 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 export const metadata: Metadata = {
   title: "Mga Balita at Anunsyo - Cabanatuan City Law Portal",
   description:
-    "Mga pinakabagong balita, public hearings, at pamahalaang lokal na anunsyo mula sa Lungsod ng Kabanatuan at mga barangay.",
+    "Mga pinakabagong balita, public hearings, at pamahalaang lokal na anunsyo mula sa Lungsod ng Cabanatuan at mga barangay.",
 };
 
 export default async function NewsPage() {
@@ -33,7 +33,7 @@ export default async function NewsPage() {
               Mga Balita at Anunsyo
             </h1>
             <p className="mt-2 text-base text-[var(--text-body)]">
-              Subaybayan ang mga bagong ordinansa, public consultation, at mahahalagang pahayag mula sa LGU ng Kabanatuan at barangay.
+              Subaybayan ang mga bagong ordinansa, public consultation, at mahahalagang pahayag mula sa LGU ng Cabanatuan at barangay.
             </p>
           </div>
 

@@ -40,7 +40,7 @@ export default function LoginPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-[var(--text-faint)]">
-          Para sa mga mamamayan at opisyal ng Lungsod ng Kabanatuan
+          Para sa mga mamamayan at opisyal ng Lungsod ng Cabanatuan
         </p>
       </main>
     </div>

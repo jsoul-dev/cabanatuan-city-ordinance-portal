@@ -7,7 +7,7 @@ import { OrdinanceExplorerClient } from "./ordinance-explorer-client";
 export const metadata: Metadata = {
   title: "Mga Ordinansa",
   description:
-    "I-browse at i-search ang mga opisyal na ordinansa ng Lungsod ng Kabanatuan at mga barangay nito.",
+    "I-browse at i-search ang mga opisyal na ordinansa ng Lungsod ng Cabanatuan at mga barangay nito.",
 };
 
 /**
@@ -44,7 +44,7 @@ export default async function OrdinancesPage() {
           {/* Header */}
           <div className="mb-8">
             <p className="text-mono-eyebrow text-[var(--accent-primary)] mb-2">
-              Kabanatuan City Law Portal
+              Cabanatuan City Law Portal
             </p>
             <h1 className="text-heading-lg text-[var(--text-ink)]">
               Mga Ordinansa

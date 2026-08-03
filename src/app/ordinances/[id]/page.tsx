@@ -30,7 +30,7 @@ export async function generateMetadata({
     title: `${ord.title} - Res. No. ${ord.resolutionNumber} | Cabanatuan Law Portal`,
     description:
       ord.content?.slice(0, 160) ||
-      "Opisyal na ordinansa at batas lokal ng Lungsod ng Kabanatuan.",
+      "Opisyal na ordinansa at batas lokal ng Lungsod ng Cabanatuan.",
   };
 }
 

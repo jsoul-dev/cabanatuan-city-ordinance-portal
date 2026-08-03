@@ -1,5 +1,5 @@
 # 🏛️ Cabanatuan City Ordinance Portal  
-**Ang Opisyal na Digital na Portal ng mga Ordinansa at AI Civic Assistant ng Lungsod ng Kabanatuan**  
+**Ang Opisyal na Digital na Portal ng mga Ordinansa at AI Civic Assistant ng Lungsod ng Cabanatuan**  
 *The Official Cabanatuan City Legislative Information System & Bilingual AI Civic Portal*
 
 [![Next.js 16](https://img.shields.io/badge/Next.js%2016-Black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -17,7 +17,7 @@
 
 The **Cabanatuan City Ordinance Portal** is a production-grade, accessible, and AI-powered legislative transparency platform built for **Cabanatuan City** and its **89 Barangays** in Nueva Ecija, Philippines. 
 
-Designed to bridge the gap between local law enforcement and citizens, the portal democratizes public access to city resolutions, municipal ordinances, and barangay regulations through **full-text search**, an **AI-powered bilingual legal assistant ("Batas Kabanatuan AI")**, and **automated multimodal document parsing** for LGU administrators.
+Designed to bridge the gap between local law enforcement and citizens, the portal democratizes public access to city resolutions, municipal ordinances, and barangay regulations through **full-text search**, an **AI-powered bilingual legal assistant ("Batas Cabanatuan AI")**, and **automated multimodal document parsing** for LGU administrators.
 
 ---
 
@@ -29,7 +29,7 @@ Designed to bridge the gap between local law enforcement and citizens, the porta
 - **Bilingual Categorization:** Filter laws by Tagalog/English policy domains (e.g., *Kapayapaan at Kaayusan*, *Kalusugan at Sanitasyon*, *Kalakalan at Negosyo*, *Kapaligiran*).
 - **Split-Screen Document Viewer:** Inspect full legal text side-by-side with official PDF attachments and download signed copies.
 
-### 🤖 2. "Batas Kabanatuan AI" Civic Assistant
+### 🤖 2. "Batas Cabanatuan AI" Civic Assistant
 - **Bilingual Conversational AI:** Powered by Google's **Gemini 2.5 Flash Lite API**, citizens can ask complex legal questions in Tagalog, English, or Taglish.
 - **Grounded Legislative Responses:** Responses are dynamically injected with live context from the city's Prisma database, citing exact Resolution Numbers and sections.
 - **Streaming UI:** Real-time token streaming with accessible `aria-live` regions for screen readers.
@@ -190,6 +190,6 @@ This project adheres strictly to **WCAG 2.2 AA**, **ISO 9241-171**, and **ADA** 
 
 ## 📜 License & LGU Attribution
 
-Copyright © 2026 **Lungsod ng Kabanatuan** (Cabanatuan City Local Government Unit).  
+Copyright © 2026 **Lungsod ng Cabanatuan** (Cabanatuan City Local Government Unit).  
 Released under the **MIT License**.  
 Designed and developed for public civic transparency and accessible local governance.

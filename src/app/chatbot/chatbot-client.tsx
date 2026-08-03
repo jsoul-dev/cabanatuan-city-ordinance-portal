@@ -12,7 +12,7 @@ interface Message {
 }
 
 const SUGGESTED_QUESTIONS = [
-  "Ano ang parusa sa pagsusunog ng basura sa Kabanatuan?",
+  "Ano ang parusa sa pagsusunog ng basura sa Cabanatuan?",
   "Ano ang batas tungkol sa curfew ng mga menor de edad?",
   "Paano mag-report ng maingay na videoke tuwing gabi?",
   "Anong ordinansa ang nag-reregulate ng plastik sa merkado?",
@@ -24,7 +24,7 @@ export function ChatbotClient() {
       id: "welcome",
       role: "assistant",
       content:
-        "Mabuhay! Ako si **Batas Kabanatuan AI**, ang inyong kaagapay sa pag-intindi ng mga ordinansa at batas ng ating lungsod at barangay. Ano ang nais ninyong itanong ngayong araw?",
+        "Mabuhay! Ako si **Batas Cabanatuan AI**, ang inyong kaagapay sa pag-intindi ng mga ordinansa at batas ng ating lungsod at barangay. Ano ang nais ninyong itanong ngayong araw?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -108,7 +108,7 @@ export function ChatbotClient() {
           </div>
           <div>
             <h2 className="text-sm font-semibold text-[var(--text-ink)]">
-              Batas Kabanatuan AI
+              Batas Cabanatuan AI
             </h2>
             <p className="text-xs text-[var(--text-mute)]">
               Powered by Google Gemini • LGU Law RAG Engine
@@ -176,7 +176,7 @@ export function ChatbotClient() {
                   : "text-[var(--accent-primary)]"
               )}
             >
-              {msg.role === "user" ? "Ikaw" : "Batas Kabanatuan AI"}
+              {msg.role === "user" ? "Ikaw" : "Batas Cabanatuan AI"}
             </span>
             <div className="whitespace-pre-line">{msg.content}</div>
           </div>

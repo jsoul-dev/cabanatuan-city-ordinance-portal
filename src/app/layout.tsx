@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s | Cabanatuan City Ordinance Portal",
   },
   description:
-    "Ang opisyal na digital platform ng Lungsod ng Kabanatuan para sa mga ordinansa, AI citizen assistant, at community reporting. The official Cabanatuan City Ordinance Information Portal & AI Citizen Assistant.",
+    "Ang opisyal na digital platform ng Lungsod ng Cabanatuan para sa mga ordinansa, AI citizen assistant, at community reporting. The official Cabanatuan City Ordinance Information Portal & AI Citizen Assistant.",
   keywords: [
     "Cabanatuan City",
     "ordinance",

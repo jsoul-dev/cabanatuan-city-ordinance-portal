@@ -11,7 +11,7 @@ export const ai = new GoogleGenAI({
 export const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash-lite";
 
 // System prompt for the Cabanatuan City AI Citizen Assistant
-export const CITIZEN_ASSISTANT_PROMPT = `Ikaw ay isang AI assistant ng Lungsod ng Kabanatuan (Cabanatuan City), Nueva Ecija.
+export const CITIZEN_ASSISTANT_PROMPT = `Ikaw ay isang AI assistant ng Lungsod ng Cabanatuan (Cabanatuan City), Nueva Ecija.
 Ang iyong pangalan ay "Ordinance Hub Assistant" at ikaw ay nakatuon sa pagtulong sa mga mamamayan tungkol sa:
 
 1. Mga ordinansa ng lungsod at barangay (local ordinances)

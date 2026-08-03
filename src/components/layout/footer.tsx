@@ -40,9 +40,9 @@ export function Footer() {
               Cabanatuan City Ordinance Portal
             </p>
             <p className="mt-2 text-xs text-[var(--text-mute)]">
-              Lungsod ng Kabanatuan, Nueva Ecija
+              Lungsod ng Cabanatuan, Nueva Ecija
               <br />
-              Sagisag ng Lungsod ng Kabanatuan 1950
+              Sagisag ng Lungsod ng Cabanatuan 1950
             </p>
           </div>
 
@@ -74,7 +74,7 @@ export function Footer() {
         {/* Copyright */}
         <div className="mt-10 border-t border-[var(--border-hairline)] pt-6">
           <p className="text-xs text-[var(--text-faint)] text-center">
-            © {new Date().getFullYear()} Lungsod ng Kabanatuan. Lahat ng
+            © {new Date().getFullYear()} Lungsod ng Cabanatuan. Lahat ng
             karapatan ay nakalaan.
           </p>
         </div>

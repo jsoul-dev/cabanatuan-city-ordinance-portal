@@ -29,7 +29,7 @@ export default async function ReportPage() {
               Mag-ulat sa Barangay
             </h1>
             <p className="mt-2 text-base text-[var(--text-body)]">
-              Ang inyong ulat ay direktang ipararating sa kinauukulang Barangay Hall ng Kabanatuan. Ang inyong draft ay awtomatikong nai-save sa inyong device.
+              Ang inyong ulat ay direktang ipararating sa kinauukulang Barangay Hall ng Cabanatuan. Ang inyong draft ay awtomatikong nai-save sa inyong device.
             </p>
           </div>
 

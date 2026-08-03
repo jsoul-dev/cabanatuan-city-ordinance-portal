@@ -68,13 +68,13 @@ export default async function LandingPage() {
             <div className="flex flex-col items-center text-center">
               {/* Geist Mono Technical Eyebrow */}
               <p className="text-mono-eyebrow text-[var(--accent-primary)] mb-4">
-                Lungsod ng Kabanatuan • Nueva Ecija
+                Lungsod ng Cabanatuan • Nueva Ecija
               </p>
 
               {/* LGU Seal */}
               <Image
                 src="/lgu-logo.png"
-                alt="Sagisag ng Lungsod ng Kabanatuan 1950"
+                alt="Sagisag ng Lungsod ng Cabanatuan 1950"
                 width={96}
                 height={96}
                 className="mb-6 rounded-full shadow-lg"
@@ -93,7 +93,7 @@ export default async function LandingPage() {
               {/* Subheading */}
               <p className="max-w-xl text-lg text-[var(--text-body)] mb-8">
                 Gawing accessible at transparent ang mga local na batas para sa
-                bawat mamamayan ng Kabanatuan.
+                bawat mamamayan ng Cabanatuan.
               </p>
 
               {/* CTA Buttons — Geist pill buttons */}
@@ -178,7 +178,7 @@ export default async function LandingPage() {
             </h2>
             <p className="text-[var(--text-body)] mb-8 max-w-lg mx-auto">
               Alamin ang iyong mga karapatan at tungkulin bilang mamamayan ng
-              Kabanatuan.
+              Cabanatuan.
             </p>
             <Link href="/ordinances">
               <Button variant="primary" size="lg">
