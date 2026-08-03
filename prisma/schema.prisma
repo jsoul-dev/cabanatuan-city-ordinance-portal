@@ -1,0 +1,174 @@
+// Cabanatuan City Ordinance Hub — Prisma Schema
+// PostgreSQL on Supabase (Project: odszkhqvbhjbijqztchi)
+// Prisma 7: Connection URLs moved to prisma.config.ts
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  CITIZEN
+  CAPTAIN
+  SECRETARY
+  KAGAWAD
+  LGU_ADMIN
+}
+
+enum OrdinanceType {
+  BARANGAY
+  CITY
+}
+
+enum OrdinanceStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ReportType {
+  TRASH_BURNING
+  NOISE
+  ROAD_OBSTRUCTION
+  OTHER
+}
+
+enum ReportStatus {
+  NEW
+  IN_PROGRESS
+  RESOLVED
+  DISMISSED
+}
+
+enum NewsCategory {
+  CITY
+  BARANGAY
+}
+
+// ─── Models ─────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  role         UserRole @default(CITIZEN)
+
+  barangayId String?   @map("barangay_id")
+  barangay   Barangay? @relation(fields: [barangayId], references: [id], onDelete: SetNull)
+
+  submittedOrdinances Ordinance[] @relation("SubmittedBy")
+  reviewedOrdinances  Ordinance[] @relation("ReviewedBy")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([role])
+  @@index([barangayId])
+  @@map("users")
+}
+
+model Barangay {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+
+  users      User[]
+  ordinances Ordinance[]
+  reports    Report[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("barangays")
+}
+
+model Ordinance {
+  id               String          @id @default(cuid())
+  title            String
+  resolutionNumber String          @map("resolution_number")
+  series           String?
+  type             OrdinanceType   @default(BARANGAY)
+  status           OrdinanceStatus @default(DRAFT)
+
+  content      String? @db.Text
+  penalties    String? @db.Text
+  signatories  String? @db.Text
+  pdfUrl       String? @map("pdf_url")
+
+  barangayId String?   @map("barangay_id")
+  barangay   Barangay? @relation(fields: [barangayId], references: [id], onDelete: SetNull)
+
+  submittedById String @map("submitted_by_id")
+  submittedBy   User   @relation("SubmittedBy", fields: [submittedById], references: [id])
+
+  reviewedById   String?   @map("reviewed_by_id")
+  reviewedBy     User?     @relation("ReviewedBy", fields: [reviewedById], references: [id])
+  approvedAt     DateTime? @map("approved_at")
+  rejectedReason String?   @map("rejected_reason")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([type])
+  @@index([barangayId])
+  @@index([submittedById])
+  @@map("ordinances")
+}
+
+model Report {
+  id          String       @id @default(cuid())
+  type        ReportType
+  description String       @db.Text
+  photoUrl    String?      @map("photo_url")
+
+  contactName  String? @map("contact_name")
+  contactPhone String? @map("contact_phone")
+  isAnonymous  Boolean @default(false) @map("is_anonymous")
+
+  status ReportStatus @default(NEW)
+
+  barangayId String   @map("barangay_id")
+  barangay   Barangay @relation(fields: [barangayId], references: [id])
+
+  submittedAt DateTime  @default(now()) @map("submitted_at")
+  resolvedAt  DateTime? @map("resolved_at")
+
+  @@index([status])
+  @@index([barangayId])
+  @@index([type])
+  @@map("reports")
+}
+
+model NewsItem {
+  id       String       @id @default(cuid())
+  title    String
+  content  String       @db.Text
+  category NewsCategory @default(CITY)
+  isPinned Boolean      @default(false) @map("is_pinned")
+
+  publishedAt DateTime  @default(now()) @map("published_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([isPinned])
+  @@map("news_items")
+}
+
+model ChatSession {
+  id       String   @id @default(cuid())
+  userId   String?  @map("user_id")
+  messages Json     @default("[]")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("chat_sessions")
+}
