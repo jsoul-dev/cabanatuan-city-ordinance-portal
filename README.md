@@ -159,9 +159,17 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to view the portal.
 
+> **💡 Windows Shortcut (`manage.bat`):**  
+> On Windows, you can double-click **`manage.bat`** in the project root to open an interactive menu for managing servers, or run direct CLI commands in Command Prompt/PowerShell:  
+> - `manage.bat dev` (Start development server on port 3000)  
+> - `manage.bat prod` (Build & launch optimized production server)  
+> - `manage.bat studio` (Open Prisma Studio database manager on port 5555)  
+> - `manage.bat stop` (Kill any active portal servers)  
+
 ---
 
 ## 📦 Production Build
+
 
 To verify and compile an optimized production bundle:
 
