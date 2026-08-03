@@ -55,7 +55,7 @@ export default async function OrdinanceDetailPage({
     <>
       <Navbar />
 
-      <main id="main-content" className="flex-1 py-12">
+      <main id="main-content" className="flex-1 py-12 bg-[var(--bg-canvas)] text-[var(--text-ink)] transition-colors duration-300">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <nav aria-label="Breadcrumb" className="mb-6">

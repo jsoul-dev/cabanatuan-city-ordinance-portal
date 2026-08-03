@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ═══════════════════════════════════════════════════════════════════════════
    Cabanatuan City Ordinance Hub — Design System
    Merges: Cabanatuan LGU Official Seal Colors + Vercel Geist Structure

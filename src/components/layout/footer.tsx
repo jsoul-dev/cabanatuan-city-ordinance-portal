@@ -23,30 +23,30 @@ const footerLinks = {
 };
 
 /**
- * Site footer — winauth.net-inspired obsidian/emerald design.
- * Multi-column link groups, top hairline border-white/10, high-contrast links.
+ * Site footer — supports both Light Mode and winauth.net Dark Mode.
+ * High-contrast text and clean borders across themes.
  */
 export function Footer() {
   return (
     <footer
-      className="mt-auto border-t border-white/10 bg-[#050a08] text-neutral-400"
+      className="mt-auto border-t border-neutral-200 bg-neutral-50 text-neutral-600 dark:border-white/10 dark:bg-[#050a08] dark:text-neutral-400 transition-colors"
       role="contentinfo"
     >
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 font-mono text-xs font-bold text-white">
+            <div className="flex items-center gap-2 font-mono text-xs font-bold text-neutral-900 dark:text-white">
               <span>🏛️</span>
               <span>cabanatuan.gov.ph</span>
             </div>
-            <p className="mt-2 text-xs leading-relaxed text-neutral-500">
+            <p className="mt-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-500">
               Lungsod ng Cabanatuan, Nueva Ecija
               <br />
               Official Digital Ordinance Portal & AI Citizen Assistant
             </p>
-            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-[10px] text-emerald-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-2.5 py-1 font-mono text-[10px] text-emerald-700 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-emerald-400 dark:shadow-none">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
               <span>RLS SECURED • 75 BARANGAYS</span>
             </div>
           </div>
@@ -54,7 +54,7 @@ export function Footer() {
           {/* Link Columns */}
           {Object.entries(footerLinks).map(([title, links]) => (
             <div key={title}>
-              <h4 className="font-mono text-xs font-semibold tracking-wider text-white uppercase mb-3">
+              <h4 className="font-mono text-xs font-semibold tracking-wider text-neutral-900 dark:text-white uppercase mb-3">
                 {title}
               </h4>
               <ul className="space-y-2">
@@ -62,7 +62,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-xs text-neutral-400 hover:text-emerald-400 transition-colors"
+                      className="text-xs text-neutral-600 hover:text-emerald-600 dark:text-neutral-400 dark:hover:text-emerald-400 transition-colors"
                       {...("external" in link && link.external
                         ? {
                             target: "_blank",
@@ -80,7 +80,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 border-t border-white/10 pt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
+        <div className="mt-12 border-t border-neutral-200 dark:border-white/10 pt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="text-xs text-neutral-500">
             © {new Date().getFullYear()} Cabanatuan City LGU. All rights
             reserved.
