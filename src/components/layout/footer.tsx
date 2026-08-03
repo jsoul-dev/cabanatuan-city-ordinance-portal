@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const footerLinks = {
   "Mga Serbisyo": [
@@ -14,7 +15,12 @@ const footerLinks = {
   ],
   "Impormasyon": [
     {
-      href: "https://www.facebook.com/CabanatuanCityGovernment",
+      href: "https://www.cabanatuancity.gov.ph/",
+      label: "LGU Website",
+      external: true,
+    },
+    {
+      href: "https://www.facebook.com/lgucabanatuan/",
       label: "Facebook",
       external: true,
     },
@@ -24,7 +30,7 @@ const footerLinks = {
 
 /**
  * Site footer — supports both Light Mode and winauth.net Dark Mode.
- * High-contrast text and clean borders across themes.
+ * High-contrast text, official Cabanatuan LGU Seal, and official city links.
  */
 export function Footer() {
   return (
@@ -37,8 +43,18 @@ export function Footer() {
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 font-mono text-xs font-bold text-neutral-900 dark:text-white">
-              <span>🏛️</span>
-              <span>cabanatuan.gov.ph</span>
+              <Image
+                src="/lgu-logo.png"
+                alt="Cabanatuan City LGU Seal"
+                width={22}
+                height={22}
+                className="h-5.5 w-5.5 object-contain"
+              />
+              <span>Cabanatuan City</span>
+              <span className="text-neutral-400 dark:text-neutral-500">/</span>
+              <span className="text-emerald-600 dark:text-emerald-400">
+                Ordinance Portal
+              </span>
             </div>
             <p className="mt-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-500">
               Lungsod ng Cabanatuan, Nueva Ecija
@@ -82,8 +98,8 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 border-t border-neutral-200 dark:border-white/10 pt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="text-xs text-neutral-500">
-            © {new Date().getFullYear()} Cabanatuan City LGU. All rights
-            reserved.
+            © {new Date().getFullYear()} Pamahalaang Lungsod ng Cabanatuan. All
+            rights reserved.
           </p>
           <div className="flex items-center gap-4 font-mono text-xs text-neutral-500">
             <span>WCAG 2.2 AA</span>

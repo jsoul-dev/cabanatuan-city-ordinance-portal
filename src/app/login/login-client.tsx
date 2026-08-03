@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useTheme } from "next-themes";
 import { LoginForm } from "./login-form";
 
@@ -54,17 +55,24 @@ export function LoginClient() {
               href="/"
               className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-lg shadow-emerald-500/20">
-                <span className="text-base" aria-hidden="true">
-                  🏛️
-                </span>
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/95 p-1 shadow-md shadow-emerald-500/10 border border-neutral-200/60 dark:border-white/10 dark:bg-white/10">
+                <Image
+                  src="/lgu-logo.png"
+                  alt="Cabanatuan City LGU Seal"
+                  width={28}
+                  height={28}
+                  className="h-full w-full object-contain"
+                  priority
+                />
               </div>
-              <div className="flex items-center gap-2 font-mono text-sm tracking-tight">
+              <div className="flex items-center gap-1.5 font-mono text-xs tracking-tight">
                 <span className="font-bold text-neutral-900 dark:text-white">
-                  cabanatuan.gov.ph
+                  Cabanatuan City
                 </span>
-                <span className="text-neutral-500">/</span>
-                <span className="text-neutral-400">ordinance-portal</span>
+                <span className="text-neutral-400 dark:text-neutral-500">/</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                  Ordinance Portal
+                </span>
               </div>
             </Link>
 

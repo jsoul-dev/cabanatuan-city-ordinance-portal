@@ -1,21 +1,23 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useState, useEffect } from "react";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/ordinances", label: "Mga Ordinansa" },
+  { href: "/ordinances", label: "Ordinances" },
   { href: "/chatbot", label: "AI Assistant" },
-  { href: "/report", label: "Mag-report" },
-  { href: "/news", label: "Balita" },
+  { href: "/report", label: "Report" },
+  { href: "/news", label: "News" },
 ];
 
 /**
  * Main navigation bar — supports both crisp Light Mode and winauth.net Dark Mode.
- * Includes interactive Light / Dark Theme Toggle button and high-contrast auth CTA.
+ * Displays official Cabanatuan City LGU Seal and "Cabanatuan City / Ordinance Portal" branding.
+ * Includes interactive Light / Dark Theme Toggle button and high-contrast Portal Access CTA.
  */
 export function Navbar() {
   const pathname = usePathname();
@@ -43,18 +45,23 @@ export function Navbar() {
           href="/"
           className="flex items-center gap-2.5 no-underline transition-opacity hover:opacity-80"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-md shadow-emerald-500/20">
-            <span className="text-sm" aria-hidden="true">
-              🏛️
-            </span>
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/95 p-1 shadow-md shadow-emerald-500/10 border border-neutral-200/60 dark:border-white/10 dark:bg-white/10">
+            <Image
+              src="/lgu-logo.png"
+              alt="Cabanatuan City LGU Seal"
+              width={28}
+              height={28}
+              className="h-full w-full object-contain"
+              priority
+            />
           </div>
           <div className="flex items-center gap-1.5 font-mono text-xs tracking-tight">
             <span className="font-bold text-neutral-900 dark:text-white">
-              cabanatuan.gov.ph
+              Cabanatuan City
             </span>
             <span className="text-neutral-400 dark:text-neutral-500">/</span>
             <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-              portal
+              Ordinance Portal
             </span>
           </div>
         </Link>
@@ -81,7 +88,7 @@ export function Navbar() {
           })}
         </div>
 
-        {/* Right Side: Theme Toggle + Auth CTAs */}
+        {/* Right Side: Theme Toggle + Portal Access CTA */}
         <div className="hidden items-center gap-3 md:flex">
           {/* Theme Toggle Button */}
           {mounted && (
@@ -94,13 +101,6 @@ export function Navbar() {
               <span>{isDark ? "☀️ Light" : "🌙 Dark"}</span>
             </button>
           )}
-
-          <Link
-            href="/login"
-            className="text-xs font-medium text-neutral-600 hover:text-emerald-600 dark:text-neutral-300 dark:hover:text-emerald-400 transition-colors"
-          >
-            Sign In
-          </Link>
 
           <Link href="/login">
             <button
@@ -164,13 +164,6 @@ export function Navbar() {
               </Link>
             ))}
             <div className="mt-3 border-t border-neutral-200 dark:border-white/10 pt-3 flex flex-col gap-2">
-              <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-center rounded-xl border border-neutral-200 bg-neutral-100 py-2 text-sm font-medium text-neutral-900 dark:border-white/10 dark:bg-white/5 dark:text-white"
-              >
-                Sign In
-              </Link>
               <Link
                 href="/login"
                 onClick={() => setMobileMenuOpen(false)}
