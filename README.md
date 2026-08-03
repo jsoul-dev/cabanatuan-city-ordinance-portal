@@ -8,8 +8,8 @@
 [![Prisma ORM](https://img.shields.io/badge/Prisma_7-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
 [![Supabase](https://img.shields.io/badge/Supabase_PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Google Gemini AI](https://img.shields.io/badge/Google_Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
-[![WCAG 2.2 AA Certified](https://img.shields.io/badge/A11Y-WCAG_2.2_AA_Certified-047857?style=for-the-badge)](./REPORT.md)
-[![License: MIT](https://img.shields.io/badge/License-MIT-amber.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![WCAG 2.2 AA Certified](https://img.shields.io/badge/A11Y-WCAG_2.2_AA_Certified-047857?style=for-the-badge)](#-accessibility--quality-assurance)
+[![License: MIT](https://img.shields.io/badge/License-MIT-amber.svg?style=for-the-badge)](./LICENSE)
 
 ---
 
@@ -183,7 +183,7 @@ The system will perform full TypeScript type verification, linting, and generate
 
 ## ♿ Accessibility & Quality Assurance
 This project adheres strictly to **WCAG 2.2 AA**, **ISO 9241-171**, and **ADA** accessibility baselines.
-- Read the formal conformance verification report: **[REPORT.md](./REPORT.md)**.
+- Adheres to WCAG 2.2 AA standards with keyboard navigation, high-contrast themes, and aria-live regions.
 - Enforces House Rules for ergonomic touch targets (≥44×44px) and bilingual Tagalog/English ARIA labels.
 
 ---
