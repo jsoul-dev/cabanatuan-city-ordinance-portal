@@ -3,11 +3,15 @@
 import { useActionState, useState } from "react";
 import { login, type LoginResult } from "@/lib/auth-actions";
 
+interface LoginFormProps {
+  theme?: "dark" | "light";
+}
+
 /**
  * Premium Login Form — modeled after ultra-sleek dark glassmorphic auth portals (winauth.net style).
- * Includes quick-fill test account chips for instant 1-click role testing.
+ * Includes theme support (Dark / Light toggle) and quick-fill test account chips for instant 1-click role testing.
  */
-export function LoginForm() {
+export function LoginForm({ theme = "dark" }: LoginFormProps) {
   const [state, formAction, isPending] = useActionState<
     LoginResult | undefined,
     FormData
@@ -15,6 +19,8 @@ export function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const isDark = theme === "dark";
 
   const handleQuickFill = (roleEmail: string) => {
     setEmail(roleEmail);
@@ -28,14 +34,14 @@ export function LoginForm() {
         {state?.error && (
           <div
             role="alert"
-            className="flex items-center gap-2.5 rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-sm text-red-400"
+            className="flex items-center gap-2.5 rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-sm text-red-500 font-medium"
           >
             <svg
               width="16"
               height="16"
               viewBox="0 0 16 16"
               fill="currentColor"
-              className="shrink-0 text-red-400"
+              className="shrink-0 text-red-500"
               aria-hidden="true"
             >
               <path d="M8 1a7 7 0 110 14A7 7 0 018 1zm0 10.5a.75.75 0 100 1.5.75.75 0 000-1.5zM8 4a.75.75 0 00-.75.75v4.5a.75.75 0 001.5 0v-4.5A.75.75 0 008 4z" />
@@ -48,7 +54,9 @@ export function LoginForm() {
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="email-input"
-            className="text-xs font-semibold text-neutral-300"
+            className={`text-xs font-semibold ${
+              isDark ? "text-neutral-300" : "text-neutral-700"
+            }`}
           >
             Email
           </label>
@@ -62,7 +70,11 @@ export function LoginForm() {
             autoComplete="email"
             required
             disabled={isPending}
-            className="w-full rounded-xl border border-white/10 bg-[#121815]/90 px-4 py-3 text-sm text-white placeholder-neutral-500 outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50"
+            className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50 ${
+              isDark
+                ? "border-white/10 bg-[#121815]/90 text-white placeholder-neutral-500"
+                : "border-neutral-300 bg-white text-neutral-900 placeholder-neutral-400 shadow-sm"
+            }`}
           />
         </div>
 
@@ -71,11 +83,19 @@ export function LoginForm() {
           <div className="flex items-center justify-between">
             <label
               htmlFor="password-input"
-              className="text-xs font-semibold text-neutral-300"
+              className={`text-xs font-semibold ${
+                isDark ? "text-neutral-300" : "text-neutral-700"
+              }`}
             >
               Password
             </label>
-            <span className="cursor-pointer text-xs text-neutral-400 hover:text-emerald-400 transition-colors">
+            <span
+              className={`cursor-pointer text-xs transition-colors ${
+                isDark
+                  ? "text-neutral-400 hover:text-emerald-400"
+                  : "text-neutral-500 hover:text-emerald-600"
+              }`}
+            >
               Forgot password?
             </span>
           </div>
@@ -89,20 +109,28 @@ export function LoginForm() {
             autoComplete="current-password"
             required
             disabled={isPending}
-            className="w-full rounded-xl border border-white/10 bg-[#121815]/90 px-4 py-3 text-sm text-white placeholder-neutral-500 outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50"
+            className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50 ${
+              isDark
+                ? "border-white/10 bg-[#121815]/90 text-white placeholder-neutral-500"
+                : "border-neutral-300 bg-white text-neutral-900 placeholder-neutral-400 shadow-sm"
+            }`}
           />
         </div>
 
-        {/* Sleek High-Contrast White Button (winauth.net style) */}
+        {/* Sleek High-Contrast Button (winauth.net style) */}
         <button
           type="submit"
           disabled={isPending}
-          className="mt-2 flex w-full items-center justify-center rounded-xl bg-white px-4 py-3.5 text-sm font-semibold text-black shadow-lg shadow-white/5 transition-all duration-200 hover:bg-neutral-200 active:scale-[0.99] disabled:opacity-60"
+          className={`mt-2 flex w-full items-center justify-center rounded-xl px-4 py-3.5 text-sm font-semibold shadow-lg transition-all duration-200 active:scale-[0.99] disabled:opacity-60 ${
+            isDark
+              ? "bg-white text-black shadow-white/5 hover:bg-neutral-200"
+              : "bg-[#0a0f0d] text-white shadow-neutral-900/10 hover:bg-neutral-800"
+          }`}
         >
           {isPending ? (
             <span className="flex items-center gap-2">
               <svg
-                className="h-4 w-4 animate-spin text-black"
+                className="h-4 w-4 animate-spin"
                 viewBox="0 0 24 24"
                 fill="none"
                 aria-hidden="true"
@@ -130,12 +158,24 @@ export function LoginForm() {
       </form>
 
       {/* Quick-Fill Test Accounts Selector */}
-      <div className="mt-2 border-t border-white/10 pt-5">
+      <div
+        className={`mt-2 border-t pt-5 ${
+          isDark ? "border-white/10" : "border-neutral-200"
+        }`}
+      >
         <div className="mb-2.5 flex items-center justify-between">
-          <span className="text-[11px] font-medium tracking-wide text-neutral-400 uppercase">
+          <span
+            className={`text-[11px] font-medium tracking-wide uppercase ${
+              isDark ? "text-neutral-400" : "text-neutral-500"
+            }`}
+          >
             Quick-Fill Test Accounts
           </span>
-          <span className="text-[10px] text-emerald-400 font-mono">
+          <span
+            className={`text-[10px] font-mono ${
+              isDark ? "text-emerald-400" : "text-emerald-700 font-bold"
+            }`}
+          >
             CLICK TO AUTO-FILL
           </span>
         </div>
@@ -144,12 +184,26 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => handleQuickFill("admin@cabanatuan.gov.ph")}
-            className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-xs text-neutral-300 transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
+            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs transition-all ${
+              isDark
+                ? "border-white/10 bg-white/5 text-neutral-300 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
+                : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900"
+            }`}
           >
-            <span className="text-emerald-400 font-bold">🏛️</span>
+            <span className="text-emerald-500 font-bold">🏛️</span>
             <div>
-              <div className="font-semibold text-white">LGU Admin</div>
-              <div className="text-[10px] text-neutral-400 truncate">
+              <div
+                className={`font-semibold ${
+                  isDark ? "text-white" : "text-neutral-900"
+                }`}
+              >
+                LGU Admin
+              </div>
+              <div
+                className={`text-[10px] truncate ${
+                  isDark ? "text-neutral-400" : "text-neutral-500"
+                }`}
+              >
                 admin@cabanatuan
               </div>
             </div>
@@ -158,12 +212,26 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => handleQuickFill("captain.kapitan@cabanatuan.gov.ph")}
-            className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-xs text-neutral-300 transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
+            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs transition-all ${
+              isDark
+                ? "border-white/10 bg-white/5 text-neutral-300 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
+                : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900"
+            }`}
           >
-            <span className="text-emerald-400 font-bold">🛡️</span>
+            <span className="text-emerald-500 font-bold">🛡️</span>
             <div>
-              <div className="font-semibold text-white">Captain</div>
-              <div className="text-[10px] text-neutral-400 truncate">
+              <div
+                className={`font-semibold ${
+                  isDark ? "text-white" : "text-neutral-900"
+                }`}
+              >
+                Captain
+              </div>
+              <div
+                className={`text-[10px] truncate ${
+                  isDark ? "text-neutral-400" : "text-neutral-500"
+                }`}
+              >
                 captain.kapitan@
               </div>
             </div>
@@ -174,12 +242,26 @@ export function LoginForm() {
             onClick={() =>
               handleQuickFill("secretary.kalihim@cabanatuan.gov.ph")
             }
-            className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-xs text-neutral-300 transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
+            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs transition-all ${
+              isDark
+                ? "border-white/10 bg-white/5 text-neutral-300 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
+                : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900"
+            }`}
           >
-            <span className="text-emerald-400 font-bold">📋</span>
+            <span className="text-emerald-500 font-bold">📋</span>
             <div>
-              <div className="font-semibold text-white">Secretary</div>
-              <div className="text-[10px] text-neutral-400 truncate">
+              <div
+                className={`font-semibold ${
+                  isDark ? "text-white" : "text-neutral-900"
+                }`}
+              >
+                Secretary
+              </div>
+              <div
+                className={`text-[10px] truncate ${
+                  isDark ? "text-neutral-400" : "text-neutral-500"
+                }`}
+              >
                 secretary.kalihim@
               </div>
             </div>
@@ -188,12 +270,26 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => handleQuickFill("citizen@cabanatuan.gov.ph")}
-            className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-xs text-neutral-300 transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
+            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs transition-all ${
+              isDark
+                ? "border-white/10 bg-white/5 text-neutral-300 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
+                : "border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900"
+            }`}
           >
-            <span className="text-emerald-400 font-bold">👤</span>
+            <span className="text-emerald-500 font-bold">👤</span>
             <div>
-              <div className="font-semibold text-white">Citizen</div>
-              <div className="text-[10px] text-neutral-400 truncate">
+              <div
+                className={`font-semibold ${
+                  isDark ? "text-white" : "text-neutral-900"
+                }`}
+              >
+                Citizen
+              </div>
+              <div
+                className={`text-[10px] truncate ${
+                  isDark ? "text-neutral-400" : "text-neutral-500"
+                }`}
+              >
                 citizen@cabanatuan
               </div>
             </div>

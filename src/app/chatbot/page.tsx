@@ -4,30 +4,42 @@ import { Footer } from "@/components/layout/footer";
 import { ChatbotClient } from "./chatbot-client";
 
 export const metadata: Metadata = {
-  title: "AI Citizen Assistant - Batas Cabanatuan AI",
+  title: "AI Citizen Assistant | Batas Cabanatuan AI",
   description:
     "Magtanong nang libre kay Batas Cabanatuan AI tungkol sa mga ordinansa, curfew, basura, at batas ng Cabanatuan.",
 };
 
 export default function ChatbotPage() {
   return (
-    <>
+    <div className="min-h-screen bg-[#050807] text-white selection:bg-emerald-500 selection:text-black">
       <Navbar />
 
       <main
         id="main-content"
-        className="flex-1 py-8 bg-[var(--bg-canvas)] min-h-[calc(100vh-140px)]"
+        className="relative flex-1 overflow-hidden py-12 min-h-[calc(100vh-140px)]"
       >
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-6 text-center">
-            <p className="text-mono-eyebrow text-[var(--accent-primary)] mb-1">
+        {/* Aurora Glow & Scanlines */}
+        <div
+          className="pointer-events-none absolute right-1/4 top-10 h-[500px] w-[500px] rounded-full bg-emerald-600/15 blur-[140px]"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_30%,#000_70%,transparent_100%)]"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 text-center">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-xs font-semibold tracking-widest text-emerald-400 uppercase">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>AI LEGAL & CIVIC ASSISTANT • TAGALOG / ENGLISH</span>
+            </div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
               Batas Cabanatuan AI
-            </p>
-            <h1 className="text-heading-lg text-[var(--text-ink)]">
-              AI Legal & Civic Assistant
             </h1>
-            <p className="mt-2 text-sm sm:text-base text-[var(--text-body)] max-w-xl mx-auto">
-              May katanungan tungkol sa ordinansa ng lungsod o inyong barangay? Magtanong gamit ang wikang Tagalog o English.
+            <p className="mt-3 text-sm leading-relaxed text-neutral-400 sm:text-base max-w-xl mx-auto">
+              May katanungan tungkol sa ordinansa ng lungsod o inyong barangay?
+              Magtanong kay Batas AI at makakuha ng sagot na may kasamang citation.
             </p>
           </div>
 
@@ -36,6 +48,6 @@ export default function ChatbotPage() {
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }

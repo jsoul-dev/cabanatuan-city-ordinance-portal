@@ -2,13 +2,8 @@ import { clsx } from "clsx";
 import { forwardRef, type HTMLAttributes } from "react";
 
 /**
- * Card component — Geist feature-card spec.
- * Hairline-bordered white surface on near-white canvas.
- *
- * Variants:
- * - default: Flat hairline border (Geist Level 0)
- * - elevated: Hairline + whisper shadow (Geist Level 1)
- * - floating: Hairline + floating shadow (Geist Level 2 — menus/modals)
+ * Card component — winauth.net-inspired glassmorphic obsidian card.
+ * Hairline-bordered surface with ambient emerald shadow glow in dark mode.
  */
 
 const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
@@ -18,6 +13,7 @@ const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
       className={clsx(
         "rounded-[var(--radius-md)] border border-[var(--border-hairline)]",
         "bg-[var(--bg-card)] text-[var(--text-ink)]",
+        "dark:border-white/10 dark:bg-[#0a0f0d]/90 dark:backdrop-blur-xl dark:shadow-xl dark:shadow-emerald-950/30",
         className
       )}
       {...props}
@@ -44,7 +40,7 @@ const CardTitle = forwardRef<
   <h3
     ref={ref}
     className={clsx(
-      "text-lg font-semibold tracking-tight text-[var(--text-ink)]",
+      "text-lg font-semibold tracking-tight text-[var(--text-ink)] dark:text-white",
       className
     )}
     {...props}
@@ -58,7 +54,10 @@ const CardDescription = forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={clsx("text-sm text-[var(--text-body)]", className)}
+    className={clsx(
+      "text-sm text-[var(--text-body)] dark:text-neutral-400 leading-relaxed",
+      className
+    )}
     {...props}
   />
 ));
@@ -82,4 +81,11 @@ const CardFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
 );
 CardFooter.displayName = "CardFooter";
 
-export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter };
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+};

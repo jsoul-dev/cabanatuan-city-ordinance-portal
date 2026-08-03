@@ -12,8 +12,7 @@ export const metadata: Metadata = {
 
 /**
  * Ordinance Explorer Page (Server Component).
- * Fetches all approved ordinances and barangays from the database
- * and passes them to the client interactive explorer.
+ * Styled with winauth.net dark aurora aesthetic and monospace headers.
  */
 export default async function OrdinancesPage() {
   const [ordinances, barangays] = await Promise.all([
@@ -36,22 +35,33 @@ export default async function OrdinancesPage() {
   ]);
 
   return (
-    <>
+    <div className="min-h-screen bg-[#050807] text-white selection:bg-emerald-500 selection:text-black">
       <Navbar />
 
-      <main id="main-content" className="flex-1 py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <main id="main-content" className="relative flex-1 overflow-hidden py-12">
+        {/* Aurora Glow & Scanlines */}
+        <div
+          className="pointer-events-none absolute left-1/3 top-0 h-[500px] w-[500px] rounded-full bg-emerald-600/15 blur-[140px]"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_30%,#000_70%,transparent_100%)]"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="mb-8">
-            <p className="text-mono-eyebrow text-[var(--accent-primary)] mb-2">
-              Cabanatuan City Law Portal
-            </p>
-            <h1 className="text-heading-lg text-[var(--text-ink)]">
-              Mga Ordinansa
+          <div className="mb-10">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-xs font-semibold tracking-widest text-emerald-400 uppercase">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Cabanatuan City Municipal Code</span>
+            </div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
+              Mga Ordinansa at Batas
             </h1>
-            <p className="mt-2 max-w-2xl text-base text-[var(--text-body)]">
-              Hanapin ang mga batas at patakarang nagpapairal sa kaayusan at
-              kaunlaran ng ating lungsod at barangay.
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-400 sm:text-base">
+              Hanapin ang mga batas, resolusyon, at patakarang nagpapairal sa
+              kaayusan at kaunlaran ng ating lungsod at 75 barangay nito.
             </p>
           </div>
 
@@ -64,6 +74,6 @@ export default async function OrdinancesPage() {
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }

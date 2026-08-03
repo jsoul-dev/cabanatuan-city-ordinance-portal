@@ -51,25 +51,22 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[var(--bg-canvas)] text-[var(--text-ink)]">
+      <body className="min-h-full flex flex-col bg-[var(--bg-canvas)] text-[var(--text-ink)] selection:bg-emerald-500 selection:text-black">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
-          {/* A11Y: Skip-to-content link — keyboard users can bypass nav */}
-          <a href="#main-content" className="skip-link">
-            Pumunta sa pangunahing nilalaman
-          </a>
-
           {children}
-
           <Toaster
             position="bottom-right"
             toastOptions={{
-              className:
-                "!bg-[var(--bg-card)] !text-[var(--text-ink)] !border-[var(--border-hairline)]",
+              style: {
+                background: "var(--bg-card)",
+                color: "var(--text-ink)",
+                border: "1px solid var(--border-hairline)",
+              },
             }}
           />
         </ThemeProvider>
