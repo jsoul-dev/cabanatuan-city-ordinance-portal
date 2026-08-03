@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { verifyToken } from "@/lib/auth";
+import { verifyToken } from "@/lib/jwt";
 
 // Routes that require authentication and their allowed roles
 const PROTECTED_ROUTES: Record<string, string[]> = {
