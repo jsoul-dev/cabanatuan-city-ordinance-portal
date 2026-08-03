@@ -296,6 +296,94 @@ export default async function LandingPage() {
           </div>
         </section>
 
+        {/* ─── Emergency Hotlines Directory ─────────────────────────────── */}
+        <section className="border-t border-neutral-200 bg-red-50/40 py-16 dark:border-white/10 dark:bg-red-950/15">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-10 text-center">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-red-600/30 bg-red-500/10 px-3 py-1 font-mono text-xs font-semibold tracking-widest text-red-700 dark:border-red-500/30 dark:text-red-400 uppercase">
+                <span className="h-1.5 w-1.5 rounded-full bg-red-600 dark:bg-red-400 animate-pulse" />
+                <span>24/7 AGARANG TULONG</span>
+              </div>
+              <h2 className="text-2xl font-extrabold text-neutral-900 dark:text-white sm:text-3xl">
+                Cabanatuan City Emergency Hotlines
+              </h2>
+              <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                Laging handang maglingkod sa oras ng sakuna, kalamidad, at pangangailangang medikal o seguridad.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 font-mono">
+              <a
+                href="tel:0444631111"
+                className="group flex flex-col justify-between rounded-2xl border border-red-200/80 bg-white p-6 shadow-sm transition-all hover:border-red-500/50 hover:shadow-md dark:border-white/10 dark:bg-[#0f1411]/90 dark:hover:border-red-500/50"
+              >
+                <div>
+                  <div className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider">
+                    Police Station
+                  </div>
+                  <div className="mt-1 font-sans text-lg font-bold text-neutral-900 dark:text-white">
+                    PNP Cabanatuan
+                  </div>
+                </div>
+                <div className="mt-4 text-sm font-bold text-red-700 dark:text-red-300">
+                  (044)-463-1111 / 0920-611-2000
+                </div>
+              </a>
+
+              <a
+                href="tel:0449400161"
+                className="group flex flex-col justify-between rounded-2xl border border-red-200/80 bg-white p-6 shadow-sm transition-all hover:border-red-500/50 hover:shadow-md dark:border-white/10 dark:bg-[#0f1411]/90 dark:hover:border-red-500/50"
+              >
+                <div>
+                  <div className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider">
+                    Rescue & Disaster
+                  </div>
+                  <div className="mt-1 font-sans text-lg font-bold text-neutral-900 dark:text-white">
+                    CDRRMO Rescue Team
+                  </div>
+                </div>
+                <div className="mt-4 text-sm font-bold text-red-700 dark:text-red-300">
+                  (044)-940-0161 / 0908-881-1010
+                </div>
+              </a>
+
+              <a
+                href="tel:0449583701"
+                className="group flex flex-col justify-between rounded-2xl border border-red-200/80 bg-white p-6 shadow-sm transition-all hover:border-red-500/50 hover:shadow-md dark:border-white/10 dark:bg-[#0f1411]/90 dark:hover:border-red-500/50"
+              >
+                <div>
+                  <div className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider">
+                    Fire Department
+                  </div>
+                  <div className="mt-1 font-sans text-lg font-bold text-neutral-900 dark:text-white">
+                    BFP Cabanatuan
+                  </div>
+                </div>
+                <div className="mt-4 text-sm font-bold text-red-700 dark:text-red-300">
+                  (044)-958-3701 / 0943-303-4279
+                </div>
+              </a>
+
+              <a
+                href="tel:09190813983"
+                className="group flex flex-col justify-between rounded-2xl border border-red-200/80 bg-white p-6 shadow-sm transition-all hover:border-red-500/50 hover:shadow-md dark:border-white/10 dark:bg-[#0f1411]/90 dark:hover:border-red-500/50"
+              >
+                <div>
+                  <div className="text-xs font-semibold text-red-700 dark:text-red-400 uppercase tracking-wider">
+                    Citizen Assistance
+                  </div>
+                  <div className="mt-1 font-sans text-lg font-bold text-neutral-900 dark:text-white">
+                    Community Affairs Office
+                  </div>
+                </div>
+                <div className="mt-4 text-sm font-bold text-red-700 dark:text-red-300">
+                  0919-081-3983
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* ─── CTA Band ─────────────────────────────────────────────────── */}
         <section className="border-t border-neutral-200 bg-neutral-100 dark:border-white/10 dark:bg-[#080d0a] py-20 text-center">
           <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">

@@ -45,6 +45,53 @@ export default async function ReportPage() {
             </p>
           </div>
 
+          {/* Emergency Hotline Notice */}
+          <div className="mb-8 rounded-2xl border border-red-200/80 bg-red-50/80 p-5 shadow-sm dark:border-red-500/20 dark:bg-red-950/30 backdrop-blur-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-block h-2 w-2 rounded-full bg-red-600 dark:bg-red-400 animate-pulse" />
+                  <h3 className="font-mono text-xs font-bold text-red-900 dark:text-red-300 uppercase tracking-wider">
+                    Emergency Hotline Numbers (24/7 Rescue, Fire & Police)
+                  </h3>
+                </div>
+                <p className="mt-1 text-xs text-red-800 dark:text-red-300/80">
+                  Para sa agarang sakuna o saklolo, tumawag direkta sa Cabanatuan City Hotlines:
+                </p>
+              </div>
+            </div>
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-xs">
+              <a
+                href="tel:0449400161"
+                className="flex items-center justify-between rounded-xl bg-white/90 px-3 py-2 font-semibold text-red-700 shadow-sm hover:bg-white dark:bg-red-900/40 dark:text-red-200 dark:hover:bg-red-900/60 transition-colors"
+              >
+                <span>CDRRMO Rescue</span>
+                <span className="font-bold">(044)-940-0161</span>
+              </a>
+              <a
+                href="tel:0444631111"
+                className="flex items-center justify-between rounded-xl bg-white/90 px-3 py-2 font-semibold text-red-700 shadow-sm hover:bg-white dark:bg-red-900/40 dark:text-red-200 dark:hover:bg-red-900/60 transition-colors"
+              >
+                <span>PNP Cabanatuan</span>
+                <span className="font-bold">(044)-463-1111</span>
+              </a>
+              <a
+                href="tel:0449583701"
+                className="flex items-center justify-between rounded-xl bg-white/90 px-3 py-2 font-semibold text-red-700 shadow-sm hover:bg-white dark:bg-red-900/40 dark:text-red-200 dark:hover:bg-red-900/60 transition-colors"
+              >
+                <span>BFP Fire Station</span>
+                <span className="font-bold">(044)-958-3701</span>
+              </a>
+              <a
+                href="tel:09190813983"
+                className="flex items-center justify-between rounded-xl bg-white/90 px-3 py-2 font-semibold text-red-700 shadow-sm hover:bg-white dark:bg-red-900/40 dark:text-red-200 dark:hover:bg-red-900/60 transition-colors"
+              >
+                <span>Community Affairs</span>
+                <span className="font-bold">0919-081-3983</span>
+              </a>
+            </div>
+          </div>
+
           <ReportClientForm barangays={barangays} />
         </div>
       </main>

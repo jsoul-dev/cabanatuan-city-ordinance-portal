@@ -12,8 +12,6 @@ const footerLinks = {
     { href: "/admin/barangay", label: "Barangay Portal" },
     { href: "/admin/lgu", label: "LGU Admin" },
     { href: "/login", label: "Mag-login" },
-  ],
-  "Impormasyon": [
     {
       href: "https://www.cabanatuancity.gov.ph/",
       label: "LGU Website",
@@ -24,7 +22,13 @@ const footerLinks = {
       label: "Facebook",
       external: true,
     },
-    { href: "tel:911", label: "Emergency: 911" },
+  ],
+  "Emergency Hotlines": [
+    { href: "tel:0444631111", label: "PNP: (044)-463-1111" },
+    { href: "tel:0449400161", label: "CDRRMO: (044)-940-0161" },
+    { href: "tel:0449583701", label: "BFP Fire: (044)-958-3701" },
+    { href: "tel:09088811010", label: "CDRRMO Mobile: 0908-881-1010" },
+    { href: "tel:09190813983", label: "Community Affairs: 0919-081-3983" },
   ],
 };
 

@@ -38,6 +38,11 @@ export const metadata: Metadata = {
     type: "website",
     locale: "tl_PH",
   },
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({
