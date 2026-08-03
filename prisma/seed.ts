@@ -176,18 +176,6 @@ async function main() {
     },
   });
 
-  const citizen = await prisma.user.upsert({
-    where: { email: "citizen@cabanatuan.gov.ph" },
-    update: {},
-    create: {
-      email: "citizen@cabanatuan.gov.ph",
-      passwordHash,
-      name: "Juan Dela Cruz",
-      role: UserRole.CITIZEN,
-      barangayId: dsGarcia.id,
-    },
-  });
-
   // ─── Ordinances (Reference: Brgy D.S. Garcia Ordinance No. 003, S. 2024) ─
   await prisma.ordinance.upsert({
     where: { id: "seed-ord-001" },
