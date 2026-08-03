@@ -1,4 +1,4 @@
-# Cabanatuan City Ordinance Portal
+# 🏛️ Cabanatuan City Ordinance Portal
 **Ang Opisyal na Digital na Portal ng mga Ordinansa at AI Civic Assistant ng Lungsod ng Cabanatuan**  
 *The Official Cabanatuan City Legislative Information System & Bilingual AI Civic Portal*
 
@@ -53,24 +53,24 @@ Designed to bridge the gap between local law enforcement and citizens, the porta
 
 ```mermaid
 graph TD
-    Client[Citizen / Admin Browser] -->|HTTPS / Next.js App Router| Next[Next.js 16 Web Server]
+    Client["Citizen / Admin Browser"] -->|"HTTPS / Next.js App Router"| Next["Next.js 16 Web Server"]
     
-    subgraph Frontend [React 19 / Tailwind v4 / Zustand]
-        Next -->|Server Components & Actions| UI[Responsive UI Components]
-        UI -->|⌘K Palette / Radix UI| Modals[Interactive UI & Modals]
+    subgraph Frontend ["React 19 / Tailwind v4 / Zustand"]
+        Next -->|"Server Components & Actions"| UI["Responsive UI Components"]
+        UI -->|"Command Palette / Radix UI"| Modals["Interactive UI & Modals"]
     end
     
-    subgraph Backend & APIs [API Routes & Middleware]
-        Next -->|POST /api/chat| ChatAPI[Gemini Chat Stream]
-        Next -->|POST /api/parse-ordinance| ParseAPI[Multimodal PDF Parser]
-        Next -->|POST /api/upload| UploadAPI[Supabase Storage Upload]
+    subgraph Backend ["API Routes & Middleware"]
+        Next -->|"POST /api/chat"| ChatAPI["Gemini Chat Stream"]
+        Next -->|"POST /api/parse-ordinance"| ParseAPI["Multimodal PDF Parser"]
+        Next -->|"POST /api/upload"| UploadAPI["Supabase Storage Upload"]
     end
     
-    subgraph Data & AI Layer [Cloud Infrastructure]
-        ChatAPI -->|@google/genai v2| Gemini[Google Gemini 2.5 API]
-        ParseAPI -->|Multimodal Vision| Gemini
-        Next -->|Prisma 7 ORM| Postgres[(Supabase PostgreSQL)]
-        UploadAPI -->|Signed / Public Buckets| Storage[(Supabase Storage PDFs)]
+    subgraph Cloud ["Cloud Infrastructure"]
+        ChatAPI -->|"Google GenAI SDK"| Gemini["Google Gemini 2.5 API"]
+        ParseAPI -->|"Multimodal Vision"| Gemini
+        Next -->|"Prisma 7 ORM"| Postgres["Supabase PostgreSQL"]
+        UploadAPI -->|"Signed / Public Buckets"| Storage["Supabase Storage PDFs"]
     end
 ```
 
