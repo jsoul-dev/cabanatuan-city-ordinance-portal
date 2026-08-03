@@ -1,5 +1,10 @@
 import { SignJWT, jwtVerify } from "jose";
-import type { UserRole } from "@prisma/client";
+export type UserRole =
+  | "CITIZEN"
+  | "CAPTAIN"
+  | "SECRETARY"
+  | "KAGAWAD"
+  | "LGU_ADMIN";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET ?? "fallback-secret-change-me"
