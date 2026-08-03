@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { logout } from "@/lib/auth-actions";
+import { IconMap, LayoutDashboardIcon, LogOutIcon, ChevronLeftIcon } from "./icons";
 
 interface NavItem {
   href: string;
@@ -22,13 +23,14 @@ interface DashboardSidebarProps {
     barangayName?: string | null;
   };
   portalLabel: string;
+  homeHref?: string;
 }
 
 const roleLabel: Record<string, string> = {
   LGU_ADMIN: "LGU Super Admin",
-  CAPTAIN:   "Punong Barangay",
+  CAPTAIN: "Punong Barangay",
   SECRETARY: "Kalihim ng Barangay",
-  KAGAWAD:   "Kagawad",
+  KAGAWAD: "Kagawad",
 };
 
 function getInitials(name: string) {
@@ -40,7 +42,12 @@ function getInitials(name: string) {
     .slice(0, 2);
 }
 
-export function DashboardSidebar({ navItems, user, portalLabel }: DashboardSidebarProps) {
+export function DashboardSidebar({
+  navItems,
+  user,
+  portalLabel,
+  homeHref = "/admin",
+}: DashboardSidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -50,52 +57,52 @@ export function DashboardSidebar({ navItems, user, portalLabel }: DashboardSideb
 
   return (
     <aside
-      className={`flex flex-col h-screen sticky top-0 bg-[#0d1810] border-r border-[#1f2923] transition-all duration-300 ${collapsed ? "w-[72px]" : "w-64"} flex-shrink-0 z-30`}
+      className={`flex flex-col h-screen sticky top-0 bg-[#0d1810] border-r border-[#1f2923] transition-all duration-300 ${
+        collapsed ? "w-[72px]" : "w-64"
+      } flex-shrink-0 z-30`}
       aria-label="Dashboard Navigation"
     >
       {/* Header */}
-      <div className={`flex items-center gap-3 px-4 py-4 border-b border-[#1f2923] min-h-[72px] ${collapsed ? "justify-center" : ""}`}>
-        <div className="relative w-9 h-9 flex-shrink-0">
-          <Image
-            src="/logo-32.png"
-            alt="Cabanatuan City LGU Seal"
-            width={36}
-            height={36}
-            className="rounded-full object-contain"
-            priority
-          />
-        </div>
-        {!collapsed && (
-          <div className="flex flex-col min-w-0">
-            <span className="text-xs font-bold text-emerald-400 leading-tight truncate">
-              {portalLabel}
-            </span>
-            <span className="text-[10px] text-[#4a6657] leading-tight truncate">
-              Cabanatuan City
-            </span>
+      <div
+        className={`flex items-center gap-3 px-4 py-4 border-b border-[#1f2923] min-h-[64px] ${
+          collapsed ? "justify-center" : ""
+        }`}
+      >
+        <Link href={homeHref} className="flex items-center gap-3 min-w-0">
+          <div className="relative w-9 h-9 flex-shrink-0">
+            <Image
+              src="/lgu-logo.png"
+              alt="Cabanatuan City LGU Seal"
+              width={36}
+              height={36}
+              className="rounded-full object-contain"
+              priority
+            />
           </div>
-        )}
+          {!collapsed && (
+            <div className="flex flex-col min-w-0">
+              <span className="text-xs font-bold text-emerald-400 leading-tight truncate">
+                {portalLabel}
+              </span>
+              <span className="text-[10px] text-[#4a6657] leading-tight truncate">
+                Cabanatuan City
+              </span>
+            </div>
+          )}
+        </Link>
         <button
           type="button"
           onClick={() => setCollapsed((c) => !c)}
-          className={`ml-auto flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-[var(--radius-sm)] text-[#4a6657] hover:text-emerald-400 hover:bg-[#1a2b20] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${collapsed ? "ml-0" : ""}`}
+          className={`ml-auto flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-[var(--radius-sm)] text-[#4a6657] hover:text-emerald-400 hover:bg-[#1a2b20] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
+            collapsed ? "ml-0" : ""
+          }`}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           aria-expanded={!collapsed}
         >
-          <svg
-            className={`w-4 h-4 transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`}
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M10 4L6 8L10 12"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <ChevronLeftIcon
+            size={16}
+            className={`transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`}
+          />
         </button>
       </div>
 
@@ -105,7 +112,11 @@ export function DashboardSidebar({ navItems, user, portalLabel }: DashboardSideb
         aria-label="Main dashboard navigation"
       >
         {navItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          const isActive =
+            pathname === item.href ||
+            (pathname.startsWith(item.href + "/") && item.href !== "/admin/lgu" && item.href !== "/admin/barangay");
+          const IconComponent = IconMap[item.icon] || LayoutDashboardIcon;
+
           return (
             <Link
               key={item.href}
@@ -119,14 +130,14 @@ export function DashboardSidebar({ navItems, user, portalLabel }: DashboardSideb
               } ${collapsed ? "justify-center" : ""}`}
             >
               <span
-                className={`text-base flex-shrink-0 transition-transform group-hover:scale-110 ${isActive ? "scale-110" : ""}`}
+                className={`flex-shrink-0 transition-transform group-hover:scale-110 ${
+                  isActive ? "scale-110 text-emerald-400" : "text-[#7a9882]"
+                }`}
                 aria-hidden="true"
               >
-                {item.icon}
+                <IconComponent size={18} />
               </span>
-              {!collapsed && (
-                <span className="truncate">{item.label}</span>
-              )}
+              {!collapsed && <span className="truncate">{item.label}</span>}
             </Link>
           );
         })}
@@ -134,7 +145,11 @@ export function DashboardSidebar({ navItems, user, portalLabel }: DashboardSideb
 
       {/* User Card */}
       <div className={`border-t border-[#1f2923] p-3 ${collapsed ? "px-2" : ""}`}>
-        <div className={`flex items-center gap-3 rounded-[var(--radius-sm)] bg-[#1a2b20] p-2.5 ${collapsed ? "justify-center" : ""}`}>
+        <div
+          className={`flex items-center gap-3 rounded-[var(--radius-sm)] bg-[#1a2b20] p-2.5 ${
+            collapsed ? "justify-center" : ""
+          }`}
+        >
           {/* Avatar */}
           <div
             className="w-9 h-9 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-300 text-xs font-bold flex-shrink-0"
@@ -159,9 +174,7 @@ export function DashboardSidebar({ navItems, user, portalLabel }: DashboardSideb
                 aria-label="Mag-logout"
                 className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-[var(--radius-sm)] text-[#4a6657] hover:text-red-400 hover:bg-red-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
               >
-                <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M10 2H13C13.5523 2 14 2.44772 14 3V13C14 13.5523 13.5523 14 13 14H10M7 11L10 8M10 8L7 5M10 8H2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                <LogOutIcon size={16} />
               </button>
             </form>
           )}
@@ -174,9 +187,7 @@ export function DashboardSidebar({ navItems, user, portalLabel }: DashboardSideb
               aria-label="Mag-logout"
               className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-sm)] text-[#4a6657] hover:text-red-400 hover:bg-red-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
             >
-              <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M10 2H13C13.5523 2 14 2.44772 14 3V13C14 13.5523 13.5523 14 13 14H10M7 11L10 8M10 8L7 5M10 8H2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <LogOutIcon size={16} />
             </button>
           </form>
         )}
