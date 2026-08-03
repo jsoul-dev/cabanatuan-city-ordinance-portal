@@ -22,7 +22,7 @@ export function LoginForm({ theme }: LoginFormProps) {
 
   const handleQuickFill = (roleEmail: string) => {
     setEmail(roleEmail);
-    setPassword("Cabanatuan2026!");
+    setPassword("password123");
   };
 
   return (
@@ -163,7 +163,7 @@ export function LoginForm({ theme }: LoginFormProps) {
 
           <button
             type="button"
-            onClick={() => handleQuickFill("captain.kapitan@cabanatuan.gov.ph")}
+            onClick={() => handleQuickFill("captain.garcia@cabanatuan.gov.ph")}
             className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-left text-xs text-neutral-700 transition-all hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300 dark:hover:border-emerald-500/50 dark:hover:bg-emerald-500/10 dark:hover:text-white"
           >
             <span className="text-emerald-500 font-bold">🛡️</span>
@@ -172,7 +172,7 @@ export function LoginForm({ theme }: LoginFormProps) {
                 Captain
               </div>
               <div className="text-[10px] truncate text-neutral-500 dark:text-neutral-400">
-                captain.kapitan@
+                captain.garcia@
               </div>
             </div>
           </button>
@@ -180,7 +180,7 @@ export function LoginForm({ theme }: LoginFormProps) {
           <button
             type="button"
             onClick={() =>
-              handleQuickFill("secretary.kalihim@cabanatuan.gov.ph")
+              handleQuickFill("secretary.garcia@cabanatuan.gov.ph")
             }
             className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-left text-xs text-neutral-700 transition-all hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300 dark:hover:border-emerald-500/50 dark:hover:bg-emerald-500/10 dark:hover:text-white"
           >
@@ -190,23 +190,23 @@ export function LoginForm({ theme }: LoginFormProps) {
                 Secretary
               </div>
               <div className="text-[10px] truncate text-neutral-500 dark:text-neutral-400">
-                secretary.kalihim@
+                secretary.garcia@
               </div>
             </div>
           </button>
 
           <button
             type="button"
-            onClick={() => handleQuickFill("citizen@cabanatuan.gov.ph")}
+            onClick={() => handleQuickFill("kagawad.garcia@cabanatuan.gov.ph")}
             className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-left text-xs text-neutral-700 transition-all hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300 dark:hover:border-emerald-500/50 dark:hover:bg-emerald-500/10 dark:hover:text-white"
           >
-            <span className="text-emerald-500 font-bold">👤</span>
+            <span className="text-emerald-500 font-bold">⚖️</span>
             <div>
               <div className="font-semibold text-neutral-900 dark:text-white">
-                Citizen
+                Kagawad
               </div>
               <div className="text-[10px] truncate text-neutral-500 dark:text-neutral-400">
-                citizen@cabanatuan
+                kagawad.garcia@
               </div>
             </div>
           </button>

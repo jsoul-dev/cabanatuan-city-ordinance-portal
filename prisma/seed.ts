@@ -128,6 +128,18 @@ async function main() {
     },
   });
 
+  const captainAlias = await prisma.user.upsert({
+    where: { email: "captain.kapitan@cabanatuan.gov.ph" },
+    update: {},
+    create: {
+      email: "captain.kapitan@cabanatuan.gov.ph",
+      passwordHash,
+      name: "Kap. Juan Garcia (Alias)",
+      role: UserRole.CAPTAIN,
+      barangayId: dsGarcia.id,
+    },
+  });
+
   const secretary = await prisma.user.upsert({
     where: { email: "secretary.garcia@cabanatuan.gov.ph" },
     update: {},
@@ -135,6 +147,18 @@ async function main() {
       email: "secretary.garcia@cabanatuan.gov.ph",
       passwordHash,
       name: "Sec. Maria Santos",
+      role: UserRole.SECRETARY,
+      barangayId: dsGarcia.id,
+    },
+  });
+
+  const secretaryAlias = await prisma.user.upsert({
+    where: { email: "secretary.kalihim@cabanatuan.gov.ph" },
+    update: {},
+    create: {
+      email: "secretary.kalihim@cabanatuan.gov.ph",
+      passwordHash,
+      name: "Sec. Maria Santos (Alias)",
       role: UserRole.SECRETARY,
       barangayId: dsGarcia.id,
     },
@@ -148,6 +172,18 @@ async function main() {
       passwordHash,
       name: "Kag. Pedro Reyes",
       role: UserRole.KAGAWAD,
+      barangayId: dsGarcia.id,
+    },
+  });
+
+  const citizen = await prisma.user.upsert({
+    where: { email: "citizen@cabanatuan.gov.ph" },
+    update: {},
+    create: {
+      email: "citizen@cabanatuan.gov.ph",
+      passwordHash,
+      name: "Juan Dela Cruz",
+      role: UserRole.CITIZEN,
       barangayId: dsGarcia.id,
     },
   });
@@ -249,7 +285,7 @@ async function main() {
 
   console.log("✅ Seed completed successfully!");
   console.log(`   • ${barangays.length} barangays`);
-  console.log("   • 4 users (admin, captain, secretary, kagawad)");
+  console.log("   • 7 users (admin, captain, secretary, kagawad, and aliases)");
   console.log("   • 3 ordinances");
   console.log("   • 2 news items");
 }
