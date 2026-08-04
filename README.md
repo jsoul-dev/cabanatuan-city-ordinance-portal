@@ -7,7 +7,7 @@
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Prisma ORM](https://img.shields.io/badge/Prisma_7-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
 [![Supabase](https://img.shields.io/badge/Supabase_PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-[![Google Gemini AI](https://img.shields.io/badge/Google_Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
+[![Google Gemini AI](https://img.shields.io/badge/Google_Gemini_3.5_Flash_Lite-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-amber.svg?style=for-the-badge)](https://github.com/jsoul-dev/cabanatuan-city-ordinance-portal/blob/main/LICENSE)
 
 ---
@@ -24,21 +24,20 @@ Designed to bridge the gap between local law enforcement, government officials, 
 
 ### 1. Public Ordinance Explorer & Split-Screen Viewer
 - **Full-Text & Keyword Search:** Search through hundreds of city and barangay ordinances instantly by title, resolution number, policy category, or keyword.
-- **⌘K Command Palette:** Quickly jump to any ordinance, report page, or admin section from anywhere in the application.
-- **Bilingual Policy Categorization:** Filter laws by Tagalog/English policy domains (e.g., *Kapayapaan at Kaayusan*, *Kalusugan at Sanitasyon*, *Kalakalan at Negosyo*, *Kapaligiran*).
+- **Dynamic Year Range & Category Filtering:** Easily filter laws by enactment period (defaulting to dynamic DB boundary years with a 2015–2026 fallback) and policy domains (e.g., *Kapayapaan at Kaayusan*, *Kalusugan at Sanitasyon*, *Kalakalan at Negosyo*, *Kapaligiran*).
 - **Split-Screen Document Viewer & Accessibility:** Inspect full legal text side-by-side with official PDF attachments (`pdf-viewer-modal.tsx`), download signed copies, and toggle between Dark and Light themes (`theme-toggle.tsx`).
 
 ### 2. "Batas Cabanatuan AI" Civic Assistant
-- **Bilingual Conversational AI:** Powered by Google's **Gemini 2.5 Flash Lite API**, citizens can ask complex legal questions in Tagalog, English, or Taglish.
+- **Bilingual Conversational AI:** Powered by Google's **Gemini 3.5 Flash Lite API**, citizens can ask complex legal questions in Tagalog, English, or Taglish.
 - **Grounded Legislative Responses:** Responses are dynamically injected with live context from the city's Prisma database, citing exact Resolution Numbers, sections, and penalties.
-- **Streaming UI:** Real-time token streaming with responsive feedback and persistent client-side chat history.
+- **Streaming UI & Local Storage Persistence:** Real-time token streaming with responsive feedback and persistent client-side chat history saved to `localStorage`, with a "Bagong Usapan / Clear Chat" control for a single session at a time.
 
 ### 3. AI-Powered OCR & Multimodal Ordinance Parser
-- **Scanned Document & Image OCR Extraction:** Using **Gemini 3.5 Flash-Lite Multimodal Vision (`/api/ordinances/extract`)**, administrators can upload digital PDFs, complete scanned PDFs, or multiple sequential image pages (PNG/JPG/WEBP) even with stamps, watermarks, or signatures.
+- **Scanned Document & Image OCR Extraction:** Using **Gemini 3.5 Flash Lite Multimodal Vision (`/api/ordinances/extract`)**, administrators can upload digital PDFs, complete scanned PDFs, or multiple sequential image pages (PNG/JPG/WEBP) even with stamps, watermarks, or signatures.
 - **Multi-Page & Multi-File OCR:** Automatically combines and analyzes multi-page scanned ordinances in sequence to reconstruct the complete title, sections, and penalties.
 - **Automated Metadata Parsing:** Automatically extracts and structures:
   - Official Resolution Number, Series Year, and Date Enacted
-  - Cleaned Legislative Title (strips verbose legal preambles)
+  - Cleaned Legislative Title (strips verbose legal preambles such as *"City Ordinance Establishing..."* or *"Ordinansang..."*)
   - Policy Category, Summary, Coverage, and Key Tags
   - Detailed Penalties and Enforcement Agencies
 - **Interactive Review Modal:** Administrators can verify and tweak AI-extracted fields before publishing to the database, reducing manual encoding by 85%.
@@ -63,13 +62,13 @@ graph TD
     Client["Citizen / Admin Browser"] -->|"HTTPS / Next.js App Router"| Next["Next.js 16 Web Server"]
     
     Next -->|"Server Components & Actions"| UI["Responsive UI Components"]
-    UI -->|"Command Palette / Radix UI"| Modals["Interactive UI & Modals"]
+    UI -->|"Radix UI / Custom Modals"| Modals["Interactive UI & Modals"]
     
     Next -->|"POST /api/chat"| ChatAPI["Gemini Chat Stream"]
     Next -->|"POST /api/ordinances/extract"| ExtractAPI["Multimodal OCR Parser"]
     Next -->|"POST /api/upload"| UploadAPI["Supabase Storage Upload"]
     
-    ChatAPI -->|"Google GenAI SDK"| Gemini["Google Gemini 2.5 & 3.5 API"]
+    ChatAPI -->|"Google GenAI SDK"| Gemini["Google Gemini 3.5 Flash Lite API"]
     ExtractAPI -->|"Multimodal Vision"| Gemini
     Next -->|"Prisma 7 ORM"| Postgres["Supabase PostgreSQL"]
     UploadAPI -->|"Signed / Public Buckets"| Storage["Supabase Storage PDFs"]
@@ -90,15 +89,15 @@ cabanatuan-city-ordinance-portal/
 │   │   ├── admin/lgu/             # City LGU Admin Dashboard (Ordinances, Reports, Users, News, Analytics)
 │   │   ├── admin/barangay/        # Barangay Captain Dashboard (Ordinances, Reports, Analytics)
 │   │   ├── api/chat/              # Streaming chat route for Batas Cabanatuan AI
-│   │   ├── api/ordinances/extract/ # Multimodal OCR AI extraction route (Gemini 3.5 Flash-Lite)
+│   │   ├── api/ordinances/extract/ # Multimodal OCR AI extraction route (Gemini 3.5 Flash Lite)
 │   │   ├── chatbot/               # Full-screen conversational civic AI interface
 │   │   ├── ordinances/[id]/       # Split-screen public ordinance detail viewer
 │   │   ├── report/                # Civic violation reporting system
 │   │   └── page.tsx               # Homepage & interactive search hero
 │   ├── components/
 │   │   ├── dashboard/             # Admin sidebar, header, skeletons, and AI extractor modal
-│   │   ├── layout/                # Navbar, footer, command palette
-│   │   └── ui/                    # Accessible UI primitives, PDF viewer modal, theme toggle
+│   │   ├── layout/                # Navbar and footer
+│   │   ├── ui/                    # Accessible UI primitives, PDF viewer modal, theme toggle
 │   └── lib/                       # Prisma client, chat storage, dashboard queries, ordinance utils
 └── public/
     └── uploads/                   # Zero-config local development document uploads
@@ -115,8 +114,8 @@ cabanatuan-city-ordinance-portal/
 | **Styling** | [Tailwind CSS v4 + CVA](https://tailwindcss.com/) | Design tokens, responsive layouts, theme-aware styling |
 | **ORM & Database** | [Prisma 7.9 + Supabase PostgreSQL](https://prisma.io/) | Relational database schema, connection pooling, migrations |
 | **File Storage** | [Supabase Storage](https://supabase.com/storage) | Cloud PDF ordinance document hosting |
-| **AI & LLM** | [Google Gemini 2.5 & 3.5 (`@google/genai`)](https://ai.google.dev/) | Bilingual legal chat streaming, multimodal OCR PDF parser |
-| **UI Components** | Radix UI / Base UI / cmkd / Sonner | Accessible modals, command palette, toast notifications |
+| **AI & LLM** | [Google Gemini 3.5 Flash Lite (`@google/genai`)](https://ai.google.dev/) | Bilingual legal chat streaming, multimodal OCR PDF parser |
+| **UI Components** | Radix UI / Base UI / Sonner | Accessible modals, toast notifications |
 | **Charts & Stats** | [Recharts 3 + NumberFlow](https://recharts.org/) | Executive analytics dashboards and animated statistics |
 | **State Management** | [Zustand 5](https://github.com/pmndrs/zustand) | Client-side draft persistence and chat history |
 
@@ -154,8 +153,9 @@ NEXT_PUBLIC_SUPABASE_URL="https://[YOUR_PROJECT].supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
 SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
 
-# Google Gemini AI
+# Google Gemini AI (Default Model: gemini-3.5-flash-lite)
 GEMINI_API_KEY="your-gemini-api-key"
+GEMINI_MODEL="gemini-3.5-flash-lite"
 
 # Authentication
 JWT_SECRET="super-secret-jwt-key-32-characters-min"
