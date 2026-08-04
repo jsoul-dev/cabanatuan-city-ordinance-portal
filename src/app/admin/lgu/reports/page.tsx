@@ -11,7 +11,7 @@ export default async function LguReportsPage() {
   const reports = await getLguAllReports();
 
   return (
-    <div className="space-y-6 max-w-[1400px]">
+    <div className="space-y-6 w-full">
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-ink)] tracking-tight">Mga Ulat ng Komunidad</h1>
         <p className="text-sm text-[var(--text-body)] mt-1">

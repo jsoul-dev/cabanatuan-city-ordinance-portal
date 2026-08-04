@@ -103,6 +103,13 @@ model Ordinance {
   signatories  String? @db.Text
   pdfUrl       String? @map("pdf_url")
 
+  dateEnacted  DateTime? @map("date_enacted")
+  year         Int?
+  tags         String[]  @default([])
+  coverage     String?
+  articles     String?   @db.Text
+  enforcement  String?   @db.Text
+
   barangayId String?   @map("barangay_id")
   barangay   Barangay? @relation(fields: [barangayId], references: [id], onDelete: SetNull)
 
