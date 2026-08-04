@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { getBarangayReports } from "@/lib/dashboard-queries";
 import { BarangayReportsManager } from "./reports-manager";
 
@@ -10,16 +10,16 @@ export const metadata: Metadata = {
 };
 
 export default async function BarangayReportsPage() {
-  const user = await getCurrentUser();
+  const session = await getSession();
 
-  if (!user?.barangayId) redirect("/login");
+  if (!session?.barangayId) redirect("/login");
 
-  const reports = await getBarangayReports(user.barangayId);
+  const reports = await getBarangayReports(session.barangayId);
 
   return (
     <div className="space-y-6 max-w-[1400px]">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text-ink)] tracking-tight">📣 Mga Ulat ng Komunidad</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-ink)] tracking-tight">Mga Ulat ng Komunidad</h1>
         <p className="text-sm text-[var(--text-body)] mt-1">
           Tingnan at i-update ang status ng mga ulat mula sa mga mamamayan ng inyong barangay.
         </p>

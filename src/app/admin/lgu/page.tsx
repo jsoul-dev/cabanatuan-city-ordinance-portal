@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { StatusBadge } from "@/components/dashboard/status-badge";
@@ -22,8 +22,8 @@ function formatDate(d: Date) {
 }
 
 export default async function LguOverviewPage() {
-  const user = await getCurrentUser();
-  if (!user || user.role !== "LGU_ADMIN") {
+  const session = await getSession();
+  if (!session || session.role !== "LGU_ADMIN") {
     redirect("/login");
   }
 

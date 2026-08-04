@@ -18,7 +18,7 @@ export default async function LguOrdinancesPage({
   return (
     <div className="space-y-6 max-w-[1400px]">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text-ink)] tracking-tight">📜 Pamamahala ng Ordinansa</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-ink)] tracking-tight">Pamamahala ng Ordinansa</h1>
         <p className="text-sm text-[var(--text-body)] mt-1">
           Suriin, aprubahan, o tanggihan ang mga ordinansa mula sa lahat ng barangay.
         </p>

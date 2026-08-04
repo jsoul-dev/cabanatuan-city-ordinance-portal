@@ -13,7 +13,7 @@ export default async function LguReportsPage() {
   return (
     <div className="space-y-6 max-w-[1400px]">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text-ink)] tracking-tight">📣 Mga Ulat ng Komunidad</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-ink)] tracking-tight">Mga Ulat ng Komunidad</h1>
         <p className="text-sm text-[var(--text-body)] mt-1">
           Suriin at i-update ang status ng mga ulat mula sa mga mamamayan ng Cabanatuan City.
         </p>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { getBarangayAllOrdinances } from "@/lib/dashboard-queries";
 import { BarangayOrdinanceManager } from "./ordinance-manager";
 
@@ -10,17 +10,17 @@ export const metadata: Metadata = {
 };
 
 export default async function BarangayOrdinancesPage() {
-  const user = await getCurrentUser();
+  const session = await getSession();
 
-  if (!user?.barangayId) redirect("/login");
+  if (!session?.barangayId) redirect("/login");
 
-  const ordinances = await getBarangayAllOrdinances(user.barangayId);
-  const canSubmit = user.role === "CAPTAIN" || user.role === "SECRETARY";
+  const ordinances = await getBarangayAllOrdinances(session.barangayId);
+  const canSubmit = session.role === "CAPTAIN" || session.role === "SECRETARY";
 
   return (
     <div className="space-y-6 max-w-[1400px]">
       <div>
-        <h1 className="text-2xl font-bold text-[var(--text-ink)] tracking-tight">📜 Mga Ordinansa ng Barangay</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-ink)] tracking-tight">Mga Ordinansa ng Barangay</h1>
         <p className="text-sm text-[var(--text-body)] mt-1">
           {canSubmit
             ? "Suriin ang status ng mga ordinansa o magsumite ng bagong ordinansa para sa pagsusuri ng LGU."

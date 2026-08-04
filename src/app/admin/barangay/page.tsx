@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { StatusBadge } from "@/components/dashboard/status-badge";
@@ -20,11 +20,13 @@ function formatDate(d: Date) {
 }
 
 export default async function BarangayOverviewPage() {
-  const user = await getCurrentUser();
-  if (!user || user.role === "LGU_ADMIN") {
+  const session = await getSession();
+  if (!session || session.role === "LGU_ADMIN") {
     redirect("/login");
   }
-  if (!user.barangay) {
+
+  const barangayId = session.barangayId;
+  if (!barangayId) {
     return (
       <div className="card-elevated p-8 text-center max-w-lg mx-auto my-12">
         <AlertTriangleIcon size={36} className="text-amber-500 mx-auto mb-3" />
@@ -39,8 +41,13 @@ export default async function BarangayOverviewPage() {
     );
   }
 
-  const barangayId = user.barangay.id;
-  const canSubmit = user.role === "CAPTAIN" || user.role === "SECRETARY";
+  const canSubmit = session.role === "CAPTAIN" || session.role === "SECRETARY";
+
+  // Fetch barangay name for the banner
+  const barangay = await prisma.barangay.findUnique({
+    where: { id: barangayId },
+    select: { name: true },
+  });
 
   const [
     totalOrdinances,
@@ -111,7 +118,7 @@ export default async function BarangayOverviewPage() {
               Barangay Admin Portal
             </span>
             <h1 className="mt-2 text-2xl font-bold text-[var(--text-ink)]">
-              Barangay {user.barangay.name}
+              Barangay {barangay?.name ?? "Admin"}
             </h1>
             <p className="text-sm text-[var(--text-body)]">
               Cabanatuan City, Nueva Ecija · Pamahalaan ang mga ordinansa at
