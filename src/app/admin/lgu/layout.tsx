@@ -7,6 +7,8 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 const LGU_NAV = [
   { href: "/admin/lgu",            icon: "overview",   label: "Overview" },
   { href: "/admin/lgu/ordinances", icon: "ordinances", label: "Mga Ordinansa" },
+  { href: "/admin/lgu/barangays",  icon: "barangays",  label: "Mga Barangay" },
+  { href: "/admin/lgu/analytics",  icon: "analytics",  label: "Analytics & Pagsusuri" },
   { href: "/admin/lgu/users",      icon: "users",      label: "Mga Opisyal" },
   { href: "/admin/lgu/news",       icon: "news",       label: "Balita & Anunsyo" },
   { href: "/admin/lgu/reports",    icon: "reports",    label: "Mga Ulat ng Komunidad" },

@@ -26,6 +26,16 @@ export async function submitOrdinance(formData: FormData): Promise<{ error?: str
   const description = (formData.get("description") as string)?.trim() || null;
   const category = (formData.get("category") as string)?.trim() || "OTHER";
   const pdfUrl = (formData.get("pdfUrl") as string)?.trim() || null;
+  const content = (formData.get("content") as string)?.trim() || null;
+  const penalties = (formData.get("penalties") as string)?.trim() || null;
+  const coverage = (formData.get("coverage") as string)?.trim() || null;
+  const enforcement = (formData.get("enforcement") as string)?.trim() || null;
+  const tagsStr = (formData.get("tags") as string)?.trim() || "";
+  const tags = tagsStr ? tagsStr.split(",").map((t) => t.trim()).filter(Boolean) : [];
+  const dateEnactedStr = (formData.get("dateEnacted") as string)?.trim() || null;
+  const dateEnacted = dateEnactedStr ? new Date(dateEnactedStr) : null;
+  const yearStr = (formData.get("year") as string)?.trim() || (series || new Date().getFullYear().toString());
+  const year = parseInt(yearStr, 10) || new Date().getFullYear();
 
   if (!title || !resolutionNumber) {
     return { error: "Pamagat at Resolution Number ay kinakailangan." };
@@ -43,6 +53,13 @@ export async function submitOrdinance(formData: FormData): Promise<{ error?: str
       barangayId: user.barangayId,
       submittedById: session.userId,
       pdfUrl,
+      content,
+      penalties,
+      coverage,
+      enforcement,
+      tags,
+      dateEnacted,
+      year,
     },
   });
 
@@ -87,6 +104,16 @@ export async function resubmitBarangayOrdinance(
     (formData.get("description") as string)?.trim() || ordinance.description;
   const category = (formData.get("category") as string)?.trim() || ordinance.category;
   const pdfUrl = (formData.get("pdfUrl") as string)?.trim() || ordinance.pdfUrl;
+  const content = (formData.get("content") as string)?.trim() || ordinance.content;
+  const penalties = (formData.get("penalties") as string)?.trim() || ordinance.penalties;
+  const coverage = (formData.get("coverage") as string)?.trim() || ordinance.coverage;
+  const enforcement = (formData.get("enforcement") as string)?.trim() || ordinance.enforcement;
+  const tagsStr = (formData.get("tags") as string)?.trim();
+  const tags = tagsStr !== undefined ? tagsStr.split(",").map((t) => t.trim()).filter(Boolean) : ordinance.tags;
+  const dateEnactedStr = (formData.get("dateEnacted") as string)?.trim();
+  const dateEnacted = dateEnactedStr ? new Date(dateEnactedStr) : ordinance.dateEnacted;
+  const yearStr = (formData.get("year") as string)?.trim();
+  const year = yearStr ? parseInt(yearStr, 10) : ordinance.year;
 
   await prisma.ordinance.update({
     where: { id: ordinanceId },
@@ -97,6 +124,13 @@ export async function resubmitBarangayOrdinance(
       description,
       category: category as never,
       pdfUrl,
+      content,
+      penalties,
+      coverage,
+      enforcement,
+      tags,
+      dateEnacted,
+      year,
       status: "PENDING",
       rejectedReason: null, // Clear revision notice on resubmission
     },

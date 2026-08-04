@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { logout } from "@/lib/auth-actions";
-import { IconMap, LayoutDashboardIcon, LogOutIcon, ChevronLeftIcon } from "./icons";
+import { IconMap, LayoutDashboardIcon, LogOutIcon, ChevronLeftIcon, HomeIcon } from "./icons";
 
 interface NavItem {
   href: string;
@@ -50,6 +50,28 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Restore collapsed state from localStorage on mount before enabling transitions
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("sidebar_collapsed");
+      if (stored !== null) {
+        setCollapsed(stored === "true");
+      }
+    } catch {}
+    setMounted(true);
+  }, []);
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("sidebar_collapsed", String(next));
+      } catch {}
+      return next;
+    });
+  }, []);
 
   const handleLogout = useCallback(async () => {
     await logout();
@@ -57,16 +79,36 @@ export function DashboardSidebar({
 
   return (
     <aside
-      className={`flex flex-col h-screen sticky top-0 bg-[#0d1810] border-r border-[#1f2923] transition-all duration-300 ${
+      className={`relative flex flex-col h-screen sticky top-0 bg-[var(--bg-card)] border-r border-[var(--border-hairline)] ${
         collapsed ? "w-[72px]" : "w-64"
       } flex-shrink-0 z-30`}
+      style={{
+        backgroundColor: "var(--bg-card)",
+        borderColor: "var(--border-hairline)",
+      }}
       aria-label="Dashboard Navigation"
     >
+      {/* Floating Collapse / Expand Toggle Button */}
+      <button
+        type="button"
+        onClick={toggleCollapsed}
+        className="absolute -right-3.5 top-4.5 z-40 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-hairline)] bg-[var(--bg-card)] text-[var(--text-ink)] shadow-md hover:bg-[var(--accent-primary)] hover:text-white dark:hover:bg-emerald-600 active:scale-90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        aria-expanded={!collapsed}
+        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        <ChevronLeftIcon
+          size={14}
+          className={collapsed ? "rotate-180" : ""}
+        />
+      </button>
+
       {/* Header */}
       <div
-        className={`flex items-center gap-3 px-4 py-4 border-b border-[#1f2923] min-h-[64px] ${
-          collapsed ? "justify-center" : ""
+        className={`flex h-16 items-center px-4 border-b border-[var(--border-hairline)] ${
+          collapsed ? "justify-center" : "justify-between"
         }`}
+        style={{ borderColor: "var(--border-hairline)" }}
       >
         <Link href={homeHref} className="flex items-center gap-3 min-w-0">
           <div className="relative w-9 h-9 flex-shrink-0">
@@ -81,29 +123,15 @@ export function DashboardSidebar({
           </div>
           {!collapsed && (
             <div className="flex flex-col min-w-0">
-              <span className="text-xs font-bold text-emerald-400 leading-tight truncate">
+              <span className="text-xs font-bold text-[var(--accent-primary)] leading-tight truncate">
                 {portalLabel}
               </span>
-              <span className="text-[10px] text-[#4a6657] leading-tight truncate">
+              <span className="text-[10px] text-[var(--text-mute)] leading-tight truncate">
                 Cabanatuan City
               </span>
             </div>
           )}
         </Link>
-        <button
-          type="button"
-          onClick={() => setCollapsed((c) => !c)}
-          className={`ml-auto flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-[var(--radius-sm)] text-[#4a6657] hover:text-emerald-400 hover:bg-[#1a2b20] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
-            collapsed ? "ml-0" : ""
-          }`}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-expanded={!collapsed}
-        >
-          <ChevronLeftIcon
-            size={16}
-            className={`transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`}
-          />
-        </button>
       </div>
 
       {/* Nav Items */}
@@ -125,13 +153,15 @@ export function DashboardSidebar({
               title={collapsed ? item.label : undefined}
               className={`group flex items-center gap-3 rounded-[var(--radius-sm)] px-3 py-2.5 text-sm font-medium transition-all min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 relative ${
                 isActive
-                  ? "bg-emerald-500/15 text-emerald-300 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-5 before:w-1 before:rounded-r-full before:bg-emerald-500"
-                  : "text-[#7a9882] hover:bg-[#1a2b20] hover:text-emerald-200"
+                  ? "bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 font-semibold before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-5 before:w-1 before:rounded-r-full before:bg-emerald-600 dark:before:bg-emerald-500"
+                  : "text-[var(--text-body)] hover:bg-emerald-500/10 hover:text-emerald-800 dark:hover:text-emerald-300"
               } ${collapsed ? "justify-center" : ""}`}
             >
               <span
                 className={`flex-shrink-0 transition-transform group-hover:scale-110 ${
-                  isActive ? "scale-110 text-emerald-400" : "text-[#7a9882]"
+                  isActive
+                    ? "scale-110 text-emerald-600 dark:text-emerald-400"
+                    : "text-[var(--text-mute)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400"
                 }`}
                 aria-hidden="true"
               >
@@ -143,24 +173,41 @@ export function DashboardSidebar({
         })}
       </nav>
 
+      {/* Back to Home / Public Portal Link */}
+      <div className="px-2 pb-2">
+        <Link
+          href="/"
+          title={collapsed ? "Bumalik sa Main Page" : undefined}
+          className={`group flex items-center gap-3 rounded-[var(--radius-sm)] px-3 py-2 text-xs font-medium text-[var(--text-mute)] hover:bg-emerald-500/10 hover:text-emerald-800 dark:hover:text-emerald-300 transition-all ${
+            collapsed ? "justify-center" : ""
+          }`}
+        >
+          <HomeIcon size={16} className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+          {!collapsed && <span className="truncate">Bumalik sa Landing Page</span>}
+        </Link>
+      </div>
+
       {/* User Card */}
-      <div className={`border-t border-[#1f2923] p-3 ${collapsed ? "px-2" : ""}`}>
+      <div
+        className={`border-t border-[var(--border-hairline)] p-3 ${collapsed ? "px-2" : ""}`}
+        style={{ borderColor: "var(--border-hairline)" }}
+      >
         <div
-          className={`flex items-center gap-3 rounded-[var(--radius-sm)] bg-[#1a2b20] p-2.5 ${
+          className={`flex items-center gap-3 rounded-[var(--radius-sm)] bg-emerald-500/10 dark:bg-[#1a2b20] border border-[var(--border-hairline)] p-2.5 ${
             collapsed ? "justify-center" : ""
           }`}
         >
           {/* Avatar */}
           <div
-            className="w-9 h-9 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-300 text-xs font-bold flex-shrink-0"
+            className="w-9 h-9 rounded-full bg-emerald-500/15 dark:bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-700 dark:text-emerald-300 text-xs font-bold flex-shrink-0"
             aria-hidden="true"
           >
             {getInitials(user.name)}
           </div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-[#d1fae5] truncate">{user.name}</p>
-              <p className="text-[10px] text-[#4a6657] truncate">
+              <p className="text-xs font-semibold text-[var(--text-ink)] truncate">{user.name}</p>
+              <p className="text-[10px] text-[var(--text-mute)] truncate">
                 {roleLabel[user.role] ?? user.role}
                 {user.barangayName ? ` · ${user.barangayName}` : ""}
               </p>
@@ -172,7 +219,7 @@ export function DashboardSidebar({
                 type="submit"
                 title="Mag-logout"
                 aria-label="Mag-logout"
-                className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-[var(--radius-sm)] text-[#4a6657] hover:text-red-400 hover:bg-red-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-[var(--radius-sm)] text-[var(--text-mute)] hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
               >
                 <LogOutIcon size={16} />
               </button>
@@ -185,7 +232,7 @@ export function DashboardSidebar({
               type="submit"
               title="Mag-logout"
               aria-label="Mag-logout"
-              className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-sm)] text-[#4a6657] hover:text-red-400 hover:bg-red-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              className="w-9 h-9 flex items-center justify-center rounded-[var(--radius-sm)] text-[var(--text-mute)] hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
             >
               <LogOutIcon size={16} />
             </button>

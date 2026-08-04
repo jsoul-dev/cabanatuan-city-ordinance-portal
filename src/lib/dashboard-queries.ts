@@ -136,3 +136,96 @@ export async function getBarangayReports(barangayId: string) {
 export async function getAllBarangays() {
   return prisma.barangay.findMany({ orderBy: { name: "asc" } });
 }
+
+export async function getAllBarangaysWithDetails() {
+  return prisma.barangay.findMany({
+    orderBy: { name: "asc" },
+    include: {
+      users: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+        },
+      },
+      _count: {
+        select: {
+          ordinances: true,
+          reports: true,
+        },
+      },
+    },
+  });
+}
+
+// ─── Analytics Queries ────────────────────────────────────────────────────────
+
+export async function getLguAnalyticsData() {
+  const [
+    ordinances,
+    reports,
+    barangaysWithCounts,
+  ] = await Promise.all([
+    prisma.ordinance.findMany({
+      select: {
+        status: true,
+        category: true,
+        year: true,
+        dateEnacted: true,
+        barangayId: true,
+      },
+    }),
+    prisma.report.findMany({
+      select: {
+        status: true,
+        type: true,
+        barangay: { select: { name: true } },
+      },
+    }),
+    prisma.barangay.findMany({
+      select: {
+        name: true,
+        _count: { select: { ordinances: true, reports: true } },
+      },
+      orderBy: { name: "asc" },
+    }),
+  ]);
+
+  return { ordinances, reports, barangaysWithCounts };
+}
+
+export async function getBarangayAnalyticsData(barangayId: string) {
+  const [
+    ordinances,
+    reports,
+    barangay,
+  ] = await Promise.all([
+    prisma.ordinance.findMany({
+      where: { barangayId },
+      select: {
+        status: true,
+        category: true,
+        year: true,
+        dateEnacted: true,
+      },
+    }),
+    prisma.report.findMany({
+      where: { barangayId },
+      select: {
+        status: true,
+        type: true,
+        submittedAt: true,
+      },
+    }),
+    prisma.barangay.findUnique({
+      where: { id: barangayId },
+      select: { name: true },
+    }),
+  ]);
+
+  return { ordinances, reports, barangay };
+}
+
+

@@ -7,6 +7,7 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 const BARANGAY_NAV = [
   { href: "/admin/barangay",            icon: "overview",   label: "Overview" },
   { href: "/admin/barangay/ordinances", icon: "ordinances", label: "Mga Ordinansa" },
+  { href: "/admin/barangay/analytics",  icon: "analytics",  label: "Analytics" },
   { href: "/admin/barangay/reports",    icon: "reports",    label: "Mga Ulat ng Komunidad" },
 ];
 

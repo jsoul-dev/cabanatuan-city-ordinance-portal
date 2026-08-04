@@ -492,10 +492,130 @@ export function XIcon({ size = 18, className = "", ...props }: IconProps) {
   );
 }
 
+export function OrdinancesScrollIcon({ size = 24, className = "", ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M19 17V5a2 2 0 0 0-2-2H4" />
+      <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a3 3 0 0 0-3 3Z" />
+      <path d="M5 21a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3h12a2 2 0 0 1 2 2v13" />
+      <path d="M7 8h8" />
+      <path d="M7 12h5" />
+    </svg>
+  );
+}
+
+export function AiBotSparkleIcon({ size = 24, className = "", ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M12 2v3" />
+      <circle cx="12" cy="2" r="1" fill="currentColor" />
+      <rect x="4" y="5" width="16" height="14" rx="4" />
+      <circle cx="9" cy="11" r="1.5" fill="currentColor" />
+      <circle cx="15" cy="11" r="1.5" fill="currentColor" />
+      <path d="M9.5 15c.8.6 1.7.9 2.5.9s1.7-.3 2.5-.9" />
+      <path d="M20 2l.5 1.5L22 4l-1.5.5L20 6l-.5-1.5L18 4l1.5-.5Z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function CommunityReportIcon({ size = 24, className = "", ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+      {...props}
+    >
+      <rect x="4" y="4" width="16" height="17" rx="3" />
+      <path d="M9 2h6a1 1 0 0 1 1 1v2H8V3a1 1 0 0 1 1-1Z" />
+      <path d="M8 10h8" />
+      <path d="M8 14h5" />
+      <path d="M15 17l1.5 1.5L19.5 15" />
+    </svg>
+  );
+}
+
+export function HomeIcon({ size = 18, className = "", ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+      <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    </svg>
+  );
+}
+
+export function BarChart3Icon({ size = 18, className = "", ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M3 3v18h18" />
+      <path d="M18 17V9" />
+      <path d="M13 17V5" />
+      <path d="M8 17v-3" />
+    </svg>
+  );
+}
+
 export const IconMap: Record<string, React.FC<IconProps>> = {
   overview: LayoutDashboardIcon,
   ordinances: FileTextIcon,
   users: UsersIcon,
+  barangays: Building2Icon,
+  analytics: BarChart3Icon,
   news: NewspaperIcon,
   reports: AlertTriangleIcon,
   search: SearchIcon,
@@ -511,4 +631,8 @@ export const IconMap: Record<string, React.FC<IconProps>> = {
   building: Building2Icon,
   check: CheckIcon,
   x: XIcon,
+  scroll: OrdinancesScrollIcon,
+  bot: AiBotSparkleIcon,
+  report: CommunityReportIcon,
+  home: HomeIcon,
 };
