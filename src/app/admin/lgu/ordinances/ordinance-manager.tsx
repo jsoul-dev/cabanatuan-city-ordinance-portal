@@ -1,13 +1,19 @@
 "use client";
 
-import { useState, useTransition, useCallback, useEffect } from "react";
+import { useState, useTransition, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import { ConfirmDialog } from "@/components/dashboard/confirm-dialog";
-import { approveOrdinance, rejectOrdinance, deleteOrdinance } from "../actions";
+import { AiOrdinanceExtractorModal } from "@/components/dashboard/ai-ordinance-extractor-modal";
+import { approveOrdinance, rejectOrdinance, deleteOrdinance, createCityOrdinance } from "../actions";
 
 type OrdinanceStatus = "ALL" | "DRAFT" | "PENDING" | "APPROVED" | "REJECTED";
+
+const ORDINANCE_CATEGORIES = [
+  "General", "Environment", "Public Safety", "Health", "Infrastructure",
+  "Education", "Livelihood", "Youth", "Senior Citizens", "Women & Children",
+];
 
 type Ordinance = {
   id: string;
@@ -41,6 +47,62 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
   const [statusFilter, setStatusFilter] = useState<OrdinanceStatus>("ALL");
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  const [showForm, setShowForm] = useState(false);
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [formError, setFormError] = useState("");
+  const addBtnRef = useRef<HTMLButtonElement>(null);
+
+  const [formState, setFormState] = useState({
+    title: "",
+    resolutionNumber: "",
+    series: new Date().getFullYear().toString(),
+    year: new Date().getFullYear().toString(),
+    dateEnacted: "",
+    category: "General",
+    description: "",
+    content: "",
+    penalties: "",
+    coverage: "",
+    enforcement: "",
+    tags: "",
+  });
+
+  const handleAiExtract = (data: any) => {
+    setFormState({
+      title: data.title || "",
+      resolutionNumber: data.ordinanceNumber || "",
+      series: data.series || new Date().getFullYear().toString(),
+      year: data.year?.toString() || new Date().getFullYear().toString(),
+      dateEnacted: data.dateEnacted ? data.dateEnacted.split("T")[0] : "",
+      category: ORDINANCE_CATEGORIES.includes(data.category) ? data.category : "General",
+      description: data.summary || "",
+      content: data.content || "",
+      penalties: data.penalties || "",
+      coverage: data.coverage || "",
+      enforcement: data.enforcement || "",
+      tags: Array.isArray(data.tags) ? data.tags.join(", ") : "",
+    });
+    setShowForm(true);
+  };
+
+  const handleCreateCityOrdinance = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFormError("");
+    const fd = new FormData(e.currentTarget);
+
+    startTransition(async () => {
+      const res = await createCityOrdinance(fd);
+      if (res.error) {
+        setFormError(res.error);
+        toast.error(res.error);
+      } else {
+        toast.success("Matagumpay na naitala ang bagong City Ordinance!");
+        setShowForm(false);
+        window.location.reload();
+      }
+    });
+  };
 
   const [dialogState, setDialogState] = useState<{
     type: "approve" | "reject" | "delete" | null;
@@ -119,6 +181,151 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
 
   return (
     <div className="space-y-4">
+      <AiOrdinanceExtractorModal
+        open={showAiModal}
+        onClose={() => setShowAiModal(false)}
+        onExtract={handleAiExtract}
+      />
+
+      {/* Action Bar */}
+      <div className="flex items-center justify-between gap-3 bg-[var(--bg-card)] p-4 rounded-[var(--radius-md)] border border-[var(--border-hairline)]">
+        <div>
+          <h2 className="text-sm font-bold text-[var(--text-ink)]">Pamamahala ng Ordinansa</h2>
+          <p className="text-xs text-[var(--text-mute)]">Suriin, aprubahan, o magdagdag ng City Ordinance gamit ang AI.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowAiModal(true)}
+            className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors shadow-sm"
+          >
+            ⚡ Auto-Extract gamit ang AI (gemini-3.5-flash-lite)
+          </button>
+          <button
+            ref={addBtnRef}
+            type="button"
+            onClick={() => { setShowForm((v) => !v); setFormError(""); }}
+            className="min-h-[44px] rounded-[var(--radius-sm)] bg-[var(--accent-primary)] px-5 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-primary)]/90 transition-colors"
+          >
+            + Bagong City Ordinance
+          </button>
+        </div>
+      </div>
+
+      {/* Submit City Ordinance Form */}
+      {showForm && (
+        <form
+          onSubmit={handleCreateCityOrdinance}
+          className="card-elevated p-5 space-y-4"
+          noValidate
+        >
+          <div className="flex items-center justify-between border-b border-[var(--border-hairline)] pb-3">
+            <h2 className="text-sm font-bold text-[var(--text-ink)]">Bagong City Ordinance (Opisyal)</h2>
+            <button
+              type="button"
+              onClick={() => setShowAiModal(true)}
+              className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors"
+            >
+              ⚡ Punan sa pamamagitan ng AI
+            </button>
+          </div>
+          {formError && (
+            <p role="alert" className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-[var(--radius-sm)] px-3 py-2">
+              ❌ {formError}
+            </p>
+          )}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="sm:col-span-3 flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-[var(--text-ink)]">Pamagat ng Ordinansa *</label>
+              <input name="title" type="text" required value={formState.title} onChange={(e) => setFormState({ ...formState, title: e.target.value })}
+                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-[var(--text-ink)]">Resolution Number *</label>
+              <input name="resolutionNumber" type="text" required value={formState.resolutionNumber} onChange={(e) => setFormState({ ...formState, resolutionNumber: e.target.value })}
+                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-[var(--text-ink)]">Series</label>
+              <input name="series" type="text" value={formState.series} onChange={(e) => setFormState({ ...formState, series: e.target.value })}
+                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-[var(--text-ink)]">Taon</label>
+              <input name="year" type="number" value={formState.year} onChange={(e) => setFormState({ ...formState, year: e.target.value })}
+                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-[var(--text-ink)]">Kategorya</label>
+              <select name="category" value={formState.category} onChange={(e) => setFormState({ ...formState, category: e.target.value })}
+                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
+              >
+                {ORDINANCE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-[var(--text-ink)]">Petsa ng Pagpapatibay</label>
+              <input name="dateEnacted" type="date" value={formState.dateEnacted} onChange={(e) => setFormState({ ...formState, dateEnacted: e.target.value })}
+                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-[var(--text-ink)]">Search Tags</label>
+              <input name="tags" type="text" value={formState.tags} onChange={(e) => setFormState({ ...formState, tags: e.target.value })}
+                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
+              />
+            </div>
+            <div className="sm:col-span-3 flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-[var(--text-ink)]">Maikling Paglalarawan</label>
+              <textarea name="description" rows={2} value={formState.description} onChange={(e) => setFormState({ ...formState, description: e.target.value })}
+                className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
+              />
+            </div>
+            <div className="sm:col-span-3 flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-[var(--text-ink)]">Saklaw / Coverage</label>
+              <input name="coverage" type="text" value={formState.coverage} onChange={(e) => setFormState({ ...formState, coverage: e.target.value })}
+                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
+              />
+            </div>
+            <div className="sm:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-[var(--text-ink)]">Parusa at Multa</label>
+                <textarea name="penalties" rows={3} value={formState.penalties} onChange={(e) => setFormState({ ...formState, penalties: e.target.value })}
+                  className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-[var(--text-ink)]">Ahensyang Magpapatupad</label>
+                <textarea name="enforcement" rows={3} value={formState.enforcement} onChange={(e) => setFormState({ ...formState, enforcement: e.target.value })}
+                  className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
+                />
+              </div>
+            </div>
+            <div className="sm:col-span-3 flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-[var(--text-ink)]">Buong Nilalaman</label>
+              <textarea name="content" rows={8} value={formState.content} onChange={(e) => setFormState({ ...formState, content: e.target.value })}
+                className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm font-mono text-[var(--text-ink)]"
+              />
+            </div>
+          </div>
+          <div className="flex gap-3 justify-end pt-2 border-t border-[var(--border-hairline)]">
+            <button type="button" onClick={() => setShowForm(false)}
+              className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-4 py-2 text-sm font-semibold text-[var(--text-ink)]"
+            >
+              Kanselahin
+            </button>
+            <button type="submit" disabled={isPending}
+              className="min-h-[44px] rounded-[var(--radius-sm)] bg-[var(--accent-primary)] px-5 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-primary)]/90 transition-colors disabled:opacity-50"
+            >
+              {isPending ? "Isinusumite…" : "📜 I-save ang City Ordinance"}
+            </button>
+          </div>
+        </form>
+      )}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
@@ -189,7 +396,11 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
               <tbody className="divide-y divide-[var(--border-hairline)]">
                 {filtered.map((ord) => (
                   <tr key={ord.id} className="hover:bg-[var(--bg-canvas)] transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs text-[var(--text-mute)] whitespace-nowrap">{ord.resolutionNumber}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-[var(--text-mute)] whitespace-nowrap">
+                      {ord.resolutionNumber.includes("-") || !ord.series
+                        ? ord.resolutionNumber
+                        : `${ord.series.replace(/\D/g, "")}-${ord.resolutionNumber}`}
+                    </td>
                     <td className="px-4 py-3 max-w-xs">
                       <p className="font-medium text-[var(--text-ink)] line-clamp-2">{ord.title}</p>
                       {ord.rejectedReason && (

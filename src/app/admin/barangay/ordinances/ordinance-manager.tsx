@@ -3,19 +3,21 @@
 import { useState, useTransition, useRef } from "react";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import { toast } from "sonner";
+import { AiOrdinanceExtractorModal } from "@/components/dashboard/ai-ordinance-extractor-modal";
 import { submitOrdinance } from "../actions";
 
-type Ordinance = {
+interface Ordinance {
   id: string;
   title: string;
   resolutionNumber: string;
   series: string | null;
+  category: string | null;
   status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED";
   createdAt: Date;
   rejectedReason: string | null;
   submittedBy: { name: string; role: string };
   reviewedBy: { name: string } | null;
-};
+}
 
 interface Props {
   initialOrdinances: Ordinance[];
@@ -30,9 +32,43 @@ const ORDINANCE_CATEGORIES = [
 export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props) {
   const [ordinances, setOrdinances] = useState(initialOrdinances);
   const [showForm, setShowForm] = useState(false);
+  const [showAiModal, setShowAiModal] = useState(false);
   const [formError, setFormError] = useState("");
   const [isPending, startTransition] = useTransition();
   const addBtnRef = useRef<HTMLButtonElement>(null);
+
+  const [formState, setFormState] = useState({
+    title: "",
+    resolutionNumber: "",
+    series: new Date().getFullYear().toString(),
+    year: new Date().getFullYear().toString(),
+    dateEnacted: "",
+    category: "General",
+    description: "",
+    content: "",
+    penalties: "",
+    coverage: "",
+    enforcement: "",
+    tags: "",
+  });
+
+  const handleAiExtract = (data: any) => {
+    setFormState({
+      title: data.title || "",
+      resolutionNumber: data.ordinanceNumber || "",
+      series: data.series || new Date().getFullYear().toString(),
+      year: data.year?.toString() || new Date().getFullYear().toString(),
+      dateEnacted: data.dateEnacted ? data.dateEnacted.split("T")[0] : "",
+      category: ORDINANCE_CATEGORIES.includes(data.category) ? data.category : "General",
+      description: data.summary || "",
+      content: data.content || "",
+      penalties: data.penalties || "",
+      coverage: data.coverage || "",
+      enforcement: data.enforcement || "",
+      tags: Array.isArray(data.tags) ? data.tags.join(", ") : "",
+    });
+    setShowForm(true);
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,7 +84,6 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
         toast.success("Ordinansa ay matagumpay na naisumite para sa pagsusuri ng LGU.");
         setShowForm(false);
         addBtnRef.current?.focus();
-        // Refresh via navigation to get updated server data
         window.location.reload();
       }
     });
@@ -60,10 +95,22 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
 
   return (
     <div className="space-y-4">
+      <AiOrdinanceExtractorModal
+        open={showAiModal}
+        onClose={() => setShowAiModal(false)}
+        onExtract={handleAiExtract}
+      />
 
       {/* Toolbar */}
       {canSubmit && (
-        <div className="flex justify-end">
+        <div className="flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => setShowAiModal(true)}
+            className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors shadow-sm"
+          >
+            ⚡ Auto-Extract (AI)
+          </button>
           <button
             ref={addBtnRef}
             type="button"
@@ -86,18 +133,28 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
           aria-label="Form para magsumite ng bagong ordinansa"
           noValidate
         >
-          <h2 className="text-sm font-bold text-[var(--text-ink)]">Bagong Ordinansa para sa Pagsusuri</h2>
+          <div className="flex items-center justify-between border-b border-[var(--border-hairline)] pb-3">
+            <h2 className="text-sm font-bold text-[var(--text-ink)]">Bagong Ordinansa para sa Pagsusuri</h2>
+            <button
+              type="button"
+              onClick={() => setShowAiModal(true)}
+              className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors"
+            >
+              ⚡ Punan sa pamamagitan ng AI
+            </button>
+          </div>
           {formError && (
             <p role="alert" className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-[var(--radius-sm)] px-3 py-2">
               ❌ {formError}
             </p>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2 flex flex-col gap-1.5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="sm:col-span-3 flex flex-col gap-1.5">
               <label htmlFor="ord-title" className="text-sm font-medium text-[var(--text-ink)]">
                 Pamagat ng Ordinansa <span className="text-red-500" aria-hidden="true">*</span>
               </label>
               <input id="ord-title" name="title" type="text" required
+                value={formState.title} onChange={(e) => setFormState({ ...formState, title: e.target.value })}
                 className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] placeholder:text-[var(--text-mute)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
                 placeholder="Hal. Isang Ordinansa na Nagtatakda ng…"
               />
@@ -107,6 +164,7 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
                 Resolution Number <span className="text-red-500" aria-hidden="true">*</span>
               </label>
               <input id="ord-res-no" name="resolutionNumber" type="text" required
+                value={formState.resolutionNumber} onChange={(e) => setFormState({ ...formState, resolutionNumber: e.target.value })}
                 className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] placeholder:text-[var(--text-mute)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
                 placeholder="Hal. RES-2025-001"
               />
@@ -116,40 +174,72 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
                 Series <span className="text-[var(--text-mute)] font-normal text-xs">(opsyonal)</span>
               </label>
               <input id="ord-series" name="series" type="text"
+                value={formState.series} onChange={(e) => setFormState({ ...formState, series: e.target.value })}
                 className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] placeholder:text-[var(--text-mute)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
-                placeholder="Hal. Series of 2025"
+                placeholder="Hal. 2025"
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="ord-category" className="text-sm font-medium text-[var(--text-ink)]">
-                Kategorya
-              </label>
-              <select id="ord-category" name="category"
+              <label htmlFor="ord-year" className="text-sm font-medium text-[var(--text-ink)]">Taon</label>
+              <input id="ord-year" name="year" type="number" value={formState.year} onChange={(e) => setFormState({ ...formState, year: e.target.value })}
+                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="ord-category" className="text-sm font-medium text-[var(--text-ink)]">Kategorya</label>
+              <select id="ord-category" name="category" value={formState.category} onChange={(e) => setFormState({ ...formState, category: e.target.value })}
                 className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
               >
                 {ORDINANCE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
-            <div className="sm:col-span-2 flex flex-col gap-1.5">
-              <label htmlFor="ord-description" className="text-sm font-medium text-[var(--text-ink)]">
-                Maikling Paglalarawan
-              </label>
-              <textarea id="ord-description" name="description" rows={2}
-                className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] placeholder:text-[var(--text-mute)] resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
-                placeholder="Maikling paglalarawan ng layunin ng ordinansa…"
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="ord-date" className="text-sm font-medium text-[var(--text-ink)]">Petsa ng Pagpapatibay</label>
+              <input id="ord-date" name="dateEnacted" type="date" value={formState.dateEnacted} onChange={(e) => setFormState({ ...formState, dateEnacted: e.target.value })}
+                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
               />
             </div>
-            <div className="sm:col-span-2 flex flex-col gap-1.5">
-              <label htmlFor="ord-content" className="text-sm font-medium text-[var(--text-ink)]">
-                Buong Nilalaman ng Ordinansa
-              </label>
-              <textarea id="ord-content" name="content" rows={8}
-                className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm font-mono text-[var(--text-ink)] placeholder:text-[var(--text-mute)] resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
-                placeholder="Ilagay ang buong teksto ng ordinansa dito…"
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="ord-tags" className="text-sm font-medium text-[var(--text-ink)]">Search Tags <span className="text-xs text-[var(--text-mute)]">(comma-separated)</span></label>
+              <input id="ord-tags" name="tags" type="text" value={formState.tags} onChange={(e) => setFormState({ ...formState, tags: e.target.value })}
+                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] placeholder:text-[var(--text-mute)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                placeholder="Hal. curfew, kabataan"
+              />
+            </div>
+            <div className="sm:col-span-3 flex flex-col gap-1.5">
+              <label htmlFor="ord-description" className="text-sm font-medium text-[var(--text-ink)]">Maikling Paglalarawan</label>
+              <textarea id="ord-description" name="description" rows={2} value={formState.description} onChange={(e) => setFormState({ ...formState, description: e.target.value })}
+                className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] placeholder:text-[var(--text-mute)] resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+              />
+            </div>
+            <div className="sm:col-span-3 flex flex-col gap-1.5">
+              <label htmlFor="ord-coverage" className="text-sm font-medium text-[var(--text-ink)]">Saklaw / Coverage</label>
+              <input id="ord-coverage" name="coverage" type="text" value={formState.coverage} onChange={(e) => setFormState({ ...formState, coverage: e.target.value })}
+                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] placeholder:text-[var(--text-mute)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+              />
+            </div>
+            <div className="sm:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="ord-penalties" className="text-sm font-medium text-[var(--text-ink)]">Parusa at Multa</label>
+                <textarea id="ord-penalties" name="penalties" rows={3} value={formState.penalties} onChange={(e) => setFormState({ ...formState, penalties: e.target.value })}
+                  className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="ord-enforcement" className="text-sm font-medium text-[var(--text-ink)]">Ahensyang Magpapatupad</label>
+                <textarea id="ord-enforcement" name="enforcement" rows={3} value={formState.enforcement} onChange={(e) => setFormState({ ...formState, enforcement: e.target.value })}
+                  className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                />
+              </div>
+            </div>
+            <div className="sm:col-span-3 flex flex-col gap-1.5">
+              <label htmlFor="ord-content" className="text-sm font-medium text-[var(--text-ink)]">Buong Nilalaman</label>
+              <textarea id="ord-content" name="content" rows={8} value={formState.content} onChange={(e) => setFormState({ ...formState, content: e.target.value })}
+                className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm font-mono text-[var(--text-ink)] resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
               />
             </div>
           </div>
-          <div className="flex gap-3 justify-end pt-2">
+          <div className="flex gap-3 justify-end pt-2 border-t border-[var(--border-hairline)]">
             <button type="button" onClick={() => { setShowForm(false); addBtnRef.current?.focus(); }}
               className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-4 py-2 text-sm font-semibold text-[var(--text-ink)] hover:bg-[var(--border-hairline)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
             >
@@ -194,7 +284,11 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
               <tbody className="divide-y divide-[var(--border-hairline)]">
                 {ordinances.map((ord) => (
                   <tr key={ord.id} className="hover:bg-[var(--bg-canvas)] transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs text-[var(--text-mute)]">{ord.resolutionNumber}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-[var(--text-mute)]">
+                      {ord.resolutionNumber.includes("-") || !ord.series
+                        ? ord.resolutionNumber
+                        : `${ord.series.replace(/\D/g, "")}-${ord.resolutionNumber}`}
+                    </td>
                     <td className="px-4 py-3 max-w-xs">
                       <p className="font-medium text-[var(--text-ink)] line-clamp-2">{ord.title}</p>
                       {ord.rejectedReason && (

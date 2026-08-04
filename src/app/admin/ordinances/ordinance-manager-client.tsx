@@ -287,7 +287,9 @@ export function OrdinanceManagerClient({
                 {ordinances.map((ord) => (
                   <tr key={ord.id} className="hover:bg-[var(--bg-canvas)]">
                     <td className="p-4 font-mono text-xs">
-                      {ord.resolutionNumber}
+                      {ord.resolutionNumber.includes("-") || !ord.series
+                        ? ord.resolutionNumber
+                        : `${ord.series.replace(/\D/g, "")}-${ord.resolutionNumber}`}
                     </td>
                     <td className="p-4 font-medium text-[var(--text-ink)] max-w-xs truncate">
                       {ord.title}
