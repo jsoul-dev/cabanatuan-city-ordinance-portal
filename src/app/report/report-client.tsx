@@ -5,6 +5,7 @@ import type { Barangay } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { clsx } from "clsx";
+import { submitCommunityReport } from "./actions";
 
 interface ReportClientFormProps {
   barangays: Barangay[];
@@ -88,18 +89,29 @@ export function ReportClientForm({ barangays }: ReportClientFormProps) {
     }
 
     setIsSubmitting(true);
-    // Simulate API reporting endpoint submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const res = await submitCommunityReport({
+      subject: formData.subject,
+      barangayId: formData.barangayId,
+      category: formData.category,
+      details: formData.details,
+      isAnonymous: formData.isAnonymous,
+      contactName: formData.contactName,
+      contactPhone: formData.contactPhone,
+    });
     setIsSubmitting(false);
 
+    if (res.error) {
+      alert(res.error);
+      return;
+    }
+
     setSuccessMessage(
-      `Maraming salamat! Ang inyong ulat "${formData.subject}" ay naisumite na sa Barangay Hall. Ticket ID: #KBN-${Math.floor(
-        10000 + Math.random() * 90000
-      )}`
+      `Maraming salamat! Ang inyong ulat "${formData.subject}" ay naisumite na sa Barangay Hall at makikita sa dashboard ng inyong Barangay Admin.`
     );
 
     handleClearDraft();
   };
+
 
   return (
     <div className="rounded-[var(--radius-lg)] border border-[var(--border-hairline)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-sm">

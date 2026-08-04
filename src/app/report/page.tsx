@@ -12,6 +12,11 @@ export const metadata: Metadata = {
 
 export default async function ReportPage() {
   const barangays = await prisma.barangay.findMany({
+    where: {
+      users: {
+        some: {},
+      },
+    },
     orderBy: { name: "asc" },
   });
 

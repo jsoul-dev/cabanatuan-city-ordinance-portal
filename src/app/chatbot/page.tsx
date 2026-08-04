@@ -28,21 +28,7 @@ export default function ChatbotPage() {
           aria-hidden="true"
         />
 
-        <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 text-center">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-600/30 bg-emerald-500/10 px-3 py-1 font-mono text-xs font-semibold tracking-widest text-emerald-700 dark:border-emerald-500/30 dark:text-emerald-400 uppercase">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
-              <span>AI LEGAL & CIVIC ASSISTANT • TAGALOG / ENGLISH</span>
-            </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-neutral-900 dark:text-white sm:text-4xl lg:text-5xl">
-              Batas Cabanatuan AI
-            </h1>
-            <p className="mt-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-base max-w-xl mx-auto">
-              May katanungan tungkol sa ordinansa ng lungsod o inyong barangay?
-              Magtanong kay Batas AI at makakuha ng sagot na may kasamang citation.
-            </p>
-          </div>
-
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <ChatbotClient />
         </div>
       </main>

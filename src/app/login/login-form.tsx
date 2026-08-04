@@ -5,13 +5,14 @@ import { login, type LoginResult } from "@/lib/auth-actions";
 
 interface LoginFormProps {
   theme?: "dark" | "light";
+  onForgotClick?: () => void;
 }
 
 /**
  * Premium Login Form — modeled after ultra-sleek dark glassmorphic auth portals (winauth.net style).
  * Includes global theme sync via Tailwind dark: utilities and quick-fill test account chips.
  */
-export function LoginForm({ theme }: LoginFormProps) {
+export function LoginForm({ theme, onForgotClick }: LoginFormProps) {
   const [state, formAction, isPending] = useActionState<
     LoginResult | undefined,
     FormData
@@ -79,9 +80,13 @@ export function LoginForm({ theme }: LoginFormProps) {
             >
               Password
             </label>
-            <span className="cursor-pointer text-xs transition-colors text-neutral-500 hover:text-emerald-600 dark:text-neutral-400 dark:hover:text-emerald-400">
+            <button
+              type="button"
+              onClick={onForgotClick}
+              className="text-xs transition-colors text-neutral-500 hover:text-emerald-600 dark:text-neutral-400 dark:hover:text-emerald-400 focus-visible:outline-none"
+            >
               Forgot password?
-            </span>
+            </button>
           </div>
           <input
             id="password-input"

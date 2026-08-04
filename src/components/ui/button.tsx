@@ -33,6 +33,10 @@ const buttonVariants = cva(
           "border border-[var(--border-hairline)]",
           "hover:bg-[var(--border-hairline-soft,#f2f2f2)]",
         ].join(" "),
+        outline: [
+          "bg-transparent text-[var(--text-ink)] border border-[var(--border-hairline)]",
+          "hover:bg-[var(--border-hairline-soft,#f2f2f2)] hover:text-[var(--text-ink)]",
+        ].join(" "),
         gold: [
           "bg-[var(--accent-gold)] text-white",
           "hover:bg-[var(--color-lgu-gold-deep)]",

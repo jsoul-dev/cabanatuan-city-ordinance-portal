@@ -121,6 +121,12 @@
 
 /* ─── Base Styles ─────────────────────────────────────────────────────────── */
 
+html,
+body {
+  overflow-y: overlay;
+  scroll-behavior: smooth;
+}
+
 *,
 *::before,
 *::after {
@@ -231,24 +237,43 @@ body {
   );
 }
 
-/* ─── Scrollbar (subtle, Geist-style) ────────────────────────────────────── */
+/* ─── Overlay Scrollbars (Float on top of content, zero layout shift) ───── */
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.4) transparent;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-track-piece {
+  background: transparent !important;
+  border: none !important;
+}
+
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent !important;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-hairline);
-  border-radius: var(--radius-full);
+  background-color: rgba(100, 116, 139, 0.35) !important;
+  border-radius: 9999px !important;
+  border: none !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-mute);
+  background-color: rgba(100, 116, 139, 0.65) !important;
 }
 
 /* ─── Selection Color (LGU brand) ────────────────────────────────────────── */

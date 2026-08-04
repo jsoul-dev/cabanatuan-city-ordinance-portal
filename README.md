@@ -163,7 +163,7 @@ To verify and compile an optimized production bundle:
 npm run build
 ```
 
-The system will perform full TypeScript type verification, linting, and generate 14 optimized static and dynamic server-rendered routes.
+The system will perform full TypeScript type verification, linting, and generate 28 optimized static and dynamic server-rendered routes (including Recharts analytics and skeleton loading states).
 
 ---
 

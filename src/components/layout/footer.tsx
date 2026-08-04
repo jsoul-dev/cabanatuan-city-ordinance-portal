@@ -9,9 +9,7 @@ const footerLinks = {
     { href: "/news", label: "Balita" },
   ],
   "Pamamahala": [
-    { href: "/admin/barangay", label: "Barangay Portal" },
-    { href: "/admin/lgu", label: "LGU Admin" },
-    { href: "/login", label: "Mag-login" },
+    { href: "/login", label: "Admin Dashboard" },
     {
       href: "https://www.cabanatuancity.gov.ph/",
       label: "LGU Website",
@@ -43,9 +41,9 @@ export function Footer() {
       role="contentinfo"
     >
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-5 lg:gap-12">
           {/* Brand Column */}
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 font-mono text-xs font-bold text-neutral-900 dark:text-white">
               <Image
                 src="/lgu-logo.png"
@@ -67,7 +65,7 @@ export function Footer() {
             </p>
             <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-2.5 py-1 font-mono text-[10px] text-emerald-700 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-emerald-400 dark:shadow-none">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
-              <span>RLS SECURED • 75 BARANGAYS</span>
+              <span>OFFICIAL PORTAL • 75 BARANGAYS</span>
             </div>
           </div>
 
@@ -100,18 +98,11 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 border-t border-neutral-200 dark:border-white/10 pt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
+        <div className="mt-12 border-t border-neutral-200 dark:border-white/10 pt-6 text-center">
           <p className="text-xs text-neutral-500">
             © {new Date().getFullYear()} Pamahalaang Lungsod ng Cabanatuan. All
             rights reserved.
           </p>
-          <div className="flex items-center gap-4 font-mono text-xs text-neutral-500">
-            <span>WCAG 2.2 AA</span>
-            <span>•</span>
-            <span>Tagalog / English</span>
-            <span>•</span>
-            <span>RLS Enforced</span>
-          </div>
         </div>
       </div>
     </footer>

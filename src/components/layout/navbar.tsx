@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -21,18 +21,7 @@ const navLinks = [
  */
 export function Navbar() {
   const pathname = usePathname();
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => setMounted(true), []);
-
-  const toggleTheme = () => {
-    const current = resolvedTheme || theme;
-    setTheme(current === "dark" ? "light" : "dark");
-  };
-
-  const isDark = mounted && (resolvedTheme === "dark" || theme === "dark");
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-neutral-200/80 bg-white/80 dark:border-white/10 dark:bg-[#050a08]/80 backdrop-blur-xl transition-colors">
@@ -91,16 +80,7 @@ export function Navbar() {
         {/* Right Side: Theme Toggle + Portal Access CTA */}
         <div className="hidden items-center gap-3 md:flex">
           {/* Theme Toggle Button */}
-          {mounted && (
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label="Toggle light or dark theme"
-              className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-100 px-3 py-1.5 text-xs font-medium text-neutral-700 backdrop-blur-md transition-all hover:bg-neutral-200 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white"
-            >
-              <span>{isDark ? "☀️ Light" : "🌙 Dark"}</span>
-            </button>
-          )}
+          <ThemeToggle />
 
           <Link href="/login">
             <button
@@ -114,16 +94,7 @@ export function Navbar() {
 
         {/* Mobile Hamburger Button */}
         <div className="flex items-center gap-2 md:hidden">
-          {mounted && (
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-              className="rounded-full border border-neutral-200 bg-neutral-100 p-1.5 text-xs text-neutral-700 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300"
-            >
-              {isDark ? "☀️" : "🌙"}
-            </button>
-          )}
+          <ThemeToggle />
 
           <button
             type="button"

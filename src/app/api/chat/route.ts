@@ -9,13 +9,50 @@ import { prisma } from "@/lib/prisma";
  */
 export async function POST(request: Request) {
   try {
-    const { messages } = await request.json();
+    const { messages, sessionId, userId } = await request.json();
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
         { error: "Mangyaring magpadala ng tamang mensahe." },
         { status: 400 }
       );
+    }
+
+    // 1 Session per device/user in Database (prevents spamming chat_sessions table)
+    try {
+      if (sessionId || userId) {
+        let existingSession = null;
+        if (sessionId) {
+          existingSession = await prisma.chatSession.findUnique({
+            where: { id: sessionId },
+          });
+        }
+        if (!existingSession && userId) {
+          existingSession = await prisma.chatSession.findFirst({
+            where: { userId },
+          });
+        }
+
+        if (existingSession) {
+          await prisma.chatSession.update({
+            where: { id: existingSession.id },
+            data: {
+              messages: messages as any,
+              userId: userId || existingSession.userId,
+            },
+          });
+        } else {
+          await prisma.chatSession.create({
+            data: {
+              id: sessionId || undefined,
+              userId: userId || null,
+              messages: messages as any,
+            },
+          });
+        }
+      }
+    } catch (dbErr) {
+      console.warn("Could not sync chat session to database:", dbErr);
     }
 
     const lastMessage = messages[messages.length - 1]?.content || "";
@@ -70,8 +107,11 @@ ${dbContext}
 4. Kung wala sa database ang partikular na sagot, sabihin nang tapat at payuhing makipag-ugnayan sa Sangguniang Panlungsod o sa kani-kanilang Barangay Hall. Never invent fake legal resolution numbers.
 5. Panatilihin ang propesyonal, matulungin, at makababayang tono ("Bagong Cabanatuan").`;
 
+    // Context Windowing: limit to the last 10 messages to conserve token usage
+    const windowedMessages = messages.slice(-10);
+
     // Convert chat messages to Gemini content format
-    const contents = messages.map((m: { role: string; content: string }) => ({
+    const contents = windowedMessages.map((m: { role: string; content: string }) => ({
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
     }));
