@@ -20,17 +20,18 @@ interface ConfirmDialogProps {
 }
 
 const variantMap = {
-  danger:  { btn: "bg-red-600 hover:bg-red-700 text-white focus-visible:ring-2 focus-visible:ring-red-500", icon: "⚠️" },
-  warning: { btn: "bg-amber-500 hover:bg-amber-600 text-white focus-visible:ring-2 focus-visible:ring-amber-400", icon: "❗" },
-  default: { btn: "bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/90 text-white focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]", icon: "ℹ️" },
+  danger:  { btn: "bg-red-600 hover:bg-red-700 text-white ring-2 ring-red-500 ring-offset-2 ring-offset-[var(--bg-card)] focus:outline-none focus:ring-4 focus:ring-red-500", icon: "⚠️" },
+  warning: { btn: "bg-amber-500 hover:bg-amber-600 text-white ring-2 ring-amber-400 ring-offset-2 ring-offset-[var(--bg-card)] focus:outline-none focus:ring-4 focus:ring-amber-400", icon: "❗" },
+  default: { btn: "bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/90 text-white ring-2 ring-[var(--accent-primary)] ring-offset-2 ring-offset-[var(--bg-card)] focus:outline-none focus:ring-4 focus:ring-[var(--accent-primary)]", icon: "ℹ️" },
 };
 
 /**
  * A11Y-compliant modal dialog.
  * – role="alertdialog" for destructive confirmations
  * – Full focus trap (Tab/Shift-Tab loop)
- * – Escape key cancels
- * – Focus returns to trigger element on close (caller's responsibility via autoFocusRef)
+ * – Escape key cancels, Enter key confirms
+ * – Click outside backdrop cancels
+ * – Focus defaults to Confirm button with highlight
  */
 export function ConfirmDialog({
   open,
@@ -48,20 +49,37 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const cancelBtnRef = useRef<HTMLButtonElement>(null);
+  const confirmBtnRef = useRef<HTMLButtonElement>(null);
   const style = variantMap[variant];
 
-  // Move focus inside dialog when it opens
+  const canConfirm = !reasonRequired || (reason?.trim().length ?? 0) > 0;
+
+  // Move focus inside dialog when it opens - default to Confirm button for Enter support
   useEffect(() => {
     if (open) {
-      setTimeout(() => cancelBtnRef.current?.focus(), 50);
+      setTimeout(() => confirmBtnRef.current?.focus(), 50);
     }
   }, [open]);
 
-  // Escape key closes dialog
+  // Escape key closes dialog, Enter key confirms
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (!open) return;
-      if (e.key === "Escape") { e.preventDefault(); onCancel(); }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onCancel();
+        return;
+      }
+
+      if (
+        e.key === "Enter" &&
+        !e.defaultPrevented &&
+        document.activeElement?.tagName !== "TEXTAREA"
+      ) {
+        e.preventDefault();
+        if (canConfirm) onConfirm();
+        return;
+      }
 
       // Focus trap
       if (e.key === "Tab" && dialogRef.current) {
@@ -77,7 +95,7 @@ export function ConfirmDialog({
         }
       }
     },
-    [open, onCancel]
+    [open, onCancel, onConfirm, canConfirm]
   );
 
   useEffect(() => {
@@ -87,12 +105,13 @@ export function ConfirmDialog({
 
   if (!open) return null;
 
-  const canConfirm = !reasonRequired || (reason?.trim().length ?? 0) > 0;
-
   return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       aria-modal="true"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onCancel();
+      }}
     >
       {/* Backdrop */}
       <div
@@ -107,6 +126,7 @@ export function ConfirmDialog({
         role="alertdialog"
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-desc"
+        onClick={(e) => e.stopPropagation()}
         className="relative w-full max-w-md rounded-[var(--radius-lg)] bg-[var(--bg-card)] border border-[var(--border-hairline)] shadow-2xl p-6 flex flex-col gap-4"
       >
         <div className="flex items-start gap-3">
@@ -160,7 +180,9 @@ export function ConfirmDialog({
             {cancelLabel}
           </button>
           <button
+            ref={confirmBtnRef}
             type="button"
+            autoFocus
             onClick={canConfirm ? onConfirm : undefined}
             disabled={!canConfirm}
             aria-disabled={!canConfirm}

@@ -5,7 +5,7 @@ import { Type, Schema } from "@google/genai";
 /**
  * POST /api/ordinances/extract
  * Uses @google/genai with gemini-3.5-flash-lite to extract structured ordinance metadata
- * from text or scanned images/PDFs.
+ * from text, scanned PDF documents, or multiple image pages (OCR).
  *
  * CRITICAL RULE: Automatically strips redundant prefixes from the title
  * (e.g. "City Ordinance Establishing...", "Ordinansa para sa...", "AN ORDINANCE...").
@@ -99,7 +99,8 @@ const ORDINANCE_SCHEMA: Schema = {
 };
 
 const EXTRACTION_PROMPT = `Ikaw ay isang batikan at eksperto sa mga lokal na ordinansa sa Pilipinas, lalo na sa Lungsod ng Cabanatuan.
-Suriin nang mabuti ang ibinigay na teksto o larawan/scanned na ordinansa o resolusyon.
+Suriin nang mabuti ang ibinigay na teksto, scanned PDF, o mga larawan (multi-page scanned ordinance o resolusyon).
+Kung maraming pahina (multiple images o pages) ang ibinigay, BASAHIN AT PAG-UGNAYIN ANG LAHAT NG PAHINA mula simula hanggang dulo upang makumpleto ang pamagat, mga seksyon, parusa, at buong nilalaman.
 I-extract ang lahat ng kinakailangang impormasyon at sundin nang maigi ang schema.
 
 MAHALAGANG PATAKARAN SA PAMAGAT (TITLE):
@@ -109,29 +110,39 @@ MAHALAGANG PATAKARAN SA PAMAGAT (TITLE):
   * "Ordinansa para sa..." -> alisin ang "Ordinansa para sa "
   * "Ordinansang..." -> alisin ang "Ordinansang "
 - Ang pamagat ay dapat maikli, malinaw, at direktang nagsasabi kung tungkol saan ang ordinansa (halimbawa: "Curfew Hours for Minors in Cabanatuan City", "Tamang Pagtatapon ng Basura at Segregation sa Barangay", "Anti-Muffler at Maingay na Tambutso").
-- Para sa "summary", gumawa ng napakalinaw at madaling intindihing buod sa wikang Tagalog/Filipino para sa ordinaryong mamamayan.`;
+- Para sa "summary", gumawa ng napakalinaw at madaling intindihing buod sa wikang Tagalog/Filipino para sa ordinaryong mamamayan.
+- Kung ang dokumento ay scanned image o PDF na may tatak (stamp) o sulat-kamay na petsa/numero, i-extract din ang mga ito gamit ang iyong OCR capability.`;
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { text, base64Image, mimeType } = body;
+    const { text, base64Image, mimeType, files } = body;
 
-    if (!text && !base64Image) {
+    const uploadedFiles: Array<{ data: string; mimeType: string; name?: string }> = [];
+
+    if (Array.isArray(files) && files.length > 0) {
+      uploadedFiles.push(...files);
+    } else if (base64Image && mimeType) {
+      uploadedFiles.push({ data: base64Image, mimeType });
+    }
+
+    if (!text && uploadedFiles.length === 0) {
       return NextResponse.json(
-        { error: "Mangyaring magbigay ng teksto o larawan ng ordinansa." },
+        { error: "Mangyaring magbigay ng teksto o mag-upload ng dokumento/larawan ng ordinansa." },
         { status: 400 }
       );
     }
 
     const contents: any[] = [];
-    if (base64Image && mimeType) {
+    for (const f of uploadedFiles) {
       contents.push({
         inlineData: {
-          data: base64Image,
-          mimeType,
+          data: f.data,
+          mimeType: f.mimeType,
         },
       });
     }
+
     if (text) {
       contents.push(text);
     }

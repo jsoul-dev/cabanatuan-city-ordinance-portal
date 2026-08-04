@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition, useMemo } from "react";
+import React, { useState, useTransition, useMemo, useEffect } from "react";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import { ConfirmDialog } from "@/components/dashboard/confirm-dialog";
@@ -55,6 +55,18 @@ export function BarangayManager({ initialBarangays }: BarangayManagerProps) {
 
   // Delete confirm dialog
   const [deleteId, setDeleteId] = useState<{ id: string; name: string } | null>(null);
+
+  // Escape key closes modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (showBarangayModal) setShowBarangayModal(false);
+        if (showAccountModal) setShowAccountModal(false);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [showBarangayModal, showAccountModal]);
 
   // Stats computation
   const stats = useMemo(() => {
@@ -373,12 +385,18 @@ export function BarangayManager({ initialBarangays }: BarangayManagerProps) {
 
       {/* ─── MODAL 1: REGISTER / EDIT BARANGAY ─── */}
       {showBarangayModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowBarangayModal(false);
+          }}
+        >
           <div
             className="w-full max-w-lg rounded-2xl bg-[var(--bg-card)] border border-[var(--border-hairline)] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             role="dialog"
             aria-modal="true"
             aria-labelledby="barangay-modal-title"
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[var(--border-hairline)] px-6 py-4 bg-[var(--bg-canvas)]">
               <h3
@@ -455,7 +473,7 @@ export function BarangayManager({ initialBarangays }: BarangayManagerProps) {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="rounded-[var(--radius-sm)] bg-emerald-600 hover:bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-sm disabled:opacity-50"
+                  className="rounded-[var(--radius-sm)] bg-emerald-600 hover:bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-sm ring-2 ring-emerald-500 ring-offset-2 ring-offset-[var(--bg-card)] focus:outline-none focus:ring-4 focus:ring-emerald-500 disabled:opacity-50"
                 >
                   {isPending ? "Nagse-save..." : "I-save ang Barangay"}
                 </button>
@@ -467,12 +485,18 @@ export function BarangayManager({ initialBarangays }: BarangayManagerProps) {
 
       {/* ─── MODAL 2: MANAGE BARANGAY ADMIN ACCOUNT ─── */}
       {showAccountModal && targetBarangayForAccount && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAccountModal(false);
+          }}
+        >
           <div
             className="w-full max-w-lg rounded-2xl bg-[var(--bg-card)] border border-[var(--border-hairline)] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             role="dialog"
             aria-modal="true"
             aria-labelledby="account-modal-title"
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-[var(--border-hairline)] px-6 py-4 bg-[var(--bg-canvas)]">
               <div>
@@ -609,7 +633,7 @@ export function BarangayManager({ initialBarangays }: BarangayManagerProps) {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="rounded-[var(--radius-sm)] bg-emerald-600 hover:bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-sm disabled:opacity-50"
+                  className="rounded-[var(--radius-sm)] bg-emerald-600 hover:bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow-sm ring-2 ring-emerald-500 ring-offset-2 ring-offset-[var(--bg-card)] focus:outline-none focus:ring-4 focus:ring-emerald-500 disabled:opacity-50"
                 >
                   {isPending ? "Nagse-save..." : "I-save ang Account"}
                 </button>

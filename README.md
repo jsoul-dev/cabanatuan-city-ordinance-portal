@@ -34,18 +34,21 @@ Designed to bridge the gap between local law enforcement, government officials, 
 - **Streaming UI:** Real-time token streaming with responsive feedback and persistent client-side chat history.
 
 ### 3. AI-Powered OCR & Multimodal Ordinance Parser
-- **Scanned Document & Image OCR Extraction:** Using **Gemini 3.5 Flash-Lite Multimodal Vision (`/api/ordinances/extract`)**, administrators can upload digital PDFs or physical scanned documents (even with stamps, watermarks, or signatures).
+- **Scanned Document & Image OCR Extraction:** Using **Gemini 3.5 Flash-Lite Multimodal Vision (`/api/ordinances/extract`)**, administrators can upload digital PDFs, complete scanned PDFs, or multiple sequential image pages (PNG/JPG/WEBP) even with stamps, watermarks, or signatures.
+- **Multi-Page & Multi-File OCR:** Automatically combines and analyzes multi-page scanned ordinances in sequence to reconstruct the complete title, sections, and penalties.
 - **Automated Metadata Parsing:** Automatically extracts and structures:
   - Official Resolution Number, Series Year, and Date Enacted
   - Cleaned Legislative Title (strips verbose legal preambles)
   - Policy Category, Summary, Coverage, and Key Tags
   - Detailed Penalties and Enforcement Agencies
-- **Interactive Review Modal:** Administrators can verify and tweak AI-extracted fields bago i-publish sa database, reducing manual encoding by 85%.
+- **Interactive Review Modal:** Administrators can verify and tweak AI-extracted fields before publishing to the database, reducing manual encoding by 85%.
 
 ### 4. Executive Analytics & Governance Dashboard
 - **Recharts Analytics & Instant Shimmer Skeletons:** Interactive visualizations for enactment velocity, policy distribution, and citizen report resolution rates across LGU and Barangay dashboards with accurate skeleton loading states (`TableSkeleton`, `FilterBarSkeleton`, `AnalyticsLoadingSkeleton`).
 - **Dynamic Barangay Account Management:** Modern pop-modal account creation for participating barangays with dynamic boundary year calculation (defaulting to 2015–2026 fallback).
 - **Participating-Only Civic Reporting:** Citizen violation reports are intelligently filtered and routed only to registered and participating barangays.
+- **Zero-Config Local Development Storage:** Automatically defaults to `/public/uploads/` for zero-config local development while supporting Supabase Storage for production deployments.
+- **Accessible & Responsive Modals:** Full WAI-ARIA compliant modal dialogs across LGU and Barangay dashboards with backdrop click-to-close, global `Escape` key listeners, and primary action `Enter` key support.
 - **Role-Based Access Control (RBAC):**
   - `LGU_ADMIN`: Full city-level CRUD, review queue, user directory, and news broadcasting.
   - `CAPTAIN`: Barangay-scoped ordinance management and local report resolution.

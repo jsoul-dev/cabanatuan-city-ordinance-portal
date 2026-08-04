@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { LoginForm } from "./login-form";
@@ -15,6 +15,18 @@ export function LoginClient() {
   const [authMode, setAuthMode] = useState<"login" | "recovery">("login");
   const [recoveryEmail, setRecoveryEmail] = useState("");
   const [resetSent, setResetSent] = useState(false);
+
+  useEffect(() => {
+    if (!showAccessModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setShowAccessModal(false);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [showAccessModal]);
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden transition-colors duration-500 bg-[#fafaf9] text-neutral-900 selection:bg-emerald-600 selection:text-white dark:bg-[#050807] dark:text-white dark:selection:bg-emerald-500 dark:selection:text-black">
