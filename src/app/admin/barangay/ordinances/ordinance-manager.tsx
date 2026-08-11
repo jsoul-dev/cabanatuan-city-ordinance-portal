@@ -40,6 +40,7 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
   const [formState, setFormState] = useState({
     title: "",
     resolutionNumber: "",
+    ordinanceLabel: "",
     series: new Date().getFullYear().toString(),
     year: new Date().getFullYear().toString(),
     dateEnacted: "",
@@ -49,13 +50,16 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
     penalties: "",
     coverage: "",
     enforcement: "",
+    signatories: "",
     tags: "",
+    pdfUrl: "",
   });
 
   const handleAiExtract = (data: any) => {
     setFormState({
       title: data.title || "",
       resolutionNumber: data.ordinanceNumber || "",
+      ordinanceLabel: data.ordinanceLabel || "",
       series: data.series || new Date().getFullYear().toString(),
       year: data.year?.toString() || new Date().getFullYear().toString(),
       dateEnacted: data.dateEnacted ? data.dateEnacted.split("T")[0] : "",
@@ -65,7 +69,9 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
       penalties: data.penalties || "",
       coverage: data.coverage || "",
       enforcement: data.enforcement || "",
+      signatories: data.signatories || "",
       tags: Array.isArray(data.tags) ? data.tags.join(", ") : "",
+      pdfUrl: data.pdfUrl || "",
     });
     setShowForm(true);
   };
@@ -144,9 +150,16 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
             </button>
           </div>
           {formError && (
-            <p role="alert" className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-[var(--radius-sm)] px-3 py-2">
+            <p className="text-xs text-red-600 bg-red-50 dark:bg-red-950/40 p-2.5 rounded border border-red-200 dark:border-red-800" role="alert">
               ❌ {formError}
             </p>
+          )}
+          <input type="hidden" name="pdfUrl" value={formState.pdfUrl} />
+          <input type="hidden" name="ordinanceLabel" value={formState.ordinanceLabel} />
+          {formState.pdfUrl && (
+            <div className="flex items-center gap-2 rounded-[var(--radius-sm)] border border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-2 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
+              <span>📎 Naka-attach na ang opisyal na dokumento mula sa Auto-Extract</span>
+            </div>
           )}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-3 flex flex-col gap-1.5">
@@ -231,6 +244,13 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
                   className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
                 />
               </div>
+            </div>
+            <div className="sm:col-span-3 flex flex-col gap-1.5">
+              <label htmlFor="ord-signatories" className="text-sm font-medium text-[var(--text-ink)]">Mga Lumagda / Signatories</label>
+              <textarea id="ord-signatories" name="signatories" rows={2} value={formState.signatories} onChange={(e) => setFormState({ ...formState, signatories: e.target.value })}
+                className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] placeholder:text-[var(--text-mute)] resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                placeholder="Hal. Punong Barangay, Mga Kagawad, Kalihim"
+              />
             </div>
             <div className="sm:col-span-3 flex flex-col gap-1.5">
               <label htmlFor="ord-content" className="text-sm font-medium text-[var(--text-ink)]">Buong Nilalaman</label>

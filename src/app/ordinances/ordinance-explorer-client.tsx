@@ -15,7 +15,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { clsx } from "clsx";
-import { cleanOrdinanceTitle, formatOrdinanceYear } from "@/lib/ordinance-utils";
+import { cleanOrdinanceTitle, formatOrdinanceYear, formatResolutionNumber, formatResolutionDisplay, formatCoverage } from "@/lib/ordinance-utils";
 import { PdfViewerModal } from "@/components/ui/pdf-viewer-modal";
 
 type OrdinanceWithBarangay = Ordinance & {
@@ -41,7 +41,6 @@ export function OrdinanceExplorerClient({
   const [activePdfUrl, setActivePdfUrl] = useState<string | null>(null);
   const [activePdfTitle, setActivePdfTitle] = useState<string>("");
   const [activePdfRes, setActivePdfRes] = useState<string | undefined>(undefined);
-  const [activePdfSeries, setActivePdfSeries] = useState<string | null>(null);
 
   // Compute available years from database, fallback to 2015-2026
   const availableYears = useMemo(() => {
@@ -271,7 +270,7 @@ export function OrdinanceExplorerClient({
               setSelectedYear("ALL");
             }}
           >
-            🔄 I-reset ang lahat ng filter
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" className="inline-block"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>{" "}I-reset ang lahat ng filter
           </Button>
         )}
       </div>
@@ -279,9 +278,7 @@ export function OrdinanceExplorerClient({
       {/* Ordinances Grid / List */}
       {filteredOrdinances.length === 0 ? (
         <div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-hairline)] bg-[var(--bg-card)] p-12 text-center">
-          <p className="text-3xl mb-2" aria-hidden="true">
-            🔍
-          </p>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mx-auto mb-2 text-neutral-400" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
           <h3 className="text-base font-semibold text-[var(--text-ink)]">
             Walang nahanap na ordinansa
           </h3>
@@ -319,7 +316,7 @@ export function OrdinanceExplorerClient({
                       </div>
 
                       <span className="text-xs font-mono font-medium text-[var(--text-mute)] whitespace-nowrap">
-                        Res. No. {ord.resolutionNumber} {ord.series ? `(${ord.series})` : ""}
+                        Res. No. {formatResolutionDisplay(ord.resolutionNumber)}
                       </span>
                     </div>
 
@@ -354,8 +351,9 @@ export function OrdinanceExplorerClient({
                     {/* Coverage badge if present */}
                     {ord.coverage && (
                       <div className="text-[11px] text-[var(--text-mute)] flex items-center gap-1">
-                        <span>📍 Coverage:</span>
-                        <span className="font-medium text-[var(--text-ink)]">{ord.coverage}</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span>Coverage:</span>
+                        <span className="font-medium text-[var(--text-ink)]">{formatCoverage(ord.coverage, ord.type, ord.barangay?.name)}</span>
                       </div>
                     )}
                   </CardContent>
@@ -392,14 +390,13 @@ export function OrdinanceExplorerClient({
                           setActivePdfUrl(ord.pdfUrl!);
                           setActivePdfTitle(cleanTitle);
                           setActivePdfRes(ord.resolutionNumber);
-                          setActivePdfSeries(ord.series);
                         }}
                       >
-                        📄 Tingnan ang PDF
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>{" "}Tingnan ang PDF
                       </Button>
                     )}
 
-                    <Link href={`/ordinances/${ord.id}`}>
+                    <Link href={`/ordinances/${ord.slug}`}>
                       <Button variant="secondary" size="sm" className="h-8 px-3 text-xs font-semibold">
                         Basahin ang Buong Batas →
                       </Button>
@@ -419,7 +416,6 @@ export function OrdinanceExplorerClient({
         pdfUrl={activePdfUrl}
         title={activePdfTitle}
         resolutionNumber={activePdfRes}
-        series={activePdfSeries}
       />
     </div>
   );

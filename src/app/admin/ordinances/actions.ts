@@ -2,12 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { generateOrdinanceSlug } from "@/lib/ordinance-utils";
 import type { OrdinanceType, OrdinanceStatus } from "@prisma/client";
 
 export interface CreateOrdinanceInput {
   title: string;
   type: OrdinanceType;
   resolutionNumber: string;
+  ordinanceLabel?: string;
   series?: string;
   content: string;
   pdfUrl?: string;
@@ -30,11 +32,24 @@ export async function createOrdinanceAction(input: CreateOrdinanceInput) {
       submitterId = firstUser.id;
     }
 
+    // Generate a unique slug from resolution number
+    let slug = generateOrdinanceSlug(input.resolutionNumber);
+    const existingSlug = await prisma.ordinance.findUnique({ where: { slug } });
+    if (existingSlug) {
+      // Append numeric suffix for uniqueness
+      const count = await prisma.ordinance.count({
+        where: { slug: { startsWith: slug } },
+      });
+      slug = `${slug}-${count + 1}`;
+    }
+
     const created = await prisma.ordinance.create({
       data: {
         title: input.title,
         type: input.type,
         resolutionNumber: input.resolutionNumber,
+        ordinanceLabel: input.ordinanceLabel || null,
+        slug,
         series: input.series || "2026",
         content: input.content,
         pdfUrl: input.pdfUrl || null,
@@ -78,7 +93,7 @@ export async function toggleOrdinanceStatusAction(id: string, currentStatus: Ord
     revalidatePath("/admin");
     revalidatePath("/admin/ordinances");
     revalidatePath("/ordinances");
-    revalidatePath(`/ordinances/${id}`);
+    revalidatePath(`/ordinances/${updated.slug || id}`);
 
     return { success: true, ordinance: updated };
   } catch (error: unknown) {

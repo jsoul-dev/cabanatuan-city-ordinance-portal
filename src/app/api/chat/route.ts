@@ -90,7 +90,7 @@ export async function POST(request: Request) {
           matchedOrdinances
             .map(
               (ord) =>
-                `- Res. No. ${ord.resolutionNumber} (${ord.type === "CITY" ? "City Ordinance" : `Brgy. ${ord.barangay?.name}`}): ${ord.title}\n  Buod/Nilalaman: ${ord.content?.slice(0, 250)}...`
+                `- Res. No. ${ord.resolutionNumber} (${ord.type === "CITY" ? "City Ordinance" : `Brgy. ${ord.barangay?.name}`}): ${ord.title}\n  Buod/Description: ${ord.description || ""}\n  Nilalaman/Articles: ${ord.articles?.slice(0, 400) || ord.content?.slice(0, 300)}...\n  Penalties: ${ord.penalties?.slice(0, 300) || "Wala"}`
             )
             .join("\n\n");
       }
@@ -105,7 +105,11 @@ MGA PATAKARAN SA PAGSAGOT:
 ${dbContext}
 3. Kung may tinutukoy na ordinansa, banggitin ang Resolution Number at Title kung nasa context.
 4. Kung wala sa database ang partikular na sagot, sabihin nang tapat at payuhing makipag-ugnayan sa Sangguniang Panlungsod o sa kani-kanilang Barangay Hall. Never invent fake legal resolution numbers.
-5. Panatilihin ang propesyonal, matulungin, at makababayang tono ("Bagong Cabanatuan").`;
+5. Panatilihin ang propesyonal, matulungin, at makababayang tono ("Bagong Cabanatuan").
+6. Gumamit ng maayos at magandang Markdown format sa iyong sagot:
+   - Gamitin ang bold (**bold**) para sa mahalagang termino, Resolution Number, o pamagat.
+   - Gamitin ang bullet points (-) o numbered lists (1., 2.) para sa mga listahan ng probisyon, parusa, o alituntunin.
+   - Hatiin sa malinaw at maiikling talata upang maging napakadaling basahin.`;
 
     // Context Windowing: limit to the last 10 messages to conserve token usage
     const windowedMessages = messages.slice(-10);

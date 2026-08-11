@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { hash } from "bcryptjs";
+import { generateOrdinanceSlug } from "@/lib/ordinance-utils";
 
 // ─── Ordinance Actions ───────────────────────────────────────────────────────
 
@@ -67,6 +68,7 @@ export async function createCityOrdinance(formData: FormData): Promise<{ error?:
 
   const title = (formData.get("title") as string)?.trim();
   const resolutionNumber = (formData.get("resolutionNumber") as string)?.trim();
+  const ordinanceLabel = (formData.get("ordinanceLabel") as string)?.trim() || null;
   const series = (formData.get("series") as string)?.trim() || new Date().getFullYear().toString();
   const category = (formData.get("category") as string)?.trim() || "OTHER";
   const description = (formData.get("description") as string)?.trim() || null;
@@ -76,6 +78,7 @@ export async function createCityOrdinance(formData: FormData): Promise<{ error?:
   const penalties = (formData.get("penalties") as string)?.trim() || null;
   const coverage = (formData.get("coverage") as string)?.trim() || null;
   const enforcement = (formData.get("enforcement") as string)?.trim() || null;
+  const signatories = (formData.get("signatories") as string)?.trim() || null;
   const tagsStr = (formData.get("tags") as string)?.trim() || "";
   const tags = tagsStr ? tagsStr.split(",").map((t) => t.trim()).filter(Boolean) : [];
   const dateEnactedStr = (formData.get("dateEnacted") as string)?.trim() || null;
@@ -87,10 +90,14 @@ export async function createCityOrdinance(formData: FormData): Promise<{ error?:
     return { error: "Kailangan ng pamagat, resolution number, at serye." };
   }
 
+  const slug = generateOrdinanceSlug(resolutionNumber);
+
   await prisma.ordinance.create({
     data: {
       title,
       resolutionNumber,
+      ordinanceLabel,
+      slug,
       series,
       category: category as never,
       description,
@@ -105,6 +112,7 @@ export async function createCityOrdinance(formData: FormData): Promise<{ error?:
       penalties,
       coverage,
       enforcement,
+      signatories,
       tags,
       dateEnacted,
       year,

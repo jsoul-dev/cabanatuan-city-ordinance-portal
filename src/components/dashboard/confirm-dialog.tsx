@@ -20,9 +20,9 @@ interface ConfirmDialogProps {
 }
 
 const variantMap = {
-  danger:  { btn: "bg-red-600 hover:bg-red-700 text-white ring-2 ring-red-500 ring-offset-2 ring-offset-[var(--bg-card)] focus:outline-none focus:ring-4 focus:ring-red-500", icon: "⚠️" },
-  warning: { btn: "bg-amber-500 hover:bg-amber-600 text-white ring-2 ring-amber-400 ring-offset-2 ring-offset-[var(--bg-card)] focus:outline-none focus:ring-4 focus:ring-amber-400", icon: "❗" },
-  default: { btn: "bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/90 text-white ring-2 ring-[var(--accent-primary)] ring-offset-2 ring-offset-[var(--bg-card)] focus:outline-none focus:ring-4 focus:ring-[var(--accent-primary)]", icon: "ℹ️" },
+  danger:  { btn: "bg-red-600 hover:bg-red-500 text-white font-bold ring-2 ring-red-500 ring-offset-2 ring-offset-[var(--bg-card)] shadow-lg shadow-red-500/30", icon: "⚠️" },
+  warning: { btn: "bg-amber-500 hover:bg-amber-600 text-white font-bold ring-2 ring-amber-400 ring-offset-2 ring-offset-[var(--bg-card)] shadow-lg shadow-amber-500/30", icon: "❗" },
+  default: { btn: "bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/90 text-white font-bold ring-2 ring-[var(--accent-primary)] ring-offset-2 ring-offset-[var(--bg-card)] shadow-lg", icon: "ℹ️" },
 };
 
 /**
@@ -76,6 +76,11 @@ export function ConfirmDialog({
         !e.defaultPrevented &&
         document.activeElement?.tagName !== "TEXTAREA"
       ) {
+        if (document.activeElement === cancelBtnRef.current) {
+          e.preventDefault();
+          onCancel();
+          return;
+        }
         e.preventDefault();
         if (canConfirm) onConfirm();
         return;
@@ -107,19 +112,12 @@ export function ConfirmDialog({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm cursor-pointer animate-in fade-in duration-150"
       aria-modal="true"
       onClick={(e) => {
         if (e.target === e.currentTarget) onCancel();
       }}
     >
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onCancel}
-        aria-hidden="true"
-      />
-
       {/* Dialog */}
       <div
         ref={dialogRef}
@@ -127,7 +125,7 @@ export function ConfirmDialog({
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-desc"
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-md rounded-[var(--radius-lg)] bg-[var(--bg-card)] border border-[var(--border-hairline)] shadow-2xl p-6 flex flex-col gap-4"
+        className="relative w-full max-w-md rounded-[var(--radius-lg)] bg-[var(--bg-card)] border border-[var(--border-hairline)] shadow-2xl p-6 flex flex-col gap-4 cursor-default animate-in zoom-in-95 duration-150"
       >
         <div className="flex items-start gap-3">
           <span className="text-2xl flex-shrink-0 mt-0.5" aria-hidden="true">{style.icon}</span>
@@ -186,9 +184,10 @@ export function ConfirmDialog({
             onClick={canConfirm ? onConfirm : undefined}
             disabled={!canConfirm}
             aria-disabled={!canConfirm}
-            className={`min-h-[44px] min-w-[100px] rounded-[var(--radius-sm)] px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none ${style.btn} disabled:opacity-40 disabled:cursor-not-allowed`}
+            className={`min-h-[44px] min-w-[110px] rounded-[var(--radius-sm)] px-4 py-2 text-sm font-semibold transition-all focus-visible:outline-none flex items-center justify-center gap-1.5 ${style.btn} disabled:opacity-40 disabled:cursor-not-allowed`}
           >
-            {confirmLabel}
+            <span>{confirmLabel}</span>
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-black/20 rounded text-white/90">↵</kbd>
           </button>
         </div>
       </div>

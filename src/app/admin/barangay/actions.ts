@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { generateOrdinanceSlug } from "@/lib/ordinance-utils";
 
 export async function submitOrdinance(formData: FormData): Promise<{ error?: string }> {
   const session = await getSession();
@@ -22,6 +23,7 @@ export async function submitOrdinance(formData: FormData): Promise<{ error?: str
 
   const title = (formData.get("title") as string)?.trim();
   const resolutionNumber = (formData.get("resolutionNumber") as string)?.trim();
+  const ordinanceLabel = (formData.get("ordinanceLabel") as string)?.trim() || null;
   const series = (formData.get("series") as string)?.trim() || new Date().getFullYear().toString();
   const description = (formData.get("description") as string)?.trim() || null;
   const category = (formData.get("category") as string)?.trim() || "OTHER";
@@ -30,6 +32,7 @@ export async function submitOrdinance(formData: FormData): Promise<{ error?: str
   const penalties = (formData.get("penalties") as string)?.trim() || null;
   const coverage = (formData.get("coverage") as string)?.trim() || null;
   const enforcement = (formData.get("enforcement") as string)?.trim() || null;
+  const signatories = (formData.get("signatories") as string)?.trim() || null;
   const tagsStr = (formData.get("tags") as string)?.trim() || "";
   const tags = tagsStr ? tagsStr.split(",").map((t) => t.trim()).filter(Boolean) : [];
   const dateEnactedStr = (formData.get("dateEnacted") as string)?.trim() || null;
@@ -41,10 +44,14 @@ export async function submitOrdinance(formData: FormData): Promise<{ error?: str
     return { error: "Pamagat at Resolution Number ay kinakailangan." };
   }
 
+  const slug = generateOrdinanceSlug(resolutionNumber);
+
   await prisma.ordinance.create({
     data: {
       title,
       resolutionNumber,
+      ordinanceLabel,
+      slug,
       series,
       description,
       category: category as never,
@@ -57,6 +64,7 @@ export async function submitOrdinance(formData: FormData): Promise<{ error?: str
       penalties,
       coverage,
       enforcement,
+      signatories,
       tags,
       dateEnacted,
       year,
@@ -99,6 +107,8 @@ export async function resubmitBarangayOrdinance(
   const title = (formData.get("title") as string)?.trim() || ordinance.title;
   const resolutionNumber =
     (formData.get("resolutionNumber") as string)?.trim() || ordinance.resolutionNumber;
+  const ordinanceLabel =
+    (formData.get("ordinanceLabel") as string)?.trim() || ordinance.ordinanceLabel;
   const series = (formData.get("series") as string)?.trim() || ordinance.series;
   const description =
     (formData.get("description") as string)?.trim() || ordinance.description;
@@ -108,6 +118,7 @@ export async function resubmitBarangayOrdinance(
   const penalties = (formData.get("penalties") as string)?.trim() || ordinance.penalties;
   const coverage = (formData.get("coverage") as string)?.trim() || ordinance.coverage;
   const enforcement = (formData.get("enforcement") as string)?.trim() || ordinance.enforcement;
+  const signatories = (formData.get("signatories") as string)?.trim() || ordinance.signatories;
   const tagsStr = (formData.get("tags") as string)?.trim();
   const tags = tagsStr !== undefined ? tagsStr.split(",").map((t) => t.trim()).filter(Boolean) : ordinance.tags;
   const dateEnactedStr = (formData.get("dateEnacted") as string)?.trim();
@@ -115,11 +126,15 @@ export async function resubmitBarangayOrdinance(
   const yearStr = (formData.get("year") as string)?.trim();
   const year = yearStr ? parseInt(yearStr, 10) : ordinance.year;
 
+  const slug = generateOrdinanceSlug(resolutionNumber);
+
   await prisma.ordinance.update({
     where: { id: ordinanceId },
     data: {
       title,
       resolutionNumber,
+      ordinanceLabel,
+      slug,
       series,
       description,
       category: category as never,
@@ -128,6 +143,7 @@ export async function resubmitBarangayOrdinance(
       penalties,
       coverage,
       enforcement,
+      signatories,
       tags,
       dateEnacted,
       year,

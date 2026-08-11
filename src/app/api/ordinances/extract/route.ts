@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server";
 import { ai, GEMINI_MODEL } from "@/lib/gemini";
 import { Type, Schema } from "@google/genai";
+import {
+  cleanOrdinanceTitle,
+  formatResolutionNumber,
+  formatEnforcementAgencies,
+} from "@/lib/ordinance-utils";
 
 /**
  * POST /api/ordinances/extract
  * Uses @google/genai with gemini-3.5-flash-lite to extract structured ordinance metadata
  * from text, scanned PDF documents, or multiple image pages (OCR).
  *
- * CRITICAL RULE: Automatically strips redundant prefixes from the title
- * (e.g. "City Ordinance Establishing...", "Ordinansa para sa...", "AN ORDINANCE...").
+ * CRITICAL RULE: Automatically strips redundant prefixes and trailing place names from the title
+ * (e.g. "City Ordinance Establishing...", "Ordinansa para sa...", "AN ORDINANCE...", "sa Barangay Camp Tinio"),
+ * standardizes resolution numbers to YYYY-NNN format, and isolates true signatories from attendees.
  */
 
 const ORDINANCE_SCHEMA: Schema = {
@@ -17,12 +23,17 @@ const ORDINANCE_SCHEMA: Schema = {
     title: {
       type: Type.STRING,
       description:
-        "Cleaned and descriptive title of the ordinance. STRIP any redundant prefixes like 'City Ordinance...', 'Ordinansa para sa...', 'AN ORDINANCE...', 'Ordinance Establishing...', 'Ordinansang...'. Just give the core clean title (e.g. 'Curfew Hours for Minors in Cabanatuan City', 'Tamang Pagtatapon ng Basura at Segregation').",
+        "Cleaned and descriptive title of the ordinance. STRIP any redundant prefixes ('City Ordinance...', 'Ordinansa para sa...', 'AN ORDINANCE...'). ALSO STRIP any trailing place or barangay name like ' sa Barangay Camp Tinio', ' sa Barangay D.S. Garcia', or ' in Cabanatuan City' because the place name belongs in 'coverage'. Example: If the title is 'Ordinansang nagbabawal ng maiingay na muffler sa Barangay Camp Tinio', return 'Pagbabawal ng Maiingay na Muffler o Modified na Tambutso'.",
     },
     ordinanceNumber: {
       type: Type.STRING,
       description:
-        "The official ordinance or resolution number (e.g. 'Ord. No. 001-2024' or '012-2024').",
+        "The official RESOLUTION NUMBER or ORDINANCE NUMBER formatted strictly in YYYY-NNN format (e.g. '2024-681', '2024-002'). DO NOT return '681-2024' or 'Ordinance Blg. 02'. If the paper shows 'Resolution No. 681 s. 2024', return '2024-681'. If it shows 'Ordinance No. 02 s. 2024', return '2024-02'.",
+    },
+    ordinanceLabel: {
+      type: Type.STRING,
+      description:
+        "The exact label printed on the document for the ordinance number, such as 'ORDINANCE NO. 009', 'ORDINANSA BLG. 02 S. 2024', or 'MUNICIPAL ORDINANCE 12'. Include the series if it is part of the label. This preserves the exact formatting from the original document.",
     },
     series: {
       type: Type.STRING,
@@ -40,20 +51,24 @@ const ORDINANCE_SCHEMA: Schema = {
     category: {
       type: Type.STRING,
       enum: [
-        "PUBLIC_SAFETY",
-        "ENVIRONMENT",
-        "HEALTH",
-        "BUSINESS",
-        "TRAFFIC",
-        "YOUTH",
-        "OTHER",
+        "General",
+        "Environment",
+        "Public Safety",
+        "Health",
+        "Infrastructure",
+        "Education",
+        "Livelihood",
+        "Youth",
+        "Senior Citizens",
+        "Women & Children",
       ],
-      description: "Primary category classification of the ordinance.",
+      description:
+        "Primary category classification of the ordinance. Choose the most specific fitting category (e.g. 'Public Safety' for noise/muffler/curfew, 'Environment' for waste management). Only use 'General' if no other category fits.",
     },
     summary: {
       type: Type.STRING,
       description:
-        "A clear, easy-to-understand 2-3 sentence summary in Filipino/Tagalog explaining what the ordinance is about and why it matters.",
+        "A clear, professional 2-3 sentence Executive Summary in Tagalog/Filipino. MUST explicitly start with or mention the word 'Ordinansang' or 'Ang ordinansang ito ay' (e.g., 'Ordinansang nagbabawal ng maiingay na muffler...').",
     },
     coverage: {
       type: Type.STRING,
@@ -64,7 +79,7 @@ const ORDINANCE_SCHEMA: Schema = {
       type: Type.ARRAY,
       items: { type: Type.STRING },
       description:
-        "3 to 6 relevant search tags or keywords in lowercase (e.g. ['curfew', 'minors', 'public safety']).",
+        "3 to 6 relevant search tags or keywords in lowercase (e.g. ['curfew', 'minors', 'public safety', 'muffler', 'tambutso']).",
     },
     penalties: {
       type: Type.STRING,
@@ -76,6 +91,11 @@ const ORDINANCE_SCHEMA: Schema = {
       description:
         "Agency or officials responsible for enforcement (e.g. 'PNP Cabanatuan, Barangay Tanod, City Social Welfare and Development Office').",
     },
+    signatories: {
+      type: Type.STRING,
+      description:
+        "List ONLY the official signatories who signed, enacted, or approved the ordinance at the bottom of the document (e.g. Punong Barangay, Sangguniang Barangay members who approved/signed, Kalihim who attested). DO NOT INCLUDE 'Mga Dumalo' (attendees/present in the meeting) unless they explicitly signed at the bottom of the ordinance as signatories. Format as a clean list with names and titles.",
+    },
     content: {
       type: Type.STRING,
       description:
@@ -85,6 +105,7 @@ const ORDINANCE_SCHEMA: Schema = {
   required: [
     "title",
     "ordinanceNumber",
+    "ordinanceLabel",
     "series",
     "year",
     "dateEnacted",
@@ -94,24 +115,23 @@ const ORDINANCE_SCHEMA: Schema = {
     "tags",
     "penalties",
     "enforcement",
+    "signatories",
     "content",
   ],
 };
 
 const EXTRACTION_PROMPT = `Ikaw ay isang batikan at eksperto sa mga lokal na ordinansa sa Pilipinas, lalo na sa Lungsod ng Cabanatuan.
 Suriin nang mabuti ang ibinigay na teksto, scanned PDF, o mga larawan (multi-page scanned ordinance o resolusyon).
-Kung maraming pahina (multiple images o pages) ang ibinigay, BASAHIN AT PAG-UGNAYIN ANG LAHAT NG PAHINA mula simula hanggang dulo upang makumpleto ang pamagat, mga seksyon, parusa, at buong nilalaman.
+Kung maraming pahina (multiple images o pages) ang ibinigay, BASAHIN AT PAG-UGNAYIN ANG LAHAT NG PAHINA mula simula hanggang dulo upang makumpleto ang pamagat, mga seksyon, parusa, signatories, at buong nilalaman.
 I-extract ang lahat ng kinakailangang impormasyon at sundin nang maigi ang schema.
 
-MAHALAGANG PATAKARAN SA PAMAGAT (TITLE):
-- ALISIN ANG MGA REDUNDANT NA SALITA sa simula ng pamagat gaya ng:
-  * "City Ordinance Establishing..." -> alisin ang "City Ordinance Establishing ", ibigay ang natitirang malinaw na pamagat
-  * "An Ordinance Regulating..." -> alisin ang "An Ordinance Regulating "
-  * "Ordinansa para sa..." -> alisin ang "Ordinansa para sa "
-  * "Ordinansang..." -> alisin ang "Ordinansang "
-- Ang pamagat ay dapat maikli, malinaw, at direktang nagsasabi kung tungkol saan ang ordinansa (halimbawa: "Curfew Hours for Minors in Cabanatuan City", "Tamang Pagtatapon ng Basura at Segregation sa Barangay", "Anti-Muffler at Maingay na Tambutso").
-- Para sa "summary", gumawa ng napakalinaw at madaling intindihing buod sa wikang Tagalog/Filipino para sa ordinaryong mamamayan.
-- Kung ang dokumento ay scanned image o PDF na may tatak (stamp) o sulat-kamay na petsa/numero, i-extract din ang mga ito gamit ang iyong OCR capability.`;
+MAHALAGANG PATAKARAN:
+1. RESOLUTION NUMBER / ORDINANCE NUMBER FORMAT: Laging gamitin ang pormat na YYYY-NNN (halimbawa: "2024-681", "2024-002"). Kung ang nakasulat sa dokumento ay "681-2024" o "Resolution No. 681 s. 2024", gawin itong "2024-681". Kung may Resolution No. at Ordinance Blg., unahin ang Resolution Number sa pormat na YYYY-NNN.
+2. PAMAGAT (TITLE): Alisin ang mga salitang "City Ordinance Establishing", "Ordinansa para sa", "Ordinansang". ALISIN DIN ang pangalan ng barangay o lungsod sa dulo ng pamagat (hal. "sa Barangay Camp Tinio", "sa Barangay D.S. Garcia", "in Cabanatuan City") dahil ang lokasyon ay inilalagay na sa 'coverage'.
+3. EXECUTIVE SUMMARY (SUMMARY): Laging simulan o banggitin na ito ay isang ordinansa (hal. "Ordinansang nagbabawal ng maiingay na muffler...").
+4. MGA LUMAGDA (SIGNATORIES): HUWAG ISAMA ang "Mga Dumalo" (attendees sa pulong) sa listahan ng signatories. ILAGAY LAMANG ANG MGA OPISYAL NA LUMAGDA SA IBABA NG ORDINANSA (hal. Punong Barangay, mga Kagawad na lumagda/nagpatibay, SK Chairman, at Kalihim na nagpatunay).
+5. KATEGORYA (CATEGORY): Pumili ng pinakaangkop na kategorya mula sa listahan (hal. "Public Safety" para sa curfew o maingay na muffler, "Environment" para sa basura). Huwag gamitin ang "General" kung may mas angkop na kategorya.
+6. KUNG SCANNED DOCUMENT: Gamitin ang iyong OCR upang basahin ang lahat ng tatak (stamp), sulat-kamay na petsa o numero, at lagda.`;
 
 export async function POST(request: Request) {
   try {
@@ -167,6 +187,12 @@ export async function POST(request: Request) {
     }
 
     const extracted = JSON.parse(responseText);
+
+    // Apply deterministic post-processing cleanups to guarantee consistency
+    extracted.title = cleanOrdinanceTitle(extracted.title);
+    extracted.ordinanceNumber = formatResolutionNumber(extracted.ordinanceNumber);
+    extracted.enforcement = formatEnforcementAgencies(extracted.enforcement);
+
     return NextResponse.json({ success: true, data: extracted });
   } catch (error: any) {
     console.error("AI Ordinance Extraction Error:", error);
@@ -179,3 +205,4 @@ export async function POST(request: Request) {
     );
   }
 }
+

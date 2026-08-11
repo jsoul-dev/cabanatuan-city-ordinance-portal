@@ -90,8 +90,10 @@ model Barangay {
 
 model Ordinance {
   id               String          @id @default(cuid())
+  slug             String          @unique
   title            String
   resolutionNumber String          @map("resolution_number")
+  ordinanceLabel   String?         @map("ordinance_label")
   series           String?
   type             OrdinanceType   @default(BARANGAY)
   status           OrdinanceStatus @default(DRAFT)

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 interface ExtractedData {
   title: string;
   ordinanceNumber: string;
+  ordinanceLabel?: string;
   series: string;
   year: number;
   dateEnacted: string;
@@ -16,6 +17,7 @@ interface ExtractedData {
   penalties: string;
   enforcement: string;
   content: string;
+  pdfUrl?: string;
 }
 
 interface SelectedFileItem {
@@ -123,8 +125,16 @@ export function AiOrdinanceExtractorModal({
         throw new Error(json.error || "Hindi nabasa ang ordinansa.");
       }
 
+      const attachedUrl =
+        selectedFiles.length > 0
+          ? `data:${selectedFiles[0].mimeType};base64,${selectedFiles[0].data}`
+          : undefined;
+
       toast.success("⚡ Matagumpay na na-extract ng AI ang mga detalye!");
-      onExtract(json.data);
+      onExtract({
+        ...json.data,
+        pdfUrl: attachedUrl,
+      });
       onClose();
     } catch (err: any) {
       toast.error(err.message || "Aberya sa AI extraction. Subukan muli.");

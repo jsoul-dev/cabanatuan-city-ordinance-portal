@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { checkSession, logout } from "@/lib/auth-actions";
+import type { SessionPayload } from "@/lib/auth";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -22,6 +24,11 @@ const navLinks = [
 export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [session, setSession] = useState<SessionPayload | null>(null);
+
+  useEffect(() => {
+    checkSession().then(setSession);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-neutral-200/80 bg-white/80 dark:border-white/10 dark:bg-[#050a08]/80 backdrop-blur-xl transition-colors">
@@ -34,7 +41,7 @@ export function Navbar() {
           href="/"
           className="flex items-center gap-2.5 no-underline transition-opacity hover:opacity-80"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/95 p-1 shadow-md shadow-emerald-500/10 border border-neutral-200/60 dark:border-white/10 dark:bg-white/10">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl">
             <Image
               src="/lgu-logo.png"
               alt="Cabanatuan City LGU Seal"
@@ -44,11 +51,10 @@ export function Navbar() {
               priority
             />
           </div>
-          <div className="flex items-center gap-1.5 font-mono text-xs tracking-tight">
+          <div className="flex flex-col font-mono text-[11px] leading-tight tracking-tight">
             <span className="font-bold text-neutral-900 dark:text-white">
               Cabanatuan City
             </span>
-            <span className="text-neutral-400 dark:text-neutral-500">/</span>
             <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
               Ordinance Portal
             </span>
@@ -82,14 +88,37 @@ export function Navbar() {
           {/* Theme Toggle Button */}
           <ThemeToggle />
 
-          <Link href="/login">
-            <button
-              type="button"
-              className="rounded-xl bg-neutral-900 px-3.5 py-1.5 text-xs font-semibold text-white shadow-md transition-all hover:bg-neutral-800 active:scale-[0.98] dark:bg-white dark:text-black dark:shadow-lg dark:shadow-white/5 dark:hover:bg-neutral-200"
-            >
-              Portal Access
-            </button>
-          </Link>
+          {session ? (
+            <div className="flex items-center gap-2">
+              <Link href={session.role === "LGU_ADMIN" ? "/admin/lgu" : "/admin/barangay"}>
+                <button
+                  type="button"
+                  className="rounded-xl bg-neutral-900 px-3.5 py-1.5 text-xs font-semibold text-white shadow-md transition-all hover:bg-neutral-800 active:scale-[0.98] dark:bg-white dark:text-black dark:shadow-lg dark:shadow-white/5 dark:hover:bg-neutral-200 flex items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                  Dashboard
+                </button>
+              </Link>
+              <form action={logout}>
+                <button
+                  type="submit"
+                  className="rounded-xl border border-neutral-200 bg-white p-1.5 text-neutral-600 shadow-sm transition-all hover:bg-neutral-100 hover:text-red-600 active:scale-[0.98] dark:border-white/10 dark:bg-transparent dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-red-400 flex items-center justify-center"
+                  title="Sign out"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                </button>
+              </form>
+            </div>
+          ) : (
+            <Link href="/login">
+              <button
+                type="button"
+                className="rounded-xl bg-neutral-900 px-3.5 py-1.5 text-xs font-semibold text-white shadow-md transition-all hover:bg-neutral-800 active:scale-[0.98] dark:bg-white dark:text-black dark:shadow-lg dark:shadow-white/5 dark:hover:bg-neutral-200"
+              >
+                Portal Access
+              </button>
+            </Link>
+          )}
         </div>
 
         {/* Mobile Hamburger Button */}
@@ -135,13 +164,36 @@ export function Navbar() {
               </Link>
             ))}
             <div className="mt-3 border-t border-neutral-200 dark:border-white/10 pt-3 flex flex-col gap-2">
-              <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-center rounded-xl bg-neutral-900 py-2 text-sm font-semibold text-white shadow-md dark:bg-white dark:text-black"
-              >
-                Portal Access
-              </Link>
+              {session ? (
+                <>
+                  <Link
+                    href={session.role === "LGU_ADMIN" ? "/admin/lgu" : "/admin/barangay"}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-neutral-900 py-2 text-sm font-semibold text-white shadow-md dark:bg-white dark:text-black"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                    Dashboard
+                  </Link>
+                  <form action={logout} className="w-full">
+                    <button
+                      type="submit"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full flex items-center justify-center gap-2 rounded-xl border border-neutral-200 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-400"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                      Sign Out
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-center rounded-xl bg-neutral-900 py-2 text-sm font-semibold text-white shadow-md dark:bg-white dark:text-black"
+                >
+                  Portal Access
+                </Link>
+              )}
             </div>
           </div>
         </div>

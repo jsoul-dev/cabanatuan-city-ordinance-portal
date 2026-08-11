@@ -15,6 +15,7 @@ import {
   clearChatHistory as clearStorageHistory,
   getOrCreateSessionId,
 } from "@/lib/chat-storage";
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 
 interface Message {
   id: string;
@@ -311,7 +312,7 @@ export function ChatbotClient() {
                         : "border border-neutral-200/80 bg-neutral-50 text-neutral-900 dark:border-white/10 dark:bg-[#0e1511] dark:text-neutral-100"
                     )}
                   >
-                    <div className="whitespace-pre-line">{msg.content}</div>
+                    <MarkdownRenderer content={msg.content} />
                   </div>
                 </div>
               ))

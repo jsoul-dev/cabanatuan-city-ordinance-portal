@@ -3,7 +3,7 @@
 import { compare } from "bcryptjs";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { setSessionCookie, clearSessionCookie, type SessionPayload } from "@/lib/auth";
+import { setSessionCookie, clearSessionCookie, getSession, type SessionPayload } from "@/lib/auth";
 
 export interface LoginResult {
   error?: string;
@@ -68,4 +68,11 @@ export async function login(
 export async function logout() {
   await clearSessionCookie();
   redirect("/login");
+}
+
+/**
+ * Server Action: Get the current session for client components.
+ */
+export async function checkSession() {
+  return await getSession();
 }
