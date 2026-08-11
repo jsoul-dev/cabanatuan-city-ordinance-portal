@@ -82,13 +82,13 @@ export default async function OrdinanceDetailPage({
   );
 
   const formattedDateEnacted = ord.dateEnacted
-    ? new Date(ord.dateEnacted).toLocaleDateString("tl-PH", {
+    ? new Date(ord.dateEnacted).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
       })
     : ord.approvedAt
-    ? new Date(ord.approvedAt).toLocaleDateString("tl-PH", {
+    ? new Date(ord.approvedAt).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",

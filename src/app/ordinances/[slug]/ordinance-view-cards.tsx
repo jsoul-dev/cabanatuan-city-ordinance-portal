@@ -252,12 +252,15 @@ function parseSections(text: string): ParsedSection[] {
     const badge = match[1].trim().toUpperCase();
     let rawContent = match[2].trim();
 
+    // Strip leading dashes, dots, or colons from the beginning of the entire section content
+    rawContent = rawContent.replace(/^[-–—.:\s]+/, '');
+
     let title = "";
     const lines = rawContent.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
 
-    // Only strip the title's prefix, don't touch the rest of the lines
-    if (lines.length > 0 && lines[0].length < 150 && !lines[0].endsWith(".")) {
-      title = lines[0].replace(/^[-–—.:\s]+/, '').trim();
+    // Only extract the title if there's a short distinct line
+    if (lines.length > 1 && lines[0].length < 150 && !lines[0].endsWith(".")) {
+      title = lines[0];
       rawContent = lines.slice(1).join("\n");
     } else {
       rawContent = lines.join("\n");

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Ordinance, Barangay } from "@prisma/client";
 import { Input } from "@/components/ui/input";
@@ -31,6 +32,8 @@ export function OrdinanceExplorerClient({
   initialOrdinances,
   barangays,
 }: OrdinanceExplorerClientProps) {
+  const router = useRouter();
+  const [pendingSlug, setPendingSlug] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<"ALL" | "CITY" | "BARANGAY">("ALL");
   const [selectedBarangayId, setSelectedBarangayId] = useState<string>("ALL");
@@ -396,11 +399,18 @@ export function OrdinanceExplorerClient({
                       </Button>
                     )}
 
-                    <Link href={`/ordinances/${ord.slug}`}>
-                      <Button variant="secondary" size="sm" className="h-8 px-3 text-xs font-semibold">
-                        Basahin ang Buong Batas →
-                      </Button>
-                    </Link>
+                    <Button 
+                      variant="secondary" 
+                      size="sm" 
+                      className="h-8 px-3 text-xs font-semibold"
+                      disabled={pendingSlug === ord.slug}
+                      onClick={() => {
+                        setPendingSlug(ord.slug);
+                        router.push(`/ordinances/${ord.slug}`);
+                      }}
+                    >
+                      {pendingSlug === ord.slug ? "Naglo-load..." : "Basahin ang Buong Batas →"}
+                    </Button>
                   </div>
                 </CardFooter>
               </Card>

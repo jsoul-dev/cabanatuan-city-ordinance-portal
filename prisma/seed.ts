@@ -250,7 +250,7 @@ async function main() {
     },
     create: {
       id: "seed-ord-002",
-      slug: "005-2024",
+      slug: "310-2024",
       ordinanceLabel: "ORDINANSA BLG. 05 S. 2024",
       title: "Tamang Pagtatapon ng Basura at Segregation",
       resolutionNumber: "310-2024",
@@ -293,7 +293,7 @@ async function main() {
     },
     create: {
       id: "seed-ord-003",
-      slug: "012-2024",
+      slug: "450-2024",
       ordinanceLabel: "ORDINANCE NO. 012 S. 2024",
       title: "Establishing Curfew Hours for Minors",
       resolutionNumber: "450-2024",
