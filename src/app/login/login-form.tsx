@@ -161,7 +161,7 @@ export function LoginForm({ theme, onForgotClick }: LoginFormProps) {
                 LGU Admin
               </div>
               <div className="text-[10px] truncate text-neutral-500 dark:text-neutral-400">
-                lgu.admin@
+                lgu.admin.cabanatuan@gmail.com
               </div>
             </div>
           </button>
@@ -177,7 +177,7 @@ export function LoginForm({ theme, onForgotClick }: LoginFormProps) {
                 Captain
               </div>
               <div className="text-[10px] truncate text-neutral-500 dark:text-neutral-400">
-                captain.garcia@
+                captain.garcia.cabanatuan@gmail.com
               </div>
             </div>
           </button>
@@ -195,7 +195,7 @@ export function LoginForm({ theme, onForgotClick }: LoginFormProps) {
                 Secretary
               </div>
               <div className="text-[10px] truncate text-neutral-500 dark:text-neutral-400">
-                secretary.garcia@
+                secretary.garcia.cabanatuan@gmail.com
               </div>
             </div>
           </button>
@@ -211,7 +211,7 @@ export function LoginForm({ theme, onForgotClick }: LoginFormProps) {
                 Kagawad
               </div>
               <div className="text-[10px] truncate text-neutral-500 dark:text-neutral-400">
-                kagawad.garcia@
+                kagawad.garcia.cabanatuan@gmail.com
               </div>
             </div>
           </button>

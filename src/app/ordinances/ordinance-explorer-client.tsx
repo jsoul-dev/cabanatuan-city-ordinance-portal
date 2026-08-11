@@ -363,19 +363,21 @@ export function OrdinanceExplorerClient({
                 <CardFooter className="border-t border-[var(--border-hairline)] pt-3.5 pb-4 px-6 flex items-center justify-between gap-2 bg-[var(--bg-canvas)]/50">
                   <span className="text-xs text-[var(--text-mute)]">
                     Enacted:{" "}
-                    {ord.dateEnacted
-                      ? new Date(ord.dateEnacted).toLocaleDateString("tl-PH", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })
-                      : ord.approvedAt
-                        ? new Date(ord.approvedAt).toLocaleDateString("tl-PH", {
+                    <span className="truncate">
+                      {ord.dateEnacted
+                        ? new Date(ord.dateEnacted).toLocaleDateString("en-US", {
                             year: "numeric",
-                            month: "short",
+                            month: "long",
                             day: "numeric",
                           })
-                        : `${ordYear}`}
+                        : ord.approvedAt
+                        ? new Date(ord.approvedAt).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })
+                        : `Taon ${formatOrdinanceYear(ord.year, ord.dateEnacted, ord.createdAt)}`}
+                    </span>
                   </span>
 
                   <div className="flex items-center gap-2">

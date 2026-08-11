@@ -28,7 +28,7 @@ const ORDINANCE_SCHEMA: Schema = {
     ordinanceNumber: {
       type: Type.STRING,
       description:
-        "The official RESOLUTION NUMBER or ORDINANCE NUMBER formatted strictly in YYYY-NNN format (e.g. '2024-681', '2024-002'). DO NOT return '681-2024' or 'Ordinance Blg. 02'. If the paper shows 'Resolution No. 681 s. 2024', return '2024-681'. If it shows 'Ordinance No. 02 s. 2024', return '2024-02'.",
+        "The official RESOLUTION NUMBER formatted strictly in YYYY-NNN format (e.g. '2024-681', '2024-002'). DO NOT return '681-2024'. CRITICAL: If the document contains BOTH a 'Resolution No.' AND an 'Ordinance No.', you MUST extract the RESOLUTION NO. here. Only extract the Ordinance No. here if there is NO Resolution No. present.",
     },
     ordinanceLabel: {
       type: Type.STRING,

@@ -41,7 +41,7 @@ export function OrdinanceSectionsView({
 
       <div className="space-y-3">
         {sections.map((sec, idx) => {
-          const isPenalty = /penalty|penalties|parusa|multa|fines/i.test(sec.badge) || /penalty|penalties|parusa|multa|fines/i.test(sec.title);
+          const isPenalty = /penalty|penalties|parusa|kaparusahan|multa|fines|paglabag/i.test(sec.badge) || /penalty|penalties|parusa|kaparusahan|multa|fines|paglabag/i.test(sec.title);
           
           return (
             <div
@@ -259,11 +259,26 @@ function parseSections(text: string): ParsedSection[] {
     const lines = rawContent.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
 
     // Only extract the title if there's a short distinct line
-    if (lines.length > 1 && lines[0].length < 150 && !lines[0].endsWith(".")) {
-      title = lines[0];
-      rawContent = lines.slice(1).join("\n");
-    } else {
-      rawContent = lines.join("\n");
+    // Ensure we don't grab something that ends with a period unless it's just a dot after the title.
+    if (lines.length > 1 && lines[0].length < 150) {
+      // If it looks like a paragraph, don't use it as a title
+      if (!lines[0].endsWith(".") || lines[0].split(" ").length < 10) {
+        title = lines[0];
+        rawContent = lines.slice(1).join("\n");
+      }
+    }
+
+    // Strip out the badge or redundant text from the title
+    // E.g., if badge is "SEKSYON 1" and title is "Seksyon 1. Pamagat"
+    const badgeRegex = new RegExp(`^(?:${badge})[-–—.:\\s]*`, 'i');
+    title = title.replace(badgeRegex, '').trim();
+
+    // Strip leading punctuation again from the final title
+    title = title.replace(/^[-–—.:\s]+/, '').trim();
+
+    if (!title) {
+        rawContent = rawContent.replace(badgeRegex, '').trim();
+        rawContent = rawContent.replace(/^[-–—.:\s]+/, '').trim();
     }
 
     const paragraphs = rawContent.split(/\n/);
@@ -272,8 +287,8 @@ function parseSections(text: string): ParsedSection[] {
 
     results.push({
       badge,
-      title: title || badge,
-      content: content || title || badge,
+      title: title || "", // Leave empty if no distinct title
+      content: content || badge,
     });
   }
 
@@ -300,7 +315,7 @@ function parseSections(text: string): ParsedSection[] {
     }
     return {
       badge: `SECTION ${i + 1}`,
-      title: title || `Probisyon ${i + 1}`,
+      title: title || "",
       content: content || para,
     };
   });
