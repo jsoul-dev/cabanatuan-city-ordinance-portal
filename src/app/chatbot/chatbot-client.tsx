@@ -51,9 +51,10 @@ export function ChatbotClient() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const initialScrollDone = useRef(false);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (smooth = true) => {
+    messagesEndRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
   };
 
   useEffect(() => {
@@ -65,7 +66,8 @@ export function ChatbotClient() {
 
   useEffect(() => {
     if (messages.length > 0) {
-      scrollToBottom();
+      scrollToBottom(initialScrollDone.current);
+      initialScrollDone.current = true;
     }
   }, [messages, isLoading]);
 
