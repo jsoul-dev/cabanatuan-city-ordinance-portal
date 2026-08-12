@@ -25,13 +25,34 @@ export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [session, setSession] = useState<SessionPayload | null>(null);
+  const [isDocked, setIsDocked] = useState(true);
 
   useEffect(() => {
     checkSession().then(setSession);
   }, []);
 
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Undock (hide) when scrolling down, dock (show) when scrolling up
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        setIsDocked(false);
+      } else {
+        setIsDocked(true);
+      }
+      
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-neutral-200/80 bg-white/80 dark:border-white/10 dark:bg-[#050a08]/80 backdrop-blur-xl transition-colors">
+    <header className={`sticky top-0 z-50 w-full border-b border-neutral-200/80 bg-white/80 dark:border-white/10 dark:bg-[#050a08]/90 backdrop-blur-xl transition-all duration-300 ease-in-out ${isDocked ? "translate-y-0" : "-translate-y-full"}`}>
       <nav
         aria-label="Main navigation"
         className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
