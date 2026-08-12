@@ -50,11 +50,16 @@ export function ChatbotClient() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const initialScrollDone = useRef(false);
 
   const scrollToBottom = (smooth = true) => {
-    messagesEndRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: smooth ? "smooth" : "auto",
+      });
+    }
   };
 
   useEffect(() => {
@@ -262,7 +267,7 @@ export function ChatbotClient() {
           </div>
 
           {/* Main Chat Scroll Area */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6 max-h-[520px]">
+          <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 max-h-[520px]">
             {messages.length === 0 ? (
               /* Empty Hero State matching screenshot */
               <div className="flex h-full flex-col items-center justify-center text-center py-12 px-4">
@@ -331,8 +336,6 @@ export function ChatbotClient() {
                 </div>
               </div>
             )}
-
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Bottom Fixed Input Section */}
