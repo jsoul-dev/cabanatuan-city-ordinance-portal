@@ -26,6 +26,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [session, setSession] = useState<SessionPayload | null>(null);
   const [isAtTop, setIsAtTop] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     checkSession().then(setSession);
@@ -37,8 +38,20 @@ export function Navbar() {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    
+    // Set initial state immediately
     handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    
+    // Enable transitions after a short delay so the initial state change doesn't animate
+    // We use 500ms to outlast the browser's native scroll restoration behavior on reload
+    const timeoutId = setTimeout(() => {
+      setIsMounted(true);
+    }, 500);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return (
@@ -46,9 +59,9 @@ export function Navbar() {
       {/* Invisible placeholder to prevent layout shift when fixed */}
       <div className="h-16 w-full shrink-0" aria-hidden="true" />
       
-      <div className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 pointer-events-none ${isAtTop ? "pt-0 px-0" : "pt-3 px-3 sm:pt-4 sm:px-4"}`}>
+      <div className={`fixed top-0 left-0 right-0 z-50 w-full pointer-events-none ${isMounted ? "transition-all duration-300" : ""} ${isAtTop ? "pt-0 px-0" : "pt-3 px-3 sm:pt-4 sm:px-4"}`}>
         <header
-          className={`mx-auto transition-all duration-300 ease-in-out backdrop-blur-xl pointer-events-auto ${
+          className={`mx-auto backdrop-blur-xl pointer-events-auto ${isMounted ? "transition-all duration-300 ease-in-out" : ""} ${
             isAtTop
               ? "w-full border-b border-neutral-200/80 bg-white/80 dark:border-white/10 dark:bg-[#050a08]/90"
               : "w-full max-w-5xl rounded-2xl border border-neutral-200/80 bg-white/95 dark:border-white/20 dark:bg-[#050a08]/95 shadow-lg"
