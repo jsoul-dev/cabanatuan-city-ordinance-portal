@@ -18,6 +18,7 @@ import {
   OrdinanceEnforcementView,
   OrdinanceSignatoriesView,
 } from "./ordinance-view-cards";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 interface OrdinanceDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -104,6 +105,7 @@ export default async function OrdinanceDetailPage({
   return (
     <>
       <Navbar />
+      <ScrollToTop />
 
       <main
         id="main-content"

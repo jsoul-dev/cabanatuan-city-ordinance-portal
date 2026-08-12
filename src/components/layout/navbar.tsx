@@ -25,11 +25,18 @@ export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [session, setSession] = useState<SessionPayload | null>(null);
-  const [isAtTop, setIsAtTop] = useState(true);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isAtTop, setIsAtTop] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return window.scrollY <= 20;
+  });
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    checkSession().then(setSession);
+    checkSession().then((s) => {
+      setSession(s);
+      setIsAuthReady(true);
+    });
   }, []);
 
   useEffect(() => {
@@ -42,15 +49,14 @@ export function Navbar() {
     // Set initial state immediately
     handleScroll();
     
-    // Enable transitions after a short delay so the initial state change doesn't animate
-    // We use 500ms to outlast the browser's native scroll restoration behavior on reload
-    const timeoutId = setTimeout(() => {
+    // Enable transitions after first paint to prevent visible snaps
+    let frameId = requestAnimationFrame(() => {
       setIsMounted(true);
-    }, 500);
+    });
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      clearTimeout(timeoutId);
+      cancelAnimationFrame(frameId);
     };
   }, []);
 
@@ -123,7 +129,9 @@ export function Navbar() {
             {/* Theme Toggle Button */}
             <ThemeToggle />
 
-            {session ? (
+            {!isAuthReady ? (
+              <div className="w-[114px] h-[30px]" aria-hidden="true" />
+            ) : session ? (
               <div className="flex items-center gap-2">
                 <Link href={session.role === "LGU_ADMIN" ? "/admin/lgu" : "/admin/barangay"}>
                   <button
@@ -201,7 +209,9 @@ export function Navbar() {
                 </Link>
               ))}
               <div className="mt-3 border-t border-neutral-200 dark:border-white/10 pt-3 flex flex-col gap-2">
-                {session ? (
+                {!isAuthReady ? (
+                  <div className="w-full h-[36px]" aria-hidden="true" />
+                ) : session ? (
                   <>
                     <Link
                       href={session.role === "LGU_ADMIN" ? "/admin/lgu" : "/admin/barangay"}

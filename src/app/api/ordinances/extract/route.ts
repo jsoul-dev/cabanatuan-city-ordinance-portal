@@ -5,6 +5,8 @@ import {
   cleanOrdinanceTitle,
   formatResolutionNumber,
   formatEnforcementAgencies,
+  validateExtractionResult,
+  normalizeWhitespace,
 } from "@/lib/ordinance-utils";
 
 /**
@@ -28,7 +30,7 @@ const ORDINANCE_SCHEMA: Schema = {
     ordinanceNumber: {
       type: Type.STRING,
       description:
-        "The official RESOLUTION NUMBER formatted strictly in YYYY-NNN format (e.g. '2024-681', '2024-002'). DO NOT return '681-2024'. CRITICAL: If the document contains BOTH a 'Resolution No.' AND an 'Ordinance No.', you MUST extract the RESOLUTION NO. here. Only extract the Ordinance No. here if there is NO Resolution No. present.",
+        "The official RESOLUTION NUMBER or ORDINANCE NUMBER formatted strictly in YYYY-NNN format (e.g. '2024-681', '2024-002'). DO NOT return '681-2024'. If the document contains BOTH, use the Resolution No. If only Ordinance No. is present, use that. EXTREMELY IMPORTANT: Do not leave this blank if there is an Ordinance No. present.",
     },
     ordinanceLabel: {
       type: Type.STRING,
@@ -120,18 +122,27 @@ const ORDINANCE_SCHEMA: Schema = {
   ],
 };
 
+const RECONSTRUCTION_PROMPT = `Please faithfully reconstruct this document as normalized Markdown.
+Preserve ALL visible content: headings, ordinance numbers, titles, sections, subsections, numbered lists, paragraphs, tables, names, dates, signatures, penalties, legal references.
+Do NOT summarize — reproduce the document structure faithfully.
+Use [UNREADABLE] for genuinely unreadable text.
+Use Markdown headers (##, ###) for section breaks.
+Preserve page boundaries with --- horizontal rules.
+Keep the original language (Filipino/Tagalog/English).`;
+
 const EXTRACTION_PROMPT = `Ikaw ay isang batikan at eksperto sa mga lokal na ordinansa sa Pilipinas, lalo na sa Lungsod ng Cabanatuan.
-Suriin nang mabuti ang ibinigay na teksto, scanned PDF, o mga larawan (multi-page scanned ordinance o resolusyon).
+Ang sumusunod na teksto ay naka-reconstruct na Markdown mula sa isang opisyal na dokumento ng ordinansa. I-extract ang lahat ng kinakailangang impormasyon mula sa tekstong ito.
 Kung maraming pahina (multiple images o pages) ang ibinigay, BASAHIN AT PAG-UGNAYIN ANG LAHAT NG PAHINA mula simula hanggang dulo upang makumpleto ang pamagat, mga seksyon, parusa, signatories, at buong nilalaman.
 I-extract ang lahat ng kinakailangang impormasyon at sundin nang maigi ang schema.
 
 MAHALAGANG PATAKARAN:
-1. RESOLUTION NUMBER / ORDINANCE NUMBER FORMAT: Laging gamitin ang pormat na YYYY-NNN (halimbawa: "2024-681", "2024-002"). Kung ang nakasulat sa dokumento ay "681-2024" o "Resolution No. 681 s. 2024", gawin itong "2024-681". Kung may Resolution No. at Ordinance Blg., unahin ang Resolution Number sa pormat na YYYY-NNN.
-2. PAMAGAT (TITLE): Alisin ang mga salitang "City Ordinance Establishing", "Ordinansa para sa", "Ordinansang". ALISIN DIN ang pangalan ng barangay o lungsod sa dulo ng pamagat (hal. "sa Barangay Camp Tinio", "sa Barangay D.S. Garcia", "in Cabanatuan City") dahil ang lokasyon ay inilalagay na sa 'coverage'.
-3. EXECUTIVE SUMMARY (SUMMARY): Laging simulan o banggitin na ito ay isang ordinansa (hal. "Ordinansang nagbabawal ng maiingay na muffler...").
-4. MGA LUMAGDA (SIGNATORIES): HUWAG ISAMA ang "Mga Dumalo" (attendees sa pulong) sa listahan ng signatories. ILAGAY LAMANG ANG MGA OPISYAL NA LUMAGDA SA IBABA NG ORDINANSA (hal. Punong Barangay, mga Kagawad na lumagda/nagpatibay, SK Chairman, at Kalihim na nagpatunay).
-5. KATEGORYA (CATEGORY): Pumili ng pinakaangkop na kategorya mula sa listahan (hal. "Public Safety" para sa curfew o maingay na muffler, "Environment" para sa basura). Huwag gamitin ang "General" kung may mas angkop na kategorya.
-6. KUNG SCANNED DOCUMENT: Gamitin ang iyong OCR upang basahin ang lahat ng tatak (stamp), sulat-kamay na petsa o numero, at lagda.`;
+1. NUMBER FORMAT: Laging gamitin ang pormat na YYYY-NNN (halimbawa: "2024-681", "2024-002") para sa ordinanceNumber. Kung ang nakasulat sa dokumento ay "Ordinance No. 572 s. 2024", ilagay ang "2024-572". Kung may Resolution No. at Ordinance Blg., maaari mong gamitin ang Resolution Number.
+2. PAMAGAT (TITLE): Alisin ang mga salitang "City Ordinance Establishing", "Ordinansa para sa", "Ordinansang". ALISIN DIN ang pangalan ng barangay o lungsod sa dulo ng pamagat dahil ang lokasyon ay inilalagay na sa 'coverage'.
+3. MGA SEKSYON AT ARTIKULO: Siguraduhing na-extract nang buo ang lahat ng nilalaman sa ilalim ng bawat seksyon (SECTION 1, SECTION 2, etc.). Gamitin ang Markdown Headers (hal. "### SECTION 1. Pamagat ng Seksyon") sa 'content' para madaling ma-parse.
+4. MGA LUMAGDA (SIGNATORIES): HUWAG ISAMA ang "Mga Dumalo" (attendees sa pulong). ILAGAY LAMANG ANG MGA PANGALAN AT TITULO NG MGA OPISYAL NA PUMIRMA SA IBABA (hal. Punong Barangay, Presiding Officer, City Mayor). Ilista sila nang malinis.
+5. EXECUTIVE SUMMARY (SUMMARY): Laging simulan o banggitin na ito ay isang ordinansa.
+6. KATEGORYA (CATEGORY): Pumili ng pinakaangkop na kategorya mula sa listahan.
+7. KUNG SCANNED DOCUMENT: Gamitin ang OCR upang basahin ang lahat, kahit ang mga sulat-kamay.`;
 
 export async function POST(request: Request) {
   try {
@@ -153,47 +164,104 @@ export async function POST(request: Request) {
       );
     }
 
-    const contents: any[] = [];
-    for (const f of uploadedFiles) {
-      contents.push({
-        inlineData: {
-          data: f.data,
-          mimeType: f.mimeType,
+    const pipelineMode = uploadedFiles.length > 0 ? 'two-stage' : 'text-only';
+    let markdown = "";
+
+    if (uploadedFiles.length > 0) {
+      const reconContents: any[] = uploadedFiles.map(f => ({
+        inlineData: { data: f.data, mimeType: f.mimeType },
+      }));
+      reconContents.push(RECONSTRUCTION_PROMPT);
+
+      const reconResult = await ai.models.generateContent({
+        model: GEMINI_MODEL,
+        contents: reconContents,
+        config: {
+          temperature: 0.1,
         },
       });
+
+      markdown = reconResult.text || "";
+      markdown = normalizeWhitespace(markdown);
+
+      if (markdown.length < 100) {
+        return NextResponse.json({
+          success: false,
+          error: 'Hindi nabasa ng AI ang dokumento. Maaaring scanned PDF na walang readable content.',
+          _debug: { stage: 'reconstruction', markdownLength: markdown?.length }
+        }, { status: 422 });
+      }
+
+      console.log('=== STAGE 1: RECONSTRUCTED MARKDOWN ===\n', markdown);
     }
 
-    if (text) {
-      contents.push(text);
+    const extContents: any[] = [];
+    if (text) extContents.push(text);
+    if (markdown) extContents.push(markdown);
+    extContents.push(EXTRACTION_PROMPT);
+
+    let extracted: any = {};
+    try {
+      const result = await ai.models.generateContent({
+        model: GEMINI_MODEL,
+        contents: extContents,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: ORDINANCE_SCHEMA,
+          temperature: 0.1,
+        },
+      });
+
+      const responseText = result.text;
+      if (!responseText) {
+        throw new Error("Empty response text from Stage 2");
+      }
+
+      extracted = JSON.parse(responseText);
+    } catch (error: any) {
+      console.error("Stage 2 Extraction Error:", error);
+      if (pipelineMode === 'two-stage') {
+        console.log("Attempting single-stage fallback...");
+        const fallbackContents: any[] = uploadedFiles.map(f => ({
+          inlineData: { data: f.data, mimeType: f.mimeType },
+        }));
+        if (text) fallbackContents.push(text);
+        fallbackContents.push(EXTRACTION_PROMPT);
+
+        const fallbackResult = await ai.models.generateContent({
+          model: GEMINI_MODEL,
+          contents: fallbackContents,
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: ORDINANCE_SCHEMA,
+            temperature: 0.1,
+          },
+        });
+        
+        if (!fallbackResult.text) throw new Error("Empty fallback response text");
+        extracted = JSON.parse(fallbackResult.text);
+      } else {
+        throw error;
+      }
     }
-    contents.push(EXTRACTION_PROMPT);
-
-    const result = await ai.models.generateContent({
-      model: GEMINI_MODEL,
-      contents,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: ORDINANCE_SCHEMA,
-        temperature: 0.1,
-      },
-    });
-
-    const responseText = result.text;
-    if (!responseText) {
-      return NextResponse.json(
-        { error: "Hindi nabasa ang ordinansa. Subukan muli." },
-        { status: 500 }
-      );
-    }
-
-    const extracted = JSON.parse(responseText);
 
     // Apply deterministic post-processing cleanups to guarantee consistency
     extracted.title = cleanOrdinanceTitle(extracted.title);
     extracted.ordinanceNumber = formatResolutionNumber(extracted.ordinanceNumber);
     extracted.enforcement = formatEnforcementAgencies(extracted.enforcement);
 
-    return NextResponse.json({ success: true, data: extracted });
+    const { valid, warnings } = validateExtractionResult(extracted);
+
+    return NextResponse.json({
+      success: true,
+      data: extracted,
+      _debug: {
+        pipelineMode,
+        reconstructedMarkdownLength: markdown?.length,
+        reconstructedMarkdownPreview: markdown?.slice(0, 2000),
+        validationWarnings: warnings,
+      }
+    });
   } catch (error: any) {
     console.error("AI Ordinance Extraction Error:", error);
     return NextResponse.json(

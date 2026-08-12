@@ -159,3 +159,60 @@ export function formatCoverage(
   return "N/A";
 }
 
+/**
+ * Validates the extracted structured metadata from the AI.
+ */
+export function validateExtractionResult(data: Record<string, unknown>): { valid: boolean; warnings: string[] } {
+  const warnings: string[] = [];
+  
+  if (!data.title || typeof data.title !== 'string' || data.title.length <= 3) {
+    warnings.push("Title is missing or too short.");
+  }
+  
+  if (!data.ordinanceNumber || typeof data.ordinanceNumber !== 'string' || !/\d{4}-\d+/.test(data.ordinanceNumber)) {
+    warnings.push("Ordinance number is missing or invalid format.");
+  }
+  
+  if (!data.dateEnacted || typeof data.dateEnacted !== 'string' || !/\d{4}-\d{2}-\d{2}/.test(data.dateEnacted)) {
+    warnings.push("Date enacted is missing or invalid format.");
+  }
+  
+  if (!data.content || typeof data.content !== 'string' || data.content.length <= 50) {
+    warnings.push("Content is missing or too short.");
+  }
+  
+  const validCategories = [
+    "General",
+    "Environment",
+    "Public Safety",
+    "Health",
+    "Infrastructure",
+    "Education",
+    "Livelihood",
+    "Youth",
+    "Senior Citizens",
+    "Women & Children",
+  ];
+  if (!data.category || typeof data.category !== 'string' || !validCategories.includes(data.category)) {
+    warnings.push("Category is missing or invalid.");
+  }
+  
+  // valid is true if no critical issues (title + ordinanceNumber present and valid)
+  const valid = !(!data.title || typeof data.title !== 'string' || data.title.length <= 3 ||
+                  !data.ordinanceNumber || typeof data.ordinanceNumber !== 'string' || !/\d{4}-\d+/.test(data.ordinanceNumber));
+  
+  return { valid, warnings };
+}
+
+/**
+ * Cleans broken OCR line breaks and normalizes whitespace.
+ */
+export function normalizeWhitespace(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/ {2,}/g, " ")
+    .replace(/ \n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+

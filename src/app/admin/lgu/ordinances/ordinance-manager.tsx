@@ -17,6 +17,7 @@ const ORDINANCE_CATEGORIES = [
 
 type Ordinance = {
   id: string;
+  slug: string;
   title: string;
   resolutionNumber: string;
   series: string | null;
@@ -437,7 +438,7 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5 justify-end">
                         <Link
-                          href={`/ordinances/${ord.id}`}
+                          href={`/ordinances/${ord.slug}`}
                           className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-[var(--radius-sm)] border border-[var(--border-hairline)] text-xs text-[var(--text-body)] hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)] px-2"
                           aria-label={`Tingnan ang ordinansa: ${ord.title}`}
                         >

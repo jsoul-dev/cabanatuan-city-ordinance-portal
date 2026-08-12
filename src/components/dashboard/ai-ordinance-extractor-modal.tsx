@@ -130,7 +130,13 @@ export function AiOrdinanceExtractorModal({
           ? `data:${selectedFiles[0].mimeType};base64,${selectedFiles[0].data}`
           : undefined;
 
-      toast.success("⚡ Matagumpay na na-extract ng AI ang mga detalye!");
+      const warnings: string[] = json._debug?.validationWarnings || [];
+      if (warnings.length > 0) {
+        toast.warning(`⚡ Na-extract ang mga detalye ngunit may ilang natukoy na kulang: ${warnings.join("; ")}`);
+      } else {
+        toast.success("⚡ Matagumpay na na-extract ng AI ang mga detalye!");
+      }
+
       onExtract({
         ...json.data,
         pdfUrl: attachedUrl,

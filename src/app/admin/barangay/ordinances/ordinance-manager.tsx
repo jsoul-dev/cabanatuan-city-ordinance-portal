@@ -8,6 +8,7 @@ import { submitOrdinance } from "../actions";
 
 interface Ordinance {
   id: string;
+  slug: string;
   title: string;
   resolutionNumber: string;
   series: string | null;

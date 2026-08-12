@@ -49,18 +49,20 @@ export function DashboardSidebar({
   homeHref = "/admin",
 }: DashboardSidebarProps) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return localStorage.getItem("sidebar_collapsed") === "true";
+    } catch {
+      return false;
+    }
+  });
   const [mounted, setMounted] = useState(false);
 
-  // Restore collapsed state from localStorage on mount before enabling transitions
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("sidebar_collapsed");
-      if (stored !== null) {
-        setCollapsed(stored === "true");
-      }
-    } catch {}
-    setMounted(true);
+    requestAnimationFrame(() => {
+      setMounted(true);
+    });
   }, []);
 
   const toggleCollapsed = useCallback(() => {
@@ -81,7 +83,7 @@ export function DashboardSidebar({
     <aside
       className={`relative flex flex-col h-screen sticky top-0 bg-[var(--bg-card)] border-r border-[var(--border-hairline)] ${
         collapsed ? "w-[72px]" : "w-64"
-      } flex-shrink-0 z-30`}
+      } ${mounted ? "transition-[width] duration-200 ease-in-out" : ""} flex-shrink-0 z-30`}
       style={{
         backgroundColor: "var(--bg-card)",
         borderColor: "var(--border-hairline)",
