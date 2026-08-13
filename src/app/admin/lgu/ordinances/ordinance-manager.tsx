@@ -5,7 +5,6 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import { ConfirmDialog } from "@/components/dashboard/confirm-dialog";
-import { AiOrdinanceExtractorModal } from "@/components/dashboard/ai-ordinance-extractor-modal";
 import { approveOrdinance, rejectOrdinance, deleteOrdinance, createCityOrdinance } from "../actions";
 
 type OrdinanceStatus = "ALL" | "DRAFT" | "PENDING" | "APPROVED" | "REJECTED";
@@ -43,16 +42,39 @@ const STATUS_TABS: { value: OrdinanceStatus; label: string; icon: string }[] = [
   { value: "REJECTED", label: "Rejected",  icon: "❌" },
 ];
 
+interface SelectedFileItem {
+  name: string;
+  data: string;
+  mimeType: string;
+  size: number;
+}
+
+const EXTRACTION_STEPS = [
+  "Binabasa ang dokumento…",
+  "Ginagawan ng OCR ang mga pahina…",
+  "Kinukuha ang pamagat at numero…",
+  "Sinusuri ang mga seksyon…",
+  "Kinukuha ang mga parusa at multa…",
+  "Kinukuha ang mga lumagda…",
+  "Binabalangkas ang buong nilalaman…",
+];
+
 export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Props) {
   const [ordinances, setOrdinances] = useState(initialOrdinances);
   const [statusFilter, setStatusFilter] = useState<OrdinanceStatus>("ALL");
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  const [showForm, setShowForm] = useState(false);
-  const [showAiModal, setShowAiModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [formError, setFormError] = useState("");
   const addBtnRef = useRef<HTMLButtonElement>(null);
+
+  // AI extraction state
+  const [extractText, setExtractText] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState<SelectedFileItem[]>([]);
+  const [extracting, setExtracting] = useState(false);
+  const [extractionStep, setExtractionStep] = useState(0);
+  const extractionIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [formState, setFormState] = useState({
     title: "",
@@ -72,25 +94,122 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
     pdfUrl: "",
   });
 
-  const handleAiExtract = (data: any) => {
+  const resetForm = () => {
     setFormState({
-      title: data.title || "",
-      resolutionNumber: data.ordinanceNumber || "",
-      ordinanceLabel: data.ordinanceLabel || "",
-      series: data.series || new Date().getFullYear().toString(),
-      year: data.year?.toString() || new Date().getFullYear().toString(),
-      dateEnacted: data.dateEnacted ? data.dateEnacted.split("T")[0] : "",
-      category: ORDINANCE_CATEGORIES.includes(data.category) ? data.category : "General",
-      description: data.summary || "",
-      content: data.content || "",
-      penalties: data.penalties || "",
-      coverage: data.coverage || "",
-      enforcement: data.enforcement || "",
-      signatories: data.signatories || "",
-      tags: Array.isArray(data.tags) ? data.tags.join(", ") : "",
-      pdfUrl: data.pdfUrl || "",
+      title: "", resolutionNumber: "", ordinanceLabel: "",
+      series: new Date().getFullYear().toString(),
+      year: new Date().getFullYear().toString(),
+      dateEnacted: "", category: "General", description: "", content: "",
+      penalties: "", coverage: "", enforcement: "", signatories: "", tags: "", pdfUrl: "",
     });
-    setShowForm(true);
+    setExtractText("");
+    setSelectedFiles([]);
+    setFormError("");
+  };
+
+  const handleOpenModal = () => {
+    resetForm();
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    if (extracting) return;
+    setShowModal(false);
+    addBtnRef.current?.focus();
+  };
+
+  // File handling
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const newFiles: SelectedFileItem[] = [];
+    for (const file of Array.from(files)) {
+      try {
+        const base64String = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        const [header, data] = base64String.split(",");
+        const match = header.match(/:(.*?);/);
+        const mime = match ? match[1] : file.type;
+        newFiles.push({ name: file.name, data, mimeType: mime, size: file.size });
+      } catch (err) {
+        console.error("Error reading file:", err);
+      }
+    }
+    setSelectedFiles((prev) => [...prev, ...newFiles]);
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  // AI extraction
+  const handleExtract = async () => {
+    if (!extractText.trim() && selectedFiles.length === 0) {
+      toast.error("Mag-upload ng dokumento o mag-paste ng teksto para ma-extract.");
+      return;
+    }
+    setExtracting(true);
+    setExtractionStep(0);
+    extractionIntervalRef.current = setInterval(() => {
+      setExtractionStep((prev) => (prev + 1) % EXTRACTION_STEPS.length);
+    }, 2200);
+
+    try {
+      const res = await fetch("/api/ordinances/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: extractText.trim() || undefined,
+          files: selectedFiles.length > 0
+            ? selectedFiles.map((f) => ({ name: f.name, data: f.data, mimeType: f.mimeType }))
+            : undefined,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error || "Hindi nabasa ang ordinansa.");
+
+      const data = json.data;
+      const attachedUrl = selectedFiles.length > 0
+        ? `data:${selectedFiles[0].mimeType};base64,${selectedFiles[0].data}`
+        : undefined;
+
+      setFormState({
+        title: data.title || "",
+        resolutionNumber: data.ordinanceNumber || "",
+        ordinanceLabel: data.ordinanceLabel || "",
+        series: data.series || new Date().getFullYear().toString(),
+        year: data.year?.toString() || new Date().getFullYear().toString(),
+        dateEnacted: data.dateEnacted ? data.dateEnacted.split("T")[0] : "",
+        category: ORDINANCE_CATEGORIES.includes(data.category) ? data.category : "General",
+        description: data.summary || "",
+        content: data.content || "",
+        penalties: data.penalties || "",
+        coverage: data.coverage || "",
+        enforcement: data.enforcement || "",
+        signatories: data.signatories || "",
+        tags: Array.isArray(data.tags) ? data.tags.join(", ") : "",
+        pdfUrl: attachedUrl || "",
+      });
+
+      const warnings: string[] = json._debug?.validationWarnings || [];
+      if (warnings.length > 0) {
+        toast.warning(`Na-extract ngunit may kulang: ${warnings.join("; ")}`);
+      } else {
+        toast.success("⚡ Matagumpay na na-extract ang mga detalye!");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Aberya sa AI extraction. Subukan muli.");
+    } finally {
+      if (extractionIntervalRef.current) clearInterval(extractionIntervalRef.current);
+      setExtracting(false);
+      setExtractionStep(0);
+    }
   };
 
   const handleCreateCityOrdinance = (e: React.FormEvent<HTMLFormElement>) => {
@@ -105,7 +224,7 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
         toast.error(res.error);
       } else {
         toast.success("Matagumpay na naitala ang bagong City Ordinance!");
-        setShowForm(false);
+        setShowModal(false);
         window.location.reload();
       }
     });
@@ -188,164 +307,236 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
 
   return (
     <div className="space-y-4">
-      <AiOrdinanceExtractorModal
-        open={showAiModal}
-        onClose={() => setShowAiModal(false)}
-        onExtract={handleAiExtract}
-      />
-
       {/* Action Bar */}
       <div className="flex items-center justify-between gap-3 bg-[var(--bg-card)] p-4 rounded-[var(--radius-md)] border border-[var(--border-hairline)]">
         <div>
           <h2 className="text-sm font-bold text-[var(--text-ink)]">Pamamahala ng Ordinansa</h2>
-          <p className="text-xs text-[var(--text-mute)]">Suriin, aprubahan, o magdagdag ng City Ordinance gamit ang AI.</p>
+          <p className="text-xs text-[var(--text-mute)]">Suriin, aprubahan, o magdagdag ng City Ordinance.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowAiModal(true)}
-            className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors shadow-sm"
-          >
-            ⚡ Auto-Extract gamit ang AI (gemini-3.5-flash-lite)
-          </button>
-          <button
-            ref={addBtnRef}
-            type="button"
-            onClick={() => { setShowForm((v) => !v); setFormError(""); }}
-            className="min-h-[44px] rounded-[var(--radius-sm)] bg-[var(--accent-primary)] px-5 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-primary)]/90 transition-colors"
-          >
-            + Bagong City Ordinance
-          </button>
-        </div>
+        <button
+          ref={addBtnRef}
+          type="button"
+          onClick={handleOpenModal}
+          className="min-h-[44px] rounded-[var(--radius-sm)] bg-[var(--accent-primary)] px-5 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-primary)]/90 transition-colors"
+        >
+          + Bagong City Ordinance
+        </button>
       </div>
 
-      {/* Submit City Ordinance Form */}
-      {showForm && (
-        <form
-          onSubmit={handleCreateCityOrdinance}
-          className="card-elevated p-5 space-y-4"
-          noValidate
+      {/* ── Combined Submit Modal ── */}
+      {showModal && (
+        <div
+          role="dialog" aria-modal="true" aria-labelledby="lgu-submit-ordinance-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto"
+          onClick={(e) => { if (e.target === e.currentTarget) handleCloseModal(); }}
         >
-          <div className="flex items-center justify-between border-b border-[var(--border-hairline)] pb-3">
-            <h2 className="text-sm font-bold text-[var(--text-ink)]">Bagong City Ordinance (Opisyal)</h2>
-            <button
-              type="button"
-              onClick={() => setShowAiModal(true)}
-              className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors"
-            >
-              ⚡ Punan sa pamamagitan ng AI
-            </button>
-          </div>
-          {formError && (
-            <p className="text-xs text-red-600 bg-red-50 dark:bg-red-950/40 p-2.5 rounded border border-red-200 dark:border-red-800" role="alert">
-              ❌ {formError}
-            </p>
-          )}
-          <input type="hidden" name="pdfUrl" value={formState.pdfUrl} />
-          <input type="hidden" name="ordinanceLabel" value={formState.ordinanceLabel} />
-          {formState.pdfUrl && (
-            <div className="flex items-center gap-2 rounded-[var(--radius-sm)] border border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-2 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-              <span>📎 Naka-attach na ang opisyal na dokumento mula sa Auto-Extract</span>
-            </div>
-          )}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="sm:col-span-3 flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[var(--text-ink)]">Pamagat ng Ordinansa *</label>
-              <input name="title" type="text" required value={formState.title} onChange={(e) => setFormState({ ...formState, title: e.target.value })}
-                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[var(--text-ink)]">Resolution Number *</label>
-              <input name="resolutionNumber" type="text" required value={formState.resolutionNumber} onChange={(e) => setFormState({ ...formState, resolutionNumber: e.target.value })}
-                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[var(--text-ink)]">Series</label>
-              <input name="series" type="text" value={formState.series} onChange={(e) => setFormState({ ...formState, series: e.target.value })}
-                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[var(--text-ink)]">Taon</label>
-              <input name="year" type="number" value={formState.year} onChange={(e) => setFormState({ ...formState, year: e.target.value })}
-                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[var(--text-ink)]">Kategorya</label>
-              <select name="category" value={formState.category} onChange={(e) => setFormState({ ...formState, category: e.target.value })}
-                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
-              >
-                {ORDINANCE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[var(--text-ink)]">Petsa ng Pagpapatibay</label>
-              <input name="dateEnacted" type="date" value={formState.dateEnacted} onChange={(e) => setFormState({ ...formState, dateEnacted: e.target.value })}
-                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[var(--text-ink)]">Search Tags</label>
-              <input name="tags" type="text" value={formState.tags} onChange={(e) => setFormState({ ...formState, tags: e.target.value })}
-                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
-              />
-            </div>
-            <div className="sm:col-span-3 flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[var(--text-ink)]">Maikling Paglalarawan</label>
-              <textarea name="description" rows={2} value={formState.description} onChange={(e) => setFormState({ ...formState, description: e.target.value })}
-                className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
-              />
-            </div>
-            <div className="sm:col-span-3 flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[var(--text-ink)]">Saklaw / Coverage</label>
-              <input name="coverage" type="text" value={formState.coverage} onChange={(e) => setFormState({ ...formState, coverage: e.target.value })}
-                className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
-              />
-            </div>
-            <div className="sm:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-[var(--text-ink)]">Parusa at Multa</label>
-                <textarea name="penalties" rows={3} value={formState.penalties} onChange={(e) => setFormState({ ...formState, penalties: e.target.value })}
-                  className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
-                />
+          <div onClick={(e) => e.stopPropagation()}
+            className="relative bg-[var(--bg-card)] border border-[var(--border-hairline)] rounded-[var(--radius-lg)] w-full max-w-3xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
+          >
+            {/* ── Extraction overlay ── */}
+            {extracting && (
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-5 rounded-[var(--radius-lg)] bg-[var(--bg-card)]/95 backdrop-blur-sm">
+                <div className="relative flex items-center justify-center">
+                  <div className="h-20 w-20 rounded-full border-4 border-emerald-500/20" />
+                  <div className="absolute h-20 w-20 rounded-full border-4 border-transparent border-t-emerald-500 animate-spin" />
+                  <div className="absolute h-14 w-14 rounded-full border-4 border-transparent border-t-emerald-400 animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
+                  <span className="absolute text-2xl">📄</span>
+                </div>
+                <div className="text-center space-y-2 max-w-xs">
+                  <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 animate-pulse">Ine-extract ng AI…</p>
+                  <p key={extractionStep} className="text-xs text-[var(--text-mute)] animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    {EXTRACTION_STEPS[extractionStep]}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {EXTRACTION_STEPS.map((_, i) => (
+                    <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i <= extractionStep ? "w-4 bg-emerald-500" : "w-1.5 bg-[var(--border-hairline)]"}`} />
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-[var(--text-ink)]">Ahensyang Magpapatupad</label>
-                <textarea name="enforcement" rows={3} value={formState.enforcement} onChange={(e) => setFormState({ ...formState, enforcement: e.target.value })}
-                  className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
-                />
+            )}
+
+            <form onSubmit={handleCreateCityOrdinance} noValidate>
+              {/* Header */}
+              <div className="sticky top-0 z-10 bg-[var(--bg-card)] border-b border-[var(--border-hairline)] p-5 flex items-center justify-between">
+                <div>
+                  <h2 id="lgu-submit-ordinance-title" className="text-base font-bold text-[var(--text-ink)]">📜 Irehistro ang Bagong City Ordinance</h2>
+                  <p className="text-xs text-[var(--text-mute)] mt-0.5">Awtomatikong kukunin ang mga detalye gamit ang AI.</p>
+                </div>
+                <button type="button" onClick={handleCloseModal} aria-label="Isara" className="text-[var(--text-mute)] hover:text-[var(--text-ink)] p-1 rounded-md text-lg">✕</button>
               </div>
-            </div>
-            <div className="sm:col-span-3 flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[var(--text-ink)]">Mga Lumagda / Signatories</label>
-              <textarea name="signatories" rows={2} value={formState.signatories} onChange={(e) => setFormState({ ...formState, signatories: e.target.value })}
-                className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)]"
-                placeholder="Hal. Punong Barangay, Mga Kagawad, Kalihim"
-              />
-            </div>
-            <div className="sm:col-span-3 flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[var(--text-ink)]">Buong Nilalaman</label>
-              <textarea name="content" rows={8} value={formState.content} onChange={(e) => setFormState({ ...formState, content: e.target.value })}
-                className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm font-mono text-[var(--text-ink)]"
-              />
-            </div>
+
+              <div className="p-5 space-y-5">
+                {/* ── AI Auto-Extract Section ── */}
+                <div className="rounded-[var(--radius-md)] border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-sm">⚡</span>
+                    <div>
+                      <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Auto-extract gamit ang AI</p>
+                      <p className="text-[11px] text-[var(--text-mute)]">Mag-upload ng dokumento o mag-paste ng teksto.</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Upload */}
+                    <div className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-card)] p-3 space-y-2">
+                      <p className="text-xs font-semibold text-[var(--text-ink)]">Upload PDF / Dokumento</p>
+                      <label className="inline-flex items-center gap-1.5 cursor-pointer rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-1.5 text-xs font-medium text-[var(--text-ink)] hover:bg-[var(--border-hairline)] transition-colors">
+                        📂 Browse Files
+                        <input type="file" multiple accept="image/*,.pdf" onChange={handleFileChange} className="sr-only" />
+                      </label>
+                      {selectedFiles.length > 0 && (
+                        <div className="space-y-1 mt-1">
+                          {selectedFiles.map((file, idx) => (
+                            <div key={idx} className="flex items-center justify-between rounded bg-[var(--bg-canvas)] px-2 py-1 text-[11px]">
+                              <span className="truncate text-[var(--text-ink)]">{file.mimeType.includes("pdf") ? "📑" : "📄"} {file.name} <span className="text-[var(--text-mute)]">({formatFileSize(file.size)})</span></span>
+                              <button type="button" onClick={() => setSelectedFiles((prev) => prev.filter((_, i) => i !== idx))} className="text-red-500 hover:text-red-700 font-bold ml-1 p-0.5 text-xs">✕</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <p className="text-[10px] text-[var(--text-mute)]">I-upload ang dokumento para awtomatikong mabasa ng AI at ma-save ang opisyal na PDF.</p>
+                    </div>
+
+                    {/* Paste Text */}
+                    <div className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-card)] p-3 space-y-2">
+                      <p className="text-xs font-semibold text-[var(--text-ink)]">O i-Paste ang Raw na Teksto</p>
+                      <textarea rows={3} value={extractText} onChange={(e) => setExtractText(e.target.value)}
+                        placeholder="I-paste dito ang teksto ng ordinansa…"
+                        className="w-full rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-2.5 py-2 text-xs font-mono text-[var(--text-ink)] placeholder:text-[var(--text-mute)] focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  <button type="button" onClick={handleExtract} disabled={extracting || (!extractText.trim() && selectedFiles.length === 0)}
+                    className="w-full min-h-[40px] inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    ⚡ I-Extract gamit ang AI
+                  </button>
+                </div>
+
+                {/* ── Official File Status ── */}
+                <div className="flex items-center justify-between rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-4 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-lg">📎</span>
+                    <div>
+                      <p className="text-xs font-semibold text-[var(--text-ink)]">Opisyal na Dokumento</p>
+                      <p className="text-[11px] text-[var(--text-mute)]">
+                        {formState.pdfUrl ? "✅ Naka-attach na ang opisyal na dokumento." : "Walang naka-attach na opisyal na dokumento."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {formError && (
+                  <p className="text-xs text-red-600 bg-red-50 dark:bg-red-950/40 p-2.5 rounded border border-red-200 dark:border-red-800" role="alert">❌ {formError}</p>
+                )}
+
+                <input type="hidden" name="pdfUrl" value={formState.pdfUrl} />
+                <input type="hidden" name="ordinanceLabel" value={formState.ordinanceLabel} />
+
+                {/* ── Form Fields ── */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="sm:col-span-3 flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-[var(--text-ink)]">Pamagat ng Ordinansa <span className="text-red-500">*</span></label>
+                    <input name="title" type="text" required value={formState.title} onChange={(e) => setFormState({ ...formState, title: e.target.value })}
+                      className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] placeholder:text-[var(--text-mute)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-[var(--text-ink)]">Resolution Number <span className="text-red-500">*</span></label>
+                    <input name="resolutionNumber" type="text" required value={formState.resolutionNumber} onChange={(e) => setFormState({ ...formState, resolutionNumber: e.target.value })}
+                      className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] placeholder:text-[var(--text-mute)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-[var(--text-ink)]">Series</label>
+                    <input name="series" type="text" value={formState.series} onChange={(e) => setFormState({ ...formState, series: e.target.value })}
+                      className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-[var(--text-ink)]">Taon</label>
+                    <input name="year" type="number" value={formState.year} onChange={(e) => setFormState({ ...formState, year: e.target.value })}
+                      className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-[var(--text-ink)]">Kategorya</label>
+                    <select name="category" value={formState.category} onChange={(e) => setFormState({ ...formState, category: e.target.value })}
+                      className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                    >
+                      {ORDINANCE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-[var(--text-ink)]">Petsa ng Pagpapatibay</label>
+                    <input name="dateEnacted" type="date" value={formState.dateEnacted} onChange={(e) => setFormState({ ...formState, dateEnacted: e.target.value })}
+                      className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-[var(--text-ink)]">Search Tags</label>
+                    <input name="tags" type="text" value={formState.tags} onChange={(e) => setFormState({ ...formState, tags: e.target.value })}
+                      className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] placeholder:text-[var(--text-mute)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                    />
+                  </div>
+                  <div className="sm:col-span-3 flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-[var(--text-ink)]">Maikling Paglalarawan</label>
+                    <textarea name="description" rows={2} value={formState.description} onChange={(e) => setFormState({ ...formState, description: e.target.value })}
+                      className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                    />
+                  </div>
+                  <div className="sm:col-span-3 flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-[var(--text-ink)]">Saklaw / Coverage</label>
+                    <input name="coverage" type="text" value={formState.coverage} onChange={(e) => setFormState({ ...formState, coverage: e.target.value })}
+                      className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                    />
+                  </div>
+                  <div className="sm:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-medium text-[var(--text-ink)]">Parusa at Multa</label>
+                      <textarea name="penalties" rows={3} value={formState.penalties} onChange={(e) => setFormState({ ...formState, penalties: e.target.value })}
+                        className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-medium text-[var(--text-ink)]">Ahensyang Magpapatupad</label>
+                      <textarea name="enforcement" rows={3} value={formState.enforcement} onChange={(e) => setFormState({ ...formState, enforcement: e.target.value })}
+                        className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                      />
+                    </div>
+                  </div>
+                  <div className="sm:col-span-3 flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-[var(--text-ink)]">Mga Lumagda / Signatories</label>
+                    <textarea name="signatories" rows={2} value={formState.signatories} onChange={(e) => setFormState({ ...formState, signatories: e.target.value })}
+                      className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                      placeholder="Hal. Punong Barangay, Mga Kagawad, Kalihim"
+                    />
+                  </div>
+                  <div className="sm:col-span-3 flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-[var(--text-ink)]">Buong Nilalaman</label>
+                    <textarea name="content" rows={8} value={formState.content} onChange={(e) => setFormState({ ...formState, content: e.target.value })}
+                      className="rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm font-mono text-[var(--text-ink)] resize-y focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="sticky bottom-0 z-10 bg-[var(--bg-card)] border-t border-[var(--border-hairline)] p-5 flex gap-3 justify-end">
+                <button type="button" onClick={handleCloseModal}
+                  className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-4 py-2 text-sm font-semibold text-[var(--text-ink)] hover:bg-[var(--border-hairline)] transition-colors">
+                  Kanselahin
+                </button>
+                <button type="submit" disabled={isPending}
+                  className="min-h-[44px] inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent-primary)] px-5 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-primary)]/90 transition-colors disabled:opacity-50">
+                  {isPending ? "Isinusumite…" : "📜 I-save ang City Ordinance"}
+                </button>
+              </div>
+            </form>
           </div>
-          <div className="flex gap-3 justify-end pt-2 border-t border-[var(--border-hairline)]">
-            <button type="button" onClick={() => setShowForm(false)}
-              className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-4 py-2 text-sm font-semibold text-[var(--text-ink)]"
-            >
-              Kanselahin
-            </button>
-            <button type="submit" disabled={isPending}
-              className="min-h-[44px] rounded-[var(--radius-sm)] bg-[var(--accent-primary)] px-5 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-primary)]/90 transition-colors disabled:opacity-50"
-            >
-              {isPending ? "Isinusumite…" : "📜 I-save ang City Ordinance"}
-            </button>
-          </div>
-        </form>
+        </div>
       )}
 
       {/* Filters */}

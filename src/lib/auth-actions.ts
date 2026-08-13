@@ -48,14 +48,9 @@ export async function login(
 
   await setSessionCookie(session);
 
-  // Redirect based on role
   if (user.role === "LGU_ADMIN") {
     redirect("/admin/lgu");
-  } else if (
-    user.role === "CAPTAIN" ||
-    user.role === "SECRETARY" ||
-    user.role === "KAGAWAD"
-  ) {
+  } else if (user.role === "BARANGAY_ADMIN") {
     redirect("/admin/barangay");
   } else {
     redirect("/");

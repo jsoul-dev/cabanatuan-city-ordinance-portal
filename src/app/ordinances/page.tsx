@@ -15,7 +15,7 @@ export const metadata: Metadata = {
  * Responsive across BOTH crisp Light Mode and winauth.net Dark Mode.
  */
 export default async function OrdinancesPage() {
-  const [ordinances, barangays] = await Promise.all([
+  const rawOrdinances = await Promise.all([
     prisma.ordinance.findMany({
       where: {
         status: "APPROVED",
@@ -33,6 +33,12 @@ export default async function OrdinancesPage() {
       },
     }),
   ]);
+
+  const ordinances = rawOrdinances[0].map(ord => ({
+    ...ord,
+    pdfUrl: ord.pdfUrl ? "has-pdf" : null
+  }));
+  const barangays = rawOrdinances[1];
 
   return (
     <div className="min-h-screen bg-stone-50 text-neutral-900 dark:bg-[#050807] dark:text-white selection:bg-emerald-500 selection:text-black transition-colors duration-200">

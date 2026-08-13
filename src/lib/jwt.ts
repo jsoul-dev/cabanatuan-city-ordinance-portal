@@ -1,9 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 export type UserRole =
   | "CITIZEN"
-  | "CAPTAIN"
-  | "SECRETARY"
-  | "KAGAWAD"
+  | "BARANGAY_ADMIN"
   | "LGU_ADMIN";
 
 const JWT_SECRET = new TextEncoder().encode(
