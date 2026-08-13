@@ -4,7 +4,7 @@ import { verifyToken } from "@/lib/jwt";
 
 // Routes that require authentication and their allowed roles
 const PROTECTED_ROUTES: Record<string, string[]> = {
-  "/admin/barangay": ["CAPTAIN", "SECRETARY", "KAGAWAD"],
+  "/admin/barangay": ["BARANGAY_ADMIN"],
   "/admin/lgu": ["LGU_ADMIN"],
 };
 

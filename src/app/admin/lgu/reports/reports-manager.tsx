@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { StatusBadge } from "@/components/dashboard/status-badge";
-import { toast } from "sonner";
-import { updateReportStatus } from "../actions";
 
 type ReportStatus = "NEW" | "IN_PROGRESS" | "RESOLVED" | "DISMISSED";
 type ReportType = "TRASH_BURNING" | "NOISE" | "ROAD_OBSTRUCTION" | "OTHER";
@@ -42,21 +40,6 @@ interface Props {
 export function ReportsManager({ initialReports }: Props) {
   const [reports, setReports] = useState(initialReports);
   const [statusFilter, setStatusFilter] = useState<ReportStatus | "ALL">("ALL");
-  const [isPending, startTransition] = useTransition();
-
-  const handleStatusChange = (reportId: string, newStatus: string) => {
-    startTransition(async () => {
-      const result = await updateReportStatus(reportId, newStatus);
-      if (result.error) {
-        toast.error(result.error);
-      } else {
-        setReports((prev) =>
-          prev.map((r) => r.id === reportId ? { ...r, status: newStatus as ReportStatus } : r)
-        );
-        toast.success("Status ng ulat ay na-update.");
-      }
-    });
-  };
 
   const filtered = reports.filter((r) =>
     statusFilter === "ALL" || r.status === statusFilter
@@ -104,7 +87,7 @@ export function ReportsManager({ initialReports }: Props) {
               <caption className="sr-only">Listahan ng lahat ng ulat ng komunidad</caption>
               <thead>
                 <tr className="border-b border-[var(--border-hairline)] bg-[var(--bg-canvas)]">
-                  {["Uri", "Barangay", "Paglalarawan", "Nagsampa", "Status", "Petsa", "Aksyon"].map((h) => (
+                  {["Uri", "Barangay", "Paglalarawan", "Nagsampa", "Status", "Petsa"].map((h) => (
                     <th key={h} scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--text-mute)]">{h}</th>
                   ))}
                 </tr>
@@ -133,22 +116,6 @@ export function ReportsManager({ initialReports }: Props) {
                       <StatusBadge type="report" status={report.status} />
                     </td>
                     <td className="px-4 py-3 text-xs text-[var(--text-mute)] whitespace-nowrap">{formatDate(report.submittedAt)}</td>
-                    <td className="px-4 py-3">
-                      <label htmlFor={`status-${report.id}`} className="sr-only">
-                        Baguhin ang status ng ulat mula kay {report.contactName ?? "Anonymous"}
-                      </label>
-                      <select
-                        id={`status-${report.id}`}
-                        value={report.status}
-                        disabled={isPending}
-                        onChange={(e) => handleStatusChange(report.id, e.target.value)}
-                        className="min-h-[36px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-2 py-1 text-xs text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)] disabled:opacity-50"
-                      >
-                        {STATUS_OPTIONS.map((opt) => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
-                    </td>
                   </tr>
                 ))}
               </tbody>

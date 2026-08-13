@@ -44,6 +44,7 @@ next-env.d.ts
 .assets/
 .gemini/
 .dumps/
+.ordinances/
 AGENTS.md
 CLAUDE.md
 TEST_ACCOUNTS.md

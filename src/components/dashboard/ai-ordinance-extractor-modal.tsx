@@ -33,6 +33,16 @@ interface AiOrdinanceExtractorModalProps {
   onExtract: (data: ExtractedData) => void;
 }
 
+const EXTRACTION_STEPS = [
+  "Binabasa ang dokumento…",
+  "Ginagawan ng OCR ang mga pahina…",
+  "Kinukuha ang pamagat at numero…",
+  "Sinusuri ang mga seksyon…",
+  "Kinukuha ang mga parusa at multa…",
+  "Kinukuha ang mga lumagda…",
+  "Binabalangkas ang buong nilalaman…",
+];
+
 export function AiOrdinanceExtractorModal({
   open,
   onClose,
@@ -41,18 +51,31 @@ export function AiOrdinanceExtractorModal({
   const [text, setText] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<SelectedFileItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [extractionStep, setExtractionStep] = useState(0);
 
   useEffect(() => {
     if (!open) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && !loading) {
         e.preventDefault();
         onClose();
       }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
+  }, [open, onClose, loading]);
+
+  // Cycle through extraction steps while loading
+  useEffect(() => {
+    if (!loading) {
+      setExtractionStep(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setExtractionStep((prev) => (prev + 1) % EXTRACTION_STEPS.length);
+    }, 2200);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   if (!open) return null;
 
@@ -162,13 +185,53 @@ export function AiOrdinanceExtractorModal({
       aria-labelledby="ai-extractor-title"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto"
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget && !loading) onClose();
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         className="bg-[var(--bg-card)] border border-[var(--border-hairline)] rounded-[var(--radius-lg)] w-full max-w-2xl p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
       >
+        {/* Loading Overlay */}
+        {loading && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-5 rounded-[var(--radius-lg)] bg-[var(--bg-card)]/95 backdrop-blur-sm">
+            {/* Animated scanner */}
+            <div className="relative flex items-center justify-center">
+              <div className="h-20 w-20 rounded-full border-4 border-emerald-500/20" />
+              <div className="absolute h-20 w-20 rounded-full border-4 border-transparent border-t-emerald-500 animate-spin" />
+              <div className="absolute h-14 w-14 rounded-full border-4 border-transparent border-t-emerald-400 animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
+              <span className="absolute text-2xl">📄</span>
+            </div>
+
+            {/* Step text */}
+            <div className="text-center space-y-2 max-w-xs">
+              <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 animate-pulse">
+                Ine-extract ng AI…
+              </p>
+              <p
+                key={extractionStep}
+                className="text-xs text-[var(--text-mute)] animate-in fade-in slide-in-from-bottom-2 duration-300"
+              >
+                {EXTRACTION_STEPS[extractionStep]}
+              </p>
+            </div>
+
+            {/* Progress dots */}
+            <div className="flex items-center gap-1.5">
+              {EXTRACTION_STEPS.map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i <= extractionStep
+                      ? "w-4 bg-emerald-500"
+                      : "w-1.5 bg-[var(--border-hairline)]"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-between border-b border-[var(--border-hairline)] pb-4">
           <div className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-lg">
@@ -179,7 +242,7 @@ export function AiOrdinanceExtractorModal({
                 id="ai-extractor-title"
                 className="text-base font-bold text-[var(--text-ink)]"
               >
-                AI Auto-Extraction (gemini-3.5-flash-lite)
+                AI Auto-Extraction
               </h2>
               <p className="text-xs text-[var(--text-mute)]">
                 Awtomatikong kukunin ang pamagat, buod, parusa, petsa, at nilalaman mula sa multi-page document o teksto.
@@ -189,8 +252,9 @@ export function AiOrdinanceExtractorModal({
           <button
             type="button"
             onClick={onClose}
+            disabled={loading}
             aria-label="Isara"
-            className="text-[var(--text-mute)] hover:text-[var(--text-ink)] p-1 rounded-md"
+            className="text-[var(--text-mute)] hover:text-[var(--text-ink)] p-1 rounded-md disabled:opacity-50"
           >
             ✕
           </button>
@@ -211,7 +275,7 @@ export function AiOrdinanceExtractorModal({
                 className="block w-full text-xs text-[var(--text-mute)] file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[var(--accent-primary)]/10 file:text-[var(--accent-primary)] hover:file:bg-[var(--accent-primary)]/20 cursor-pointer"
               />
               <p className="mt-2 text-[11px] text-[var(--text-mute)]">
-                Suportado: Maraming larawan (PNG, JPG, JPEG, WEBP) o Scanned PDF na may mga larawan. Binabasa ng Gemini Vision OCR ang lahat ng pahina.
+                Suportado: Maraming larawan (PNG, JPG, JPEG, WEBP) o Scanned PDF na may mga larawan.
               </p>
 
               {selectedFiles.length > 0 && (
@@ -278,7 +342,8 @@ export function AiOrdinanceExtractorModal({
           <button
             type="button"
             onClick={onClose}
-            className="min-h-[40px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-4 py-2 text-sm font-semibold text-[var(--text-ink)] hover:bg-[var(--border-hairline)] transition-colors"
+            disabled={loading}
+            className="min-h-[40px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-4 py-2 text-sm font-semibold text-[var(--text-ink)] hover:bg-[var(--border-hairline)] transition-colors disabled:opacity-50"
           >
             Kanselahin
           </button>
@@ -289,14 +354,7 @@ export function AiOrdinanceExtractorModal({
             disabled={loading}
             className="min-h-[40px] inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-emerald-600 px-5 py-2 text-sm font-bold text-white shadow-sm ring-2 ring-emerald-500 ring-offset-2 ring-offset-[var(--bg-card)] focus:outline-none focus:ring-4 focus:ring-emerald-500 hover:bg-emerald-700 transition-colors disabled:opacity-50"
           >
-            {loading ? (
-              <>
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                Sinusuri ng AI...
-              </>
-            ) : (
-              "⚡ Suriin at I-extract (AI)"
-            )}
+            ⚡ Suriin at I-extract (AI)
           </button>
         </div>
       </div>

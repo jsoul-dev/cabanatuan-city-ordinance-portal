@@ -18,7 +18,7 @@ import {
 
 type OrdinanceStatus = "DRAFT" | "PENDING" | "APPROVED" | "REJECTED";
 type ReportStatus = "NEW" | "IN_PROGRESS" | "RESOLVED" | "DISMISSED";
-type UserRole = "LGU_ADMIN" | "CAPTAIN" | "SECRETARY" | "KAGAWAD" | "CITIZEN";
+type UserRole = "LGU_ADMIN" | "BARANGAY_ADMIN" | "CITIZEN";
 
 type StatusBadgeProps =
   | { type: "ordinance"; status: OrdinanceStatus }
@@ -87,20 +87,10 @@ const roleConfig: Record<
     label: "LGU Admin",
     className: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-300 dark:border-amber-700/50",
   },
-  CAPTAIN: {
+  BARANGAY_ADMIN: {
     icon: ShieldCheckIcon,
-    label: "Captain",
+    label: "Barangay Admin",
     className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/50",
-  },
-  SECRETARY: {
-    icon: FileTextIcon,
-    label: "Secretary",
-    className: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-300 dark:border-blue-700/50",
-  },
-  KAGAWAD: {
-    icon: UsersIcon,
-    label: "Kagawad",
-    className: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700/50",
   },
   CITIZEN: {
     icon: UsersIcon,

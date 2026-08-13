@@ -6,7 +6,7 @@ import { ConfirmDialog } from "@/components/dashboard/confirm-dialog";
 import { toast } from "sonner";
 import { createUser, deleteUser } from "../actions";
 
-type UserRole = "LGU_ADMIN" | "CAPTAIN" | "SECRETARY" | "KAGAWAD";
+type UserRole = "LGU_ADMIN" | "BARANGAY_ADMIN";
 
 type User = {
   id: string;
@@ -25,10 +25,7 @@ interface Props {
 }
 
 const OFFICIAL_ROLES: { value: UserRole; label: string }[] = [
-  { value: "LGU_ADMIN", label: "LGU Super Admin" },
-  { value: "CAPTAIN",   label: "Punong Barangay" },
-  { value: "SECRETARY", label: "Kalihim ng Barangay" },
-  { value: "KAGAWAD",   label: "Kagawad" },
+  { value: "BARANGAY_ADMIN", label: "Barangay Admin" },
 ];
 
 export function UserManager({ initialUsers, barangays }: Props) {
@@ -138,7 +135,6 @@ export function UserManager({ initialUsers, barangays }: Props) {
               <select id="user-role" name="role" required
                 className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
               >
-                <option value="">— Pumili ng papel —</option>
                 {OFFICIAL_ROLES.map((r) => (
                   <option key={r.value} value={r.value}>{r.label}</option>
                 ))}
@@ -146,15 +142,20 @@ export function UserManager({ initialUsers, barangays }: Props) {
             </div>
             <div className="flex flex-col gap-1.5">
               <label htmlFor="user-barangay" className="text-sm font-medium text-[var(--text-ink)]">
-                Barangay <span className="text-[var(--text-mute)] font-normal text-xs">(opsyonal para sa LGU Admin)</span>
+                Barangay <span className="text-red-500" aria-hidden="true">*</span>
               </label>
-              <select id="user-barangay" name="barangayId"
+              <select id="user-barangay" name="barangayId" required
                 className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
               >
-                <option value="">— Walang barangay (city-wide) —</option>
-                {barangays.map((b) => (
-                  <option key={b.id} value={b.id}>{b.name}</option>
-                ))}
+                <option value="">— Pumili ng Barangay —</option>
+                {barangays.map((b) => {
+                  const hasAdmin = users.some(u => u.barangay?.id === b.id && u.role === "BARANGAY_ADMIN");
+                  return (
+                    <option key={b.id} value={b.id} disabled={hasAdmin}>
+                      {b.name} {hasAdmin ? "(May Admin Na)" : ""}
+                    </option>
+                  );
+                })}
               </select>
             </div>
             <div className="flex flex-col gap-1.5">

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { formatResolutionDisplay } from "@/lib/ordinance-utils";
 
@@ -40,6 +41,11 @@ export function PdfViewerModal({
   const printRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -81,6 +87,7 @@ export function PdfViewerModal({
   };
 
   if (!isOpen) return null;
+  if (!mounted) return null;
 
   const handlePrint = () => {
     if (pdfUrl) {
@@ -119,9 +126,9 @@ export function PdfViewerModal({
     }
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm animate-in fade-in-0"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in-0"
       onClick={onClose}
     >
       <div
@@ -321,6 +328,7 @@ export function PdfViewerModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

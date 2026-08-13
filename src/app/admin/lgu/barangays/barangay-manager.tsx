@@ -33,9 +33,7 @@ interface BarangayManagerProps {
 }
 
 const roleLabel: Record<string, string> = {
-  CAPTAIN: "Punong Barangay",
-  SECRETARY: "Kalihim ng Barangay",
-  KAGAWAD: "Kagawad",
+  BARANGAY_ADMIN: "Barangay Admin",
 };
 
 export function BarangayManager({ initialBarangays }: BarangayManagerProps) {
@@ -189,7 +187,7 @@ export function BarangayManager({ initialBarangays }: BarangayManagerProps) {
             {stats.withAccount}
           </p>
           <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-            Aktibong Barangay Kapitan/Kalihim
+            Aktibong Barangay Admin
           </p>
         </div>
 
@@ -593,14 +591,12 @@ export function BarangayManager({ initialBarangays }: BarangayManagerProps) {
                   id="acc-role"
                   name="role"
                   defaultValue={
-                    targetBarangayForAccount.users[0]?.role || "CAPTAIN"
+                    targetBarangayForAccount.users[0]?.role || "BARANGAY_ADMIN"
                   }
                   aria-label="Pumili ng papel sa barangay"
                   className="w-full min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3.5 py-2 text-sm text-[var(--text-ink)] focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
-                  <option value="CAPTAIN">Punong Barangay (Kapitan)</option>
-                  <option value="SECRETARY">Kalihim ng Barangay</option>
-                  <option value="KAGAWAD">Kagawad</option>
+                  <option value="BARANGAY_ADMIN">Barangay Admin</option>
                 </select>
               </div>
 
