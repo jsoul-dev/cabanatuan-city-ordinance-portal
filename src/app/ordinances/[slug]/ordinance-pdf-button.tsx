@@ -17,6 +17,7 @@ interface OrdinancePdfButtonProps {
   articles?: string | null;
   penalties?: string | null;
   signatories?: string | null;
+  variant?: "default" | "compact";
 }
 
 export function OrdinancePdfButton({
@@ -31,6 +32,7 @@ export function OrdinancePdfButton({
   articles,
   penalties,
   signatories,
+  variant = "default",
 }: OrdinancePdfButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -63,23 +65,33 @@ export function OrdinancePdfButton({
 
   return (
     <>
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap">
+        {variant === "default" && (
+          <Button
+            type="button"
+            onClick={handleDownloadClick}
+            disabled={isDownloading}
+            className="inline-flex items-center gap-2.5 rounded-xl bg-emerald-600 text-white font-bold px-6 py-3 text-sm hover:bg-emerald-500 transition-colors shadow-md disabled:opacity-60"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            {isDownloading ? "Downloading..." : "Download Official PDF Document"}
+          </Button>
+        )}
         <Button
           type="button"
-          onClick={handleDownloadClick}
-          disabled={isDownloading}
-          className="inline-flex items-center gap-2.5 rounded-xl bg-emerald-600 text-white font-bold px-6 py-3 text-sm hover:bg-emerald-500 transition-colors shadow-md disabled:opacity-60"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsOpen(true);
+          }}
+          className={
+            variant === "default"
+              ? "inline-flex items-center gap-2.5 rounded-xl border border-white/15 bg-neutral-800/90 text-white font-bold px-6 py-3 text-sm hover:bg-neutral-700 transition-colors shadow-md"
+              : "h-8 px-2.5 text-xs font-semibold gap-1.5 rounded-md border border-neutral-300 dark:border-white/15 bg-white dark:bg-neutral-800/90 text-neutral-800 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors shadow-sm"
+          }
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          {isDownloading ? "Downloading..." : "Download Official PDF Document"}
-        </Button>
-        <Button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className="inline-flex items-center gap-2.5 rounded-xl border border-white/15 bg-neutral-800/90 text-white font-bold px-6 py-3 text-sm hover:bg-neutral-700 transition-colors shadow-md"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          View Official PDF Document
+          <svg width={variant === "default" ? "16" : "14"} height={variant === "default" ? "16" : "14"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          {variant === "default" ? "View Official PDF Document" : "Tingnan ang PDF"}
         </Button>
       </div>
 

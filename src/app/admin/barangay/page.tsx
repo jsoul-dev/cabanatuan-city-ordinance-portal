@@ -41,7 +41,7 @@ export default async function BarangayOverviewPage() {
     );
   }
 
-  const canSubmit = session.role === "CAPTAIN" || session.role === "SECRETARY";
+  const canSubmit = session.role === "BARANGAY_ADMIN";
 
   // Fetch barangay name for the banner
   const barangay = await prisma.barangay.findUnique({

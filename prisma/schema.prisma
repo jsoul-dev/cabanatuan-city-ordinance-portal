@@ -14,9 +14,7 @@ datasource db {
 
 enum UserRole {
   CITIZEN
-  CAPTAIN
-  SECRETARY
-  KAGAWAD
+  BARANGAY_ADMIN
   LGU_ADMIN
 }
 

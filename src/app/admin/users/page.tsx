@@ -59,7 +59,7 @@ export default async function AdminUsersPage() {
                         variant={
                           u.role === "LGU_ADMIN"
                             ? "city"
-                            : u.role === "CAPTAIN"
+                            : u.role === "BARANGAY_ADMIN"
                               ? "approved"
                               : "draft"
                         }

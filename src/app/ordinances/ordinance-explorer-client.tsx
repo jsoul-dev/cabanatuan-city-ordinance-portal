@@ -17,10 +17,11 @@ import {
 } from "@/components/ui/card";
 import { clsx } from "clsx";
 import { cleanOrdinanceTitle, formatOrdinanceYear, formatResolutionNumber, formatResolutionDisplay, formatCoverage } from "@/lib/ordinance-utils";
-import { PdfViewerModal } from "@/components/ui/pdf-viewer-modal";
+import { OrdinancePdfButton } from "./[slug]/ordinance-pdf-button";
 
-type OrdinanceWithBarangay = Ordinance & {
+type OrdinanceWithBarangay = Omit<Ordinance, "pdfUrl"> & {
   barangay: Barangay | null;
+  pdfUrl?: string | null;
 };
 
 interface OrdinanceExplorerClientProps {
@@ -38,10 +39,7 @@ export function OrdinanceExplorerClient({
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [selectedYear, setSelectedYear] = useState<string>("ALL");
 
-  // PDF modal state
-  const [activePdfUrl, setActivePdfUrl] = useState<string | null>(null);
-  const [activePdfTitle, setActivePdfTitle] = useState<string>("");
-  const [activePdfRes, setActivePdfRes] = useState<string | undefined>(undefined);
+  // Removed PDF modal state since OrdinancePdfButton handles it internally.
 
   // Compute available years from database, fallback to 2015-2026
   const availableYears = useMemo(() => {
@@ -382,21 +380,19 @@ export function OrdinanceExplorerClient({
 
                   <div className="flex items-center gap-2">
                     {hasPdf && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-8 px-2.5 text-xs gap-1 border-emerald-500/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setActivePdfUrl(ord.pdfUrl!);
-                          setActivePdfTitle(cleanTitle);
-                          setActivePdfRes(ord.resolutionNumber);
-                        }}
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>{" "}Tingnan ang PDF
-                      </Button>
+                      <OrdinancePdfButton
+                        pdfUrl={`/api/ordinances/${ord.slug}/pdf`}
+                        title={cleanTitle}
+                        resolutionNumber={ord.resolutionNumber}
+                        slug={ord.slug}
+                        category={ord.category}
+                        coverage={formatCoverage(ord.coverage, ord.type, ord.barangay?.name)}
+                        description={ord.description}
+                        articles={ord.articles}
+                        penalties={ord.penalties}
+                        signatories={ord.signatories}
+                        variant="compact"
+                      />
                     )}
 
                     <Link href={`/ordinances/${ord.slug}`}>
@@ -411,15 +407,6 @@ export function OrdinanceExplorerClient({
           })}
         </div>
       )}
-
-      {/* PDF Viewer Modal */}
-      <PdfViewerModal
-        isOpen={Boolean(activePdfUrl)}
-        onClose={() => setActivePdfUrl(null)}
-        pdfUrl={activePdfUrl}
-        title={activePdfTitle}
-        resolutionNumber={activePdfRes}
-      />
     </div>
   );
 }

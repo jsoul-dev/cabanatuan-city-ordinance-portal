@@ -17,9 +17,7 @@ interface DashboardHeaderProps {
 
 const roleLabel: Record<string, string> = {
   LGU_ADMIN: "LGU Super Admin",
-  CAPTAIN: "Punong Barangay",
-  SECRETARY: "Kalihim ng Barangay",
-  KAGAWAD: "Kagawad",
+  BARANGAY_ADMIN: "Barangay Admin",
 };
 
 export function DashboardHeader({ title, subtitle, user }: DashboardHeaderProps) {
@@ -41,15 +39,7 @@ export function DashboardHeader({ title, subtitle, user }: DashboardHeaderProps)
       </div>
 
       <div className="flex items-center gap-2.5 sm:gap-3">
-        {/* Back to Home / Landing Page Button */}
-        <Link
-          href="/"
-          className="flex items-center gap-1.5 sm:gap-2 rounded-[var(--radius-pill)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] hover:bg-emerald-500/10 hover:border-emerald-500/40 px-2.5 sm:px-3 py-1.5 text-xs font-medium text-[var(--text-ink)] transition-all shadow-sm group"
-          title="Bumalik sa Main / Landing Page"
-        >
-          <HomeIcon size={14} className="text-[var(--accent-primary)] dark:text-emerald-400 transition-transform group-hover:scale-110" />
-          <span className="hidden sm:inline">Bumalik sa Home</span>
-        </Link>
+
 
         {/* Theme Toggle Button */}
         <ThemeToggle />

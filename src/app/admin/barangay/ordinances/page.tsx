@@ -15,7 +15,7 @@ export default async function BarangayOrdinancesPage() {
   if (!session?.barangayId) redirect("/login");
 
   const ordinances = await getBarangayAllOrdinances(session.barangayId);
-  const canSubmit = session.role === "CAPTAIN" || session.role === "SECRETARY";
+  const canSubmit = session.role === "BARANGAY_ADMIN";
 
   return (
     <div className="space-y-6 w-full">

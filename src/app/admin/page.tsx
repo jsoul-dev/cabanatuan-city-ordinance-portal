@@ -4,17 +4,20 @@ import { getSession } from "@/lib/auth";
 /**
  * /admin root — redirect to the correct portal based on role.
  * - LGU_ADMIN → /admin/lgu
- * - CAPTAIN | SECRETARY | KAGAWAD → /admin/barangay
- * - unauthenticated → /login
+ * - BARANGAY_ADMIN → /admin/barangay
  */
-export default async function AdminRootPage() {
+export default async function AdminIndexRoute() {
   const session = await getSession();
 
-  if (!session) redirect("/login");
+  if (!session) {
+    redirect("/login");
+  }
 
-  if (session.role === "LGU_ADMIN") redirect("/admin/lgu");
+  if (session.role === "LGU_ADMIN") {
+    redirect("/admin/lgu");
+  }
 
-  if (["CAPTAIN", "SECRETARY", "KAGAWAD"].includes(session.role)) {
+  if (["BARANGAY_ADMIN"].includes(session.role)) {
     redirect("/admin/barangay");
   }
 

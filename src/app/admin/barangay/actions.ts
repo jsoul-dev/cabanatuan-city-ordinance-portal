@@ -8,8 +8,8 @@ import { generateOrdinanceSlug } from "@/lib/ordinance-utils";
 export async function submitOrdinance(formData: FormData): Promise<{ error?: string }> {
   const session = await getSession();
 
-  if (!session || !["CAPTAIN", "SECRETARY"].includes(session.role)) {
-    return { error: "Hindi awtorisado. Tanging Kapitan o Kalihim lamang ang makakapag-sumite." };
+  if (!session || session.role !== "BARANGAY_ADMIN") {
+    return { error: "Hindi awtorisado. Tanging Barangay Admin lamang ang makakapag-sumite." };
   }
 
   const user = await prisma.user.findUnique({
@@ -84,8 +84,8 @@ export async function resubmitBarangayOrdinance(
 ): Promise<{ error?: string }> {
   const session = await getSession();
 
-  if (!session || !["CAPTAIN", "SECRETARY"].includes(session.role)) {
-    return { error: "Hindi awtorisado. Tanging Kapitan o Kalihim lamang ang makakapag-sumite." };
+  if (!session || session.role !== "BARANGAY_ADMIN") {
+    return { error: "Hindi awtorisado. Tanging Barangay Admin lamang ang makakapag-sumite." };
   }
 
   const user = await prisma.user.findUnique({
@@ -165,7 +165,7 @@ export async function updateBarangayReportStatus(
 ): Promise<{ error?: string }> {
   const session = await getSession();
 
-  if (!session || !["CAPTAIN", "SECRETARY", "KAGAWAD"].includes(session.role)) {
+  if (!session || session.role !== "BARANGAY_ADMIN") {
     return { error: "Hindi awtorisado." };
   }
 

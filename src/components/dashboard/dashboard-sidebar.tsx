@@ -28,9 +28,7 @@ interface DashboardSidebarProps {
 
 const roleLabel: Record<string, string> = {
   LGU_ADMIN: "LGU Super Admin",
-  CAPTAIN: "Punong Barangay",
-  SECRETARY: "Kalihim ng Barangay",
-  KAGAWAD: "Kagawad",
+  BARANGAY_ADMIN: "Barangay Admin",
 };
 
 function getInitials(name: string) {

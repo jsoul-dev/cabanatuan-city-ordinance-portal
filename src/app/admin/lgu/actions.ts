@@ -151,6 +151,11 @@ export async function createUser(formData: FormData): Promise<{ error?: string }
 
   if (!email || !name || !role) return { error: "Lahat ng field ay kinakailangan." };
 
+  if (role === "BARANGAY_ADMIN" && barangayId) {
+    const existingAdmin = await prisma.user.findFirst({ where: { barangayId, role: "BARANGAY_ADMIN" } });
+    if (existingAdmin) return { error: "Mayroon nang admin account ang barangay na ito." };
+  }
+
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return { error: "May umiiral na account sa email na ito." };
 
@@ -258,7 +263,7 @@ export async function upsertBarangayAdminAccount(formData: FormData): Promise<{ 
   const barangayId = (formData.get("barangayId") as string)?.trim();
   const email = (formData.get("email") as string)?.toLowerCase().trim();
   const name = (formData.get("name") as string)?.trim();
-  const role = (formData.get("role") as string) || "CAPTAIN";
+  const role = (formData.get("role") as string) || "BARANGAY_ADMIN";
   const password = (formData.get("password") as string) || "password123";
 
   if (!barangayId || !email || !name) {
