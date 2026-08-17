@@ -38,6 +38,9 @@ export function OrdinanceExplorerClient({
   const [selectedBarangayId, setSelectedBarangayId] = useState<string>("ALL");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [selectedYear, setSelectedYear] = useState<string>("ALL");
+  const [isYearRangeMode, setIsYearRangeMode] = useState<boolean>(false);
+  const [selectedYearStart, setSelectedYearStart] = useState<string>("ALL");
+  const [selectedYearEnd, setSelectedYearEnd] = useState<string>("ALL");
 
   // Removed PDF modal state since OrdinancePdfButton handles it internally.
 
@@ -88,10 +91,25 @@ export function OrdinanceExplorerClient({
       }
 
       // 4. Year Filter
-      if (selectedYear !== "ALL") {
-        const ordYear = formatOrdinanceYear(ord.year, ord.dateEnacted, ord.createdAt);
-        if (ordYear.toString() !== selectedYear) {
-          return false;
+      if (isYearRangeMode) {
+        if (selectedYearStart !== "ALL" || selectedYearEnd !== "ALL") {
+          const ordYear = formatOrdinanceYear(ord.year, ord.dateEnacted, ord.createdAt);
+          if (ordYear) {
+            const start = selectedYearStart === "ALL" ? -Infinity : parseInt(selectedYearStart, 10);
+            const end = selectedYearEnd === "ALL" ? Infinity : parseInt(selectedYearEnd, 10);
+            if (ordYear < start || ordYear > end) {
+              return false;
+            }
+          } else {
+            return false; // If we can't determine year, exclude it from range searches
+          }
+        }
+      } else {
+        if (selectedYear !== "ALL") {
+          const ordYear = formatOrdinanceYear(ord.year, ord.dateEnacted, ord.createdAt);
+          if (ordYear.toString() !== selectedYear) {
+            return false;
+          }
         }
       }
 
@@ -113,7 +131,7 @@ export function OrdinanceExplorerClient({
 
       return true;
     });
-  }, [initialOrdinances, selectedType, selectedBarangayId, selectedCategory, selectedYear, searchQuery]);
+  }, [initialOrdinances, selectedType, selectedBarangayId, selectedCategory, selectedYear, searchQuery, isYearRangeMode, selectedYearStart, selectedYearEnd]);
 
   return (
     <div className="space-y-6">
@@ -208,24 +226,69 @@ export function OrdinanceExplorerClient({
             </select>
           </div>
 
-          {/* Year Select (2015-2026 default) */}
+          {/* Year Select */}
           <div>
-            <label htmlFor="year-select" className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[var(--text-mute)]">
-              Taon / Year Range
-            </label>
-            <select
-              id="year-select"
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              className="h-10 w-full rounded-md border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 text-xs font-medium text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
-            >
-              <option value="ALL">Lahat ng Taon (2015 - 2026)</option>
-              {availableYears.map((y) => (
-                <option key={y} value={y.toString()}>
-                  {y}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center justify-between mb-1">
+              <label htmlFor="year-select" className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-mute)]">
+                Taon
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsYearRangeMode(!isYearRangeMode);
+                  setSelectedYear("ALL");
+                  setSelectedYearStart("ALL");
+                  setSelectedYearEnd("ALL");
+                }}
+                className="text-[10px] font-bold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+              >
+                {isYearRangeMode ? "Isang Taon" : "Gawing Range"}
+              </button>
+            </div>
+            {isYearRangeMode ? (
+              <div className="flex items-center gap-2">
+                <select
+                  aria-label="Mula Taon"
+                  value={selectedYearStart}
+                  onChange={(e) => setSelectedYearStart(e.target.value)}
+                  className="h-10 w-full rounded-md border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 text-xs font-medium text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                >
+                  <option value="ALL">Mula...</option>
+                  {availableYears.map((y) => (
+                    <option key={`start-${y}`} value={y.toString()}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  aria-label="Hanggang Taon"
+                  value={selectedYearEnd}
+                  onChange={(e) => setSelectedYearEnd(e.target.value)}
+                  className="h-10 w-full rounded-md border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 text-xs font-medium text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+                >
+                  <option value="ALL">Hanggang...</option>
+                  {availableYears.map((y) => (
+                    <option key={`end-${y}`} value={y.toString()}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <select
+                id="year-select"
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="h-10 w-full rounded-md border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 text-xs font-medium text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
+              >
+                <option value="ALL">Lahat ng Taon</option>
+                {availableYears.map((y) => (
+                  <option key={y} value={y.toString()}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
 
@@ -236,7 +299,7 @@ export function OrdinanceExplorerClient({
             <button
               key={tag}
               type="button"
-              onClick={() => setSearchQuery(tag)}
+              onClick={() => setSearchQuery(searchQuery.toLowerCase() === tag.toLowerCase() ? "" : tag)}
               className={clsx(
                 "rounded-full border border-[var(--border-hairline)] px-2.5 py-0.5 text-xs font-medium transition-colors",
                 searchQuery.toLowerCase() === tag.toLowerCase()
@@ -257,7 +320,7 @@ export function OrdinanceExplorerClient({
           <span className="font-semibold text-[var(--text-ink)]">{filteredOrdinances.length}</span>{" "}
           sa <span className="font-semibold">{initialOrdinances.length}</span> ordinansa
         </p>
-        {(searchQuery || selectedType !== "ALL" || selectedBarangayId !== "ALL" || selectedCategory !== "ALL" || selectedYear !== "ALL") && (
+        {(searchQuery || selectedType !== "ALL" || selectedBarangayId !== "ALL" || selectedCategory !== "ALL" || selectedYear !== "ALL" || selectedYearStart !== "ALL" || selectedYearEnd !== "ALL") && (
           <Button
             variant="ghost"
             size="sm"
@@ -267,6 +330,9 @@ export function OrdinanceExplorerClient({
               setSelectedBarangayId("ALL");
               setSelectedCategory("ALL");
               setSelectedYear("ALL");
+              setSelectedYearStart("ALL");
+              setSelectedYearEnd("ALL");
+              setIsYearRangeMode(false);
             }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" className="inline-block"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>{" "}I-reset ang lahat ng filter
