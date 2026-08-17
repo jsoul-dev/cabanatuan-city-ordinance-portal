@@ -21,7 +21,7 @@ export function OrdinanceSectionsView({
     <div className="mb-6">
       <div className="flex items-center gap-2.5 mb-4">
         <svg
-          className="w-5 h-5 text-white"
+          className="w-5 h-5 text-neutral-900 dark:text-white"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -34,7 +34,7 @@ export function OrdinanceSectionsView({
             d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
           />
         </svg>
-        <h2 className="text-xl font-extrabold text-white tracking-tight">
+        <h2 className="text-xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
           Articles &amp; Sections
         </h2>
       </div>
@@ -48,26 +48,26 @@ export function OrdinanceSectionsView({
               key={idx}
               className={`group relative rounded-2xl border p-5 shadow-sm transition-colors ${
                 isPenalty 
-                  ? "border-red-500/20 bg-red-950/20 hover:border-red-500/40" 
-                  : "border-neutral-800/80 bg-[#0d1310] hover:border-emerald-500/30"
+                  ? "border-red-200 bg-red-50 hover:border-red-300 dark:border-red-500/20 dark:bg-red-950/20 dark:hover:border-red-500/40" 
+                  : "border-neutral-200 bg-white hover:border-emerald-500/30 dark:border-neutral-800/80 dark:bg-[#0d1310] dark:hover:border-emerald-500/30"
               }`}
             >
               <div className="flex flex-wrap items-center gap-3 mb-3">
                 <span className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-bold uppercase tracking-wider ${
-                  isPenalty ? "bg-red-500/20 text-red-400" : "bg-emerald-500/20 text-emerald-400"
+                  isPenalty ? "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400" : "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400"
                 }`}>
                   {sec.badge}
                 </span>
                 {sec.title && (
                   <h3 className={`text-base sm:text-lg font-bold tracking-tight ${
-                    isPenalty ? "text-red-400" : "text-white"
+                    isPenalty ? "text-red-700 dark:text-red-400" : "text-neutral-900 dark:text-white"
                   }`}>
                     {sec.title}
                   </h3>
                 )}
               </div>
               <div className={`text-sm sm:text-base leading-relaxed ${
-                isPenalty ? "text-neutral-200" : "text-neutral-300"
+                isPenalty ? "text-neutral-800 dark:text-neutral-200" : "text-neutral-700 dark:text-neutral-300"
               }`}>
                 <MarkdownRenderer content={sec.content} />
               </div>
@@ -112,18 +112,18 @@ export function OrdinanceEnforcementView({
         </h2>
       </div>
 
-      <div className="rounded-2xl border border-neutral-800 bg-[#0c120f] p-5">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-[#0c120f] p-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Authorized Personnel */}
           <div>
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-neutral-400 mb-3.5">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-3.5">
               AUTHORIZED PERSONNEL
             </h3>
             <div className="space-y-2.5">
               {personnel.map((p, idx) => (
                 <div
                   key={idx}
-                  className="rounded-xl border border-neutral-800/80 bg-[#0d1310] px-4 py-3 text-sm font-medium text-neutral-200"
+                  className="rounded-xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0d1310] px-4 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-200"
                 >
                   {p}
                 </div>
@@ -133,14 +133,14 @@ export function OrdinanceEnforcementView({
 
           {/* Actions */}
           <div>
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-neutral-400 mb-3.5">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-3.5">
               ACTIONS
             </h3>
             <div className="space-y-2.5">
               {actions.map((act, idx) => (
                 <div
                   key={idx}
-                  className="rounded-xl border border-neutral-800/80 bg-[#0d1310] px-4 py-3 text-sm font-medium text-neutral-200"
+                  className="rounded-xl border border-neutral-200 dark:border-neutral-800/80 bg-white dark:bg-[#0d1310] px-4 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-200"
                 >
                   {act}
                 </div>
@@ -189,7 +189,7 @@ export function OrdinanceSignatoriesView({ signatories }: OrdinanceSignatoriesVi
     <div className="mb-6">
       <div className="flex items-center gap-2.5 mb-4">
         <svg
-          className="w-5 h-5 text-white"
+          className="w-5 h-5 text-neutral-900 dark:text-white"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -202,20 +202,20 @@ export function OrdinanceSignatoriesView({ signatories }: OrdinanceSignatoriesVi
             d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
           />
         </svg>
-        <h2 className="text-xl font-extrabold text-white tracking-tight">
+        <h2 className="text-xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
           Signatories &amp; Approval
         </h2>
       </div>
 
-      <div className="rounded-2xl border border-neutral-800 bg-[#0d1310] p-5">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-[#0d1310] p-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {names.map((name, idx) => (
             <div
               key={idx}
-              className="rounded-xl border border-neutral-800/60 bg-neutral-900/60 px-4 py-3 flex items-center gap-3"
+              className="rounded-xl border border-neutral-200 dark:border-neutral-800/60 bg-white dark:bg-neutral-900/60 px-4 py-3 flex items-center gap-3"
             >
               <div className="h-2 w-2 rounded-full bg-emerald-500/80 flex-shrink-0" />
-              <span className="text-sm font-semibold text-neutral-200 truncate">
+              <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-200 truncate">
                 {name}
               </span>
             </div>

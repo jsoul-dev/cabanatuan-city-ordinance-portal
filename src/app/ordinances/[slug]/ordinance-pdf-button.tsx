@@ -79,6 +79,7 @@ export function OrdinancePdfButton({
         )}
         <Button
           type="button"
+          variant={variant === "default" ? "primary" : "secondary"}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -86,8 +87,8 @@ export function OrdinancePdfButton({
           }}
           className={
             variant === "default"
-              ? "inline-flex items-center gap-2.5 rounded-xl border border-white/15 bg-neutral-800/90 text-white font-bold px-6 py-3 text-sm hover:bg-neutral-700 transition-colors shadow-md"
-              : "h-8 px-2.5 text-xs font-semibold gap-1.5 rounded-md border border-neutral-300 dark:border-white/15 bg-white dark:bg-neutral-800/90 text-neutral-800 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors shadow-sm"
+              ? "inline-flex items-center gap-2.5 rounded-xl border border-white/15 bg-neutral-800/90 text-white font-bold px-6 py-3 text-sm hover:bg-neutral-700 transition-colors shadow-md border-0"
+              : "h-8 px-2.5 text-xs font-semibold gap-1.5 rounded-md dark:border-white/15 dark:bg-neutral-800/90 dark:text-white dark:hover:bg-neutral-700 transition-colors shadow-sm"
           }
         >
           <svg width={variant === "default" ? "16" : "14"} height={variant === "default" ? "16" : "14"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
