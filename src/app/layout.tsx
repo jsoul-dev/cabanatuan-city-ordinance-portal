@@ -65,7 +65,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[var(--bg-canvas)] text-[var(--text-ink)] selection:bg-emerald-500 selection:text-black">
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
