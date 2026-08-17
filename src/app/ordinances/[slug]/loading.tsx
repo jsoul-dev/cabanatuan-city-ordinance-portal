@@ -1,8 +1,10 @@
 import { Navbar } from "@/components/layout/navbar";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 export default function LoadingOrdinance() {
   return (
     <>
+      <ScrollToTop />
       <Navbar />
       <main className="flex-1 py-8 bg-[var(--bg-canvas)] text-[var(--text-ink)] transition-colors duration-300 min-h-screen">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
