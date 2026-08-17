@@ -1,5 +1,5 @@
-import { AnalyticsLoadingSkeleton } from "@/components/dashboard/skeletons";
+import { AnalyticsSkeleton } from "@/components/dashboard/skeletons";
 
 export default function BarangayAnalyticsLoading() {
-  return <AnalyticsLoadingSkeleton />;
+  return <AnalyticsSkeleton />;
 }

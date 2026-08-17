@@ -1,5 +1,5 @@
-import { SubPageLoadingSkeleton } from "@/components/dashboard/skeletons";
+import { ReportsManagerSkeleton } from "@/components/dashboard/skeletons";
 
 export default function LguReportsLoading() {
-  return <SubPageLoadingSkeleton />;
+  return <ReportsManagerSkeleton />;
 }

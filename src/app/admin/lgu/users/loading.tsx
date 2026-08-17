@@ -1,5 +1,5 @@
-import { SubPageLoadingSkeleton } from "@/components/dashboard/skeletons";
+import { UserManagerSkeleton } from "@/components/dashboard/skeletons";
 
 export default function LguUsersLoading() {
-  return <SubPageLoadingSkeleton />;
+  return <UserManagerSkeleton />;
 }

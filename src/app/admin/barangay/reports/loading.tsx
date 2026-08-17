@@ -1,5 +1,5 @@
-import { SubPageLoadingSkeleton } from "@/components/dashboard/skeletons";
+import { BarangayReportsManagerSkeleton } from "@/components/dashboard/skeletons";
 
 export default function BarangayReportsLoading() {
-  return <SubPageLoadingSkeleton />;
+  return <BarangayReportsManagerSkeleton />;
 }

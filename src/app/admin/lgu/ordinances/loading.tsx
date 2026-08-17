@@ -1,5 +1,5 @@
-import { SubPageLoadingSkeleton } from "@/components/dashboard/skeletons";
+import { OrdinanceManagerSkeleton } from "@/components/dashboard/skeletons";
 
 export default function LguOrdinancesLoading() {
-  return <SubPageLoadingSkeleton />;
+  return <OrdinanceManagerSkeleton />;
 }
