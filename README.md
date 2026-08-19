@@ -1,6 +1,6 @@
 # 🏛️ Cabanatuan City Ordinance Portal
 **Ang Opisyal na Digital na Portal ng mga Ordinansa at AI Civic Assistant ng Lungsod ng Cabanatuan**  
-*The Official Cabanatuan City Legislative Information System & Bilingual AI Civic Portal*
+*The Official Cabanatuan City Ordinance Information Portal & AI Civic Assistant*
 
 [![Next.js 16](https://img.shields.io/badge/Next.js%2016-Black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -14,7 +14,7 @@
 
 ## Overview
 
-The **Cabanatuan City Ordinance Portal** is a production-grade, AI-powered legislative transparency platform built for **Cabanatuan City** and its **89 Barangays** in Nueva Ecija, Philippines. 
+The **Cabanatuan City Ordinance Portal** is a production-grade, AI-powered ordinance transparency platform built for **Cabanatuan City** and its **89 Barangays** in Nueva Ecija, Philippines. 
 
 Designed to bridge the gap between local ordinance enforcement, government officials, and citizens, the portal democratizes public access to city resolutions, municipal ordinances, and barangay regulations through **full-text search**, an **AI-powered bilingual ordinance information assistant ("Cabanatuan Ordinance AI")**, and **automated multimodal OCR document parsing** for LGU and Barangay administrators.
 
@@ -29,7 +29,7 @@ Designed to bridge the gap between local ordinance enforcement, government offic
 
 ### 2. "Cabanatuan Ordinance AI" Civic Assistant
 - **Bilingual Conversational AI:** Powered by Google's **Gemini 3.5 Flash Lite API**, citizens can ask complex ordinance-related questions in Tagalog, English, or Taglish.
-- **Grounded Legislative Responses:** Responses are dynamically injected with live context from the city's Prisma database, citing exact Resolution Numbers, sections, and penalties.
+- **Grounded Ordinance Responses:** Responses are dynamically injected with live context from the city's Prisma database, citing exact Resolution Numbers, sections, and penalties.
 - **Streaming UI & Local Storage Persistence:** Real-time token streaming with responsive feedback and persistent client-side chat history saved to `localStorage`, with a "Bagong Usapan / Clear Chat" control for a single session at a time.
 
 ### 3. AI-Powered OCR & Multimodal Ordinance Parser
@@ -37,7 +37,7 @@ Designed to bridge the gap between local ordinance enforcement, government offic
 - **Multi-Page & Multi-File OCR:** Automatically combines and analyzes multi-page scanned ordinances in sequence to reconstruct the complete title, sections, and penalties.
 - **Automated Metadata Parsing:** Automatically extracts and structures:
   - Official Resolution Number, Series Year, and Date Enacted
-  - Cleaned Legislative Title (strips verbose ordinance preambles such as *"City Ordinance Establishing..."* or *"Ordinansang..."*)
+  - Cleaned Ordinance Title (strips verbose ordinance preambles such as *"City Ordinance Establishing..."* or *"Ordinansang..."*)
   - Policy Category, Summary, Coverage, and Key Tags
   - Detailed Penalties and Enforcement Agencies
 - **Interactive Review Modal:** Administrators can verify and tweak AI-extracted fields before publishing to the database, reducing manual encoding by 85%.
