@@ -101,7 +101,7 @@ const ORDINANCE_SCHEMA: Schema = {
     content: {
       type: Type.STRING,
       description:
-        "The full comprehensive legal content of the ordinance formatted in clean Markdown, including articles, sections, WHEREAS clauses, and provisions.",
+        "The full comprehensive content of the ordinance formatted in clean Markdown, including articles, sections, WHEREAS clauses, and provisions.",
     },
   },
   required: [
@@ -123,7 +123,7 @@ const ORDINANCE_SCHEMA: Schema = {
 };
 
 const RECONSTRUCTION_PROMPT = `Please faithfully reconstruct this document as normalized Markdown.
-Preserve ALL visible content: headings, ordinance numbers, titles, sections, subsections, numbered lists, paragraphs, tables, names, dates, signatures, penalties, legal references.
+Preserve ALL visible content: headings, ordinance numbers, titles, sections, subsections, numbered lists, paragraphs, tables, names, dates, signatures, penalties, references.
 Do NOT summarize — reproduce the document structure faithfully.
 Use [UNREADABLE] for genuinely unreadable text.
 Use Markdown headers (##, ###) for section breaks.

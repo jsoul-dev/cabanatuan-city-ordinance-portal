@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Mga Balita at Anunsyo | Cabanatuan City Law Portal",
+  title: "Mga Balita at Anunsyo | Cabanatuan City Ordinance Portal",
   description:
     "Mga pinakabagong balita, public hearings, at pamahalaang lokal na anunsyo mula sa Lungsod ng Cabanatuan at mga barangay.",
 };

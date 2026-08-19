@@ -102,14 +102,14 @@ export function LoginClient() {
             </div>
 
             <h1 className="text-4xl font-extrabold tracking-tight text-neutral-900 sm:text-5xl lg:text-6xl lg:leading-[1.1] dark:text-white">
-              Batas ng Lungsod. <br />
+              Ordinansa ng Lungsod. <br />
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 via-emerald-600 to-neutral-900 dark:from-emerald-400 dark:via-emerald-200 dark:to-white">
                 Malinaw para sa lahat.
               </span>
             </h1>
 
             <p className="mt-6 text-base leading-relaxed text-neutral-600 sm:text-lg dark:text-neutral-400">
-              Ang opisyal na digital ordinance hub at AI citizen legal assistant
+              Ang opisyal na digital ordinance hub at AI citizen ordinance assistant
               ng Lungsod ng Cabanatuan. Mag-login upang mamahala ng mga barangay
               ordinance, ulat ng mamamayan, at mga talaan ng lungsod.
             </p>

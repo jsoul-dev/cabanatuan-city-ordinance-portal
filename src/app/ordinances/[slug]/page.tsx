@@ -34,7 +34,7 @@ export async function generateMetadata({
 
   if (!ord) {
     return {
-      title: "Hindi Natagpuan ang Ordinansa - Cabanatuan City Law Portal",
+      title: "Hindi Natagpuan ang Ordinansa - Cabanatuan City Ordinance Portal",
     };
   }
 
@@ -43,11 +43,11 @@ export async function generateMetadata({
   return {
     title: `${cleanTitle} - Res. No. ${formatResolutionDisplay(
       ord.resolutionNumber
-    )} | Cabanatuan Law Portal`,
+    )} | Cabanatuan Ordinance Portal`,
     description:
       ord.description?.slice(0, 160) ||
       ord.content?.slice(0, 160) ||
-      "Opisyal na ordinansa at batas lokal ng Lungsod ng Cabanatuan.",
+      "Opisyal na ordinansa at lokal ng Lungsod ng Cabanatuan.",
   };
 }
 
@@ -264,7 +264,7 @@ export default async function OrdinanceDetailPage({
             <p className="text-sm text-neutral-600 dark:text-neutral-300 max-w-xl mx-auto mb-5">
               Maaari mong tanungin ang ating{" "}
               <strong className="text-emerald-400">
-                Batas Cabanatuan AI
+                Cabanatuan Ordinance AI
               </strong>{" "}
               tungkol sa mga probisyon, alituntunin, at kung paano sumunod sa
               ordinansang ito.

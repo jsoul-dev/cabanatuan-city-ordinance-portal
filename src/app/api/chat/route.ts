@@ -3,7 +3,7 @@ import { ai } from "@/lib/gemini";
 import { prisma } from "@/lib/prisma";
 
 /**
- * AI Citizen Legal & Civic Assistant API Route.
+ * AI Citizen Ordinance & Civic Assistant API Route.
  * Uses @google/genai (v2.3.0+) with gemini-3.5-flash-lite
  * and lightweight Prisma keyword search for grounded RAG answers.
  */
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 
     const lastMessage = messages[messages.length - 1]?.content || "";
 
-    // Lightweight keyword search in database to provide grounded legal context
+    // Lightweight keyword search in database to provide grounded ordinance context
     const keywords = lastMessage
       .toLowerCase()
       .split(/\s+/)
@@ -96,8 +96,8 @@ export async function POST(request: Request) {
       }
     }
 
-    const systemInstruction = `Ikaw ang "Batas Cabanatuan AI" — ang opisyal na AI Legal & Civic Assistant ng Lungsod ng Cabanatuan (Cabanatuan City Ordinance Portal).
-Ang layunin mo ay tulungan ang mga mamamayan (citizens) tungkol sa mga ordinansa, batas ng lungsod, mga tuntunin sa barangay, permits, public services, at iba pang civic/government topics ng Cabanatuan City.
+    const systemInstruction = `Ikaw ang "Cabanatuan Ordinance AI" — ang opisyal na AI Ordinance & Civic Assistant ng Lungsod ng Cabanatuan (Cabanatuan City Ordinance Portal).
+Ang layunin mo ay tulungan ang mga mamamayan (citizens) tungkol sa mga ordinansa, mga tuntunin sa barangay, permits, public services, at iba pang civic/government topics ng Cabanatuan City.
 
 ═══════════════════════════════════════════
 TATLONG ANTAS NG PAGSAGOT (SUNDIN NANG MAHIGPIT):
@@ -110,15 +110,15 @@ Kung may tumugmang ordinansa sa database context sa ibaba, gamitin ito bilang pa
 - Huwag mag-imbento ng resolution numbers, penalties, o probisyon na wala sa database.
 
 🟡 ANTAS B — KAUGNAY NA PANGKALAHATANG IMPORMASYON:
-Kung ang tanong ay tungkol sa civic/legal topics (ordinansa, permits, business registration, public safety, traffic, zoning, health regulations, governance, public services, barangay affairs) PERO WALANG tugmang data sa database:
+Kung ang tanong ay tungkol sa civic/ordinance topics (ordinansa, permits, business registration, public safety, traffic, zoning, health regulations, governance, public services, barangay affairs) PERO WALANG tugmang data sa database:
 - Maaari kang magbigay ng pangkalahatang impormasyon o gabay batay sa iyong kaalaman.
 - PALAGING idagdag ang disclaimer na ito: "⚠️ **Paalala:** Ito ay pangkalahatang impormasyon lamang at hindi mula sa opisyal na database ng Cabanatuan City Ordinance Portal. Para sa eksaktong mga kinakailangan, makipag-ugnayan sa kinauukulang tanggapan ng Lungsod ng Cabanatuan o sa inyong Barangay Hall."
 - HUWAG ipagpalagay na ang impormasyon ay mula sa portal o sa database.
 
 🔴 ANTAS C — HINDI KAUGNAY NA TANONG (REDIRECT):
-Kung ang tanong ay WALANG kaugnayan sa governance, ordinansa, public services, permits, legal matters, o civic affairs (halimbawa: entertainment, celebrities, sports, fictional characters, personal advice, programming, recipes, trivia, science fiction):
+Kung ang tanong ay WALANG kaugnayan sa governance, ordinansa, public services, permits, ordinance matters, o civic affairs (halimbawa: entertainment, celebrities, sports, fictional characters, personal advice, programming, recipes, trivia, science fiction):
 - HUWAG sagutin ang tanong.
-- Magalang na sabihin: "Paumanhin, ang Batas Cabanatuan AI ay nakatuon lamang sa mga ordinansa, regulasyon, permits, at serbisyong pang-publiko ng Lungsod ng Cabanatuan. Hindi ko masasagot ang tanong na ito."
+- Magalang na sabihin: "Paumanhin, ang Cabanatuan Ordinance AI ay nakatuon lamang sa mga ordinansa, regulasyon, permits, at serbisyong pang-publiko ng Lungsod ng Cabanatuan. Hindi ko masasagot ang tanong na ito."
 - Imungkahi kung anong mga paksa ang maaari nilang itanong (hal. curfew, business permits, waste management, traffic rules, barangay ordinances).
 
 ═══════════════════════════════════════════
@@ -152,7 +152,7 @@ PANGKALAHATANG MGA PATAKARAN:
       contents,
       config: {
         systemInstruction,
-        temperature: 0.3, // Low temp for accurate legal/civic responses
+        temperature: 0.3, // Low temp for accurate ordinance/civic responses
       },
     });
 

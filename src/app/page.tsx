@@ -22,7 +22,7 @@ const features = [
     icon: AiBotSparkleIcon,
     title: "AI Citizen Assistant",
     description:
-      "Magtanong sa aming AI assistant sa Tagalog o English tungkol sa mga local na batas, parusa, at proseso.",
+      "Magtanong sa aming AI assistant sa Tagalog o English tungkol sa mga local na ordinansa, parusa, at proseso.",
     href: "/chatbot",
     cta: "Magtanong",
   },
@@ -85,13 +85,13 @@ export default async function LandingPage() {
               <h1 className="text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-white sm:text-5xl lg:text-6xl lg:leading-[1.1]">
                 Cabanatuan City <br />
                 <span className="bg-gradient-to-r from-emerald-600 via-emerald-800 to-neutral-900 dark:from-emerald-400 dark:via-emerald-200 dark:to-white bg-clip-text text-transparent">
-                  Batas na malinaw at bukas para sa lahat.
+                  Ordinansang malinaw at bukas para sa lahat.
                 </span>
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-lg">
                 Issue transparency, search barangay ordinances, file
-                AI-assisted citizen reports, and route legal inquiries with
+                AI-assisted citizen reports, and route ordinance inquiries with
                 complete trust across 75 barangays.
               </p>
 
@@ -145,7 +145,7 @@ export default async function LandingPage() {
                 </div>
 
                 <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-300">
-                  Ang opisyal na pampublikong digital portal ng Lungsod ng Cabanatuan para sa mabilis na pag-access sa mga batas at serbisyong pambarangay:
+                  Ang opisyal na pampublikong digital portal ng Lungsod ng Cabanatuan para sa mabilis na pag-access sa mga ordinansa at serbisyong pambarangay:
                 </p>
 
                 <div className="mt-4 space-y-2.5 text-xs">
@@ -158,7 +158,7 @@ export default async function LandingPage() {
                   <div className="flex items-start gap-2.5 rounded-xl border border-neutral-200/60 bg-neutral-50/60 p-2.5 dark:border-white/5 dark:bg-white/5">
                     <span className="text-emerald-600 font-bold dark:text-emerald-400">✓</span>
                     <span className="text-neutral-700 dark:text-neutral-200 font-medium">
-                      AI Legal Assistant sa Tagalog at English para sa mga batas
+                      AI Ordinance Assistant sa Tagalog at English para sa mga ordinansa
                     </span>
                   </div>
                   <div className="flex items-start gap-2.5 rounded-xl border border-neutral-200/60 bg-neutral-50/60 p-2.5 dark:border-white/5 dark:bg-white/5">
@@ -170,16 +170,16 @@ export default async function LandingPage() {
                 </div>
               </div>
 
-              {/* Card 2: AI Legal Assistant Quick Action Card */}
+              {/* Card 2: AI Ordinance Assistant Quick Action Card */}
               <div className="rounded-2xl border border-neutral-200 bg-white/90 p-6 shadow-xl shadow-neutral-200/50 backdrop-blur-xl dark:border-white/10 dark:bg-[#0a0f0d]/90 dark:shadow-2xl dark:shadow-emerald-950/50">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2 text-xs font-bold text-neutral-900 dark:text-white">
                       <AiBotSparkleIcon size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
-                      <span>AI Legal Assistant</span>
+                      <span>AI Ordinance Assistant</span>
                     </div>
                     <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-                      Magtanong sa aming AI assistant tungkol sa mga opisyal na batas at proseso.
+                      Magtanong sa aming AI assistant tungkol sa mga opisyal na ordinansa at proseso.
                     </p>
                   </div>
                   <Link href="/chatbot">
@@ -209,7 +209,7 @@ export default async function LandingPage() {
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
-                <span>AI Legal Advisor</span>
+                <span>AI Ordinance Advisor</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
@@ -295,7 +295,7 @@ export default async function LandingPage() {
                       </div>
                       <div>
                         <div className="text-sm font-bold text-neutral-900 dark:text-white">
-                          AI Citizen Legal Assistant
+                          AI Citizen Ordinance Assistant
                         </div>
                         <div className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -310,7 +310,7 @@ export default async function LandingPage() {
                     {/* Message 1 - User */}
                     <div className="flex justify-end">
                       <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-neutral-100 p-3.5 text-neutral-800 dark:bg-white/10 dark:text-neutral-200">
-                        Ano ang sinasabi ng batas tungkol sa curfew sa mga kabataan sa Cabanatuan?
+                        Ano ang sinasabi ng ordinansa tungkol sa curfew sa mga kabataan sa Cabanatuan?
                       </div>
                     </div>
 
@@ -352,7 +352,7 @@ export default async function LandingPage() {
                 </div>
 
                 <h2 className="text-3xl font-extrabold tracking-tight text-neutral-900 dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.1]">
-                  AI Legal Assistant <br />
+                  AI Ordinance Assistant <br />
                   <span className="bg-gradient-to-r from-emerald-600 via-emerald-800 to-neutral-900 dark:from-emerald-400 dark:via-emerald-200 dark:to-white bg-clip-text text-transparent">
                     sa Tagalog at English.
                   </span>
@@ -369,7 +369,7 @@ export default async function LandingPage() {
                   </div>
                   <div className="flex items-center gap-3 font-semibold text-neutral-800 dark:text-neutral-200 text-sm">
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold">✓</span>
-                    <span>Mabilis na pagsusuri ng mga batas at kaukulang parusa</span>
+                    <span>Mabilis na pagsusuri ng mga ordinansa at kaukulang parusa</span>
                   </div>
                   <div className="flex items-center gap-3 font-semibold text-neutral-800 dark:text-neutral-200 text-sm">
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold">✓</span>
@@ -396,7 +396,7 @@ export default async function LandingPage() {
         <section className="border-t border-neutral-200 bg-neutral-100 dark:border-white/10 dark:bg-[#080d0a] py-20 text-center">
           <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-extrabold text-neutral-900 dark:text-white sm:text-4xl">
-              Simulan ang pag-explore ng mga Batas
+              Simulan ang pag-explore ng mga Ordinansa
             </h2>
             <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-400 sm:text-base">
               Alamin ang iyong mga karapatan at tungkulin bilang mamamayan ng

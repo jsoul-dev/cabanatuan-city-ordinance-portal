@@ -63,10 +63,10 @@ export default async function OrdinancesPage() {
               <span>Cabanatuan City Municipal Code</span>
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight text-neutral-900 dark:text-white sm:text-4xl lg:text-5xl">
-              Mga Ordinansa at Batas
+              Mga Ordinansa at Resolusyon
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-base">
-              Hanapin ang mga batas, resolusyon, at patakarang nagpapairal sa
+              Hanapin ang mga ordinansa, resolusyon, at patakarang nagpapairal sa
               kaayusan at kaunlaran ng ating lungsod at 75 barangay nito.
             </p>
           </div>

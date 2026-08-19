@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Cabanatuan City Ordinance Portal",
     description:
-      "Making local laws transparent, accessible, and queryable in Tagalog and English.",
+      "Making local ordinances transparent, accessible, and queryable in Tagalog and English.",
     type: "website",
     locale: "tl_PH",
   },

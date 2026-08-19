@@ -463,7 +463,7 @@ export function OrdinanceExplorerClient({
 
                     <Link href={`/ordinances/${ord.slug}`}>
                       <Button variant="secondary" size="sm" className="h-8 px-3 text-xs font-semibold">
-                        Basahin ang Buong Batas →
+                        Basahin ang Buong Ordinansa →
                       </Button>
                     </Link>
                   </div>

@@ -27,7 +27,7 @@ const QUICK_ACTIONS = [
   {
     icon: "⚖️",
     label: "Curfew rules for minors",
-    query: "Ano ang batas at curfew hours para sa mga menor de edad sa Cabanatuan?",
+    query: "Ano ang ordinansa at curfew hours para sa mga menor de edad sa Cabanatuan?",
   },
   {
     icon: "🚗",
@@ -159,10 +159,10 @@ export function ChatbotClient() {
               </div>
               <div>
                 <h2 className="text-base font-extrabold tracking-tight text-neutral-900 dark:text-white">
-                  Cabanatuan Law Pilot
+                  Cabanatuan Ordinance Pilot
                 </h2>
                 <p className="font-mono text-[10px] font-bold tracking-widest text-emerald-700 dark:text-emerald-400 uppercase">
-                  DIGITAL LEGAL ASSISTANT
+                  DIGITAL ORDINANCE ASSISTANT
                 </p>
               </div>
             </div>
@@ -249,7 +249,7 @@ export function ChatbotClient() {
               </span>
               <span className="hidden sm:inline-block text-neutral-300 dark:text-neutral-700">|</span>
               <span className="hidden sm:inline-block font-mono text-[10px] font-bold tracking-wider text-emerald-600 dark:text-emerald-400 uppercase">
-                LIVE LEGISLATIVE DATABASE
+                LIVE ORDINANCE DATABASE
               </span>
             </div>
 
@@ -260,7 +260,7 @@ export function ChatbotClient() {
                   className="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 shadow-xs transition-colors hover:bg-neutral-50 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300 dark:hover:bg-white/10"
                 >
                   <OrdinancesScrollIcon size={14} />
-                  <span>Browse Laws</span>
+                  <span>Browse Ordinances</span>
                 </button>
               </Link>
             </div>
@@ -278,7 +278,7 @@ export function ChatbotClient() {
                   How can I help you today?
                 </h3>
                 <p className="mt-2 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 max-w-md">
-                  Ask me about local laws, traffic rules, business permits, or public safety regulations in Cabanatuan City.
+                  Ask me about local ordinances, traffic rules, business permits, or public safety regulations in Cabanatuan City.
                 </p>
 
                 {/* Quick start questions pills */}
@@ -351,7 +351,7 @@ export function ChatbotClient() {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Type your legal inquiry here..."
+                placeholder="Type your ordinance inquiry here..."
                 disabled={isLoading}
                 className="w-full rounded-2xl border border-neutral-300 bg-white py-3.5 pl-4 pr-14 text-xs sm:text-sm text-neutral-900 placeholder-neutral-400 shadow-sm outline-none transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-white/10 dark:bg-[#121915] dark:text-white dark:placeholder-neutral-500"
               />
@@ -366,7 +366,7 @@ export function ChatbotClient() {
             </form>
 
             <div className="mt-3 text-center font-mono text-[9px] text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">
-              POWERED BY THE CITY LEGISLATIVE ARCHIVE & AI LANGUAGE MODEL
+              POWERED BY THE CITY ORDINANCE ARCHIVE & AI LANGUAGE MODEL
             </div>
           </div>
         </div>

@@ -16,7 +16,7 @@
 
 The **Cabanatuan City Ordinance Portal** is a production-grade, AI-powered legislative transparency platform built for **Cabanatuan City** and its **89 Barangays** in Nueva Ecija, Philippines. 
 
-Designed to bridge the gap between local law enforcement, government officials, and citizens, the portal democratizes public access to city resolutions, municipal ordinances, and barangay regulations through **full-text search**, an **AI-powered bilingual legal assistant ("Batas Cabanatuan AI")**, and **automated multimodal OCR document parsing** for LGU and Barangay administrators.
+Designed to bridge the gap between local ordinance enforcement, government officials, and citizens, the portal democratizes public access to city resolutions, municipal ordinances, and barangay regulations through **full-text search**, an **AI-powered bilingual ordinance information assistant ("Cabanatuan Ordinance AI")**, and **automated multimodal OCR document parsing** for LGU and Barangay administrators.
 
 ---
 
@@ -24,11 +24,11 @@ Designed to bridge the gap between local law enforcement, government officials, 
 
 ### 1. Public Ordinance Explorer & Split-Screen Viewer
 - **Full-Text & Keyword Search:** Search through hundreds of city and barangay ordinances instantly by title, resolution number, policy category, or keyword.
-- **Dynamic Year Range & Category Filtering:** Easily filter laws by enactment period (defaulting to dynamic DB boundary years with a 2015–2026 fallback) and policy domains (e.g., *Kapayapaan at Kaayusan*, *Kalusugan at Sanitasyon*, *Kalakalan at Negosyo*, *Kapaligiran*).
-- **Split-Screen Document Viewer & Accessibility:** Inspect full legal text side-by-side with official PDF attachments (`pdf-viewer-modal.tsx`), download signed copies, and toggle between Dark and Light themes (`theme-toggle.tsx`).
+- **Dynamic Year Range & Category Filtering:** Easily filter ordinances by enactment period (defaulting to dynamic DB boundary years with a 2015–2026 fallback) and policy domains (e.g., *Kapayapaan at Kaayusan*, *Kalusugan at Sanitasyon*, *Kalakalan at Negosyo*, *Kapaligiran*).
+- **Split-Screen Document Viewer & Accessibility:** Inspect full ordinance text side-by-side with official PDF attachments (`pdf-viewer-modal.tsx`), download signed copies, and toggle between Dark and Light themes (`theme-toggle.tsx`).
 
-### 2. "Batas Cabanatuan AI" Civic Assistant
-- **Bilingual Conversational AI:** Powered by Google's **Gemini 3.5 Flash Lite API**, citizens can ask complex legal questions in Tagalog, English, or Taglish.
+### 2. "Cabanatuan Ordinance AI" Civic Assistant
+- **Bilingual Conversational AI:** Powered by Google's **Gemini 3.5 Flash Lite API**, citizens can ask complex ordinance-related questions in Tagalog, English, or Taglish.
 - **Grounded Legislative Responses:** Responses are dynamically injected with live context from the city's Prisma database, citing exact Resolution Numbers, sections, and penalties.
 - **Streaming UI & Local Storage Persistence:** Real-time token streaming with responsive feedback and persistent client-side chat history saved to `localStorage`, with a "Bagong Usapan / Clear Chat" control for a single session at a time.
 
@@ -37,7 +37,7 @@ Designed to bridge the gap between local law enforcement, government officials, 
 - **Multi-Page & Multi-File OCR:** Automatically combines and analyzes multi-page scanned ordinances in sequence to reconstruct the complete title, sections, and penalties.
 - **Automated Metadata Parsing:** Automatically extracts and structures:
   - Official Resolution Number, Series Year, and Date Enacted
-  - Cleaned Legislative Title (strips verbose legal preambles such as *"City Ordinance Establishing..."* or *"Ordinansang..."*)
+  - Cleaned Legislative Title (strips verbose ordinance preambles such as *"City Ordinance Establishing..."* or *"Ordinansang..."*)
   - Policy Category, Summary, Coverage, and Key Tags
   - Detailed Penalties and Enforcement Agencies
 - **Interactive Review Modal:** Administrators can verify and tweak AI-extracted fields before publishing to the database, reducing manual encoding by 85%.
@@ -88,7 +88,7 @@ cabanatuan-city-ordinance-portal/
 │   ├── app/
 │   │   ├── admin/lgu/             # City LGU Admin Dashboard (Ordinances, Reports, Users, News, Analytics)
 │   │   ├── admin/barangay/        # Barangay Captain Dashboard (Ordinances, Reports, Analytics)
-│   │   ├── api/chat/              # Streaming chat route for Batas Cabanatuan AI
+│   │   ├── api/chat/              # Streaming chat route for Cabanatuan Ordinance AI
 │   │   ├── api/ordinances/extract/ # Multimodal OCR AI extraction route (Gemini 3.5 Flash Lite)
 │   │   ├── chatbot/               # Full-screen conversational civic AI interface
 │   │   ├── ordinances/[id]/       # Split-screen public ordinance detail viewer
@@ -114,7 +114,7 @@ cabanatuan-city-ordinance-portal/
 | **Styling** | [Tailwind CSS v4 + CVA](https://tailwindcss.com/) | Design tokens, responsive layouts, theme-aware styling |
 | **ORM & Database** | [Prisma 7.9 + Supabase PostgreSQL](https://prisma.io/) | Relational database schema, connection pooling, migrations |
 | **File Storage** | [Supabase Storage](https://supabase.com/storage) | Cloud PDF ordinance document hosting |
-| **AI & LLM** | [Google Gemini 3.5 Flash Lite (`@google/genai`)](https://ai.google.dev/) | Bilingual legal chat streaming, multimodal OCR PDF parser |
+| **AI & LLM** | [Google Gemini 3.5 Flash Lite (`@google/genai`)](https://ai.google.dev/) | Bilingual ordinance chat streaming, multimodal OCR PDF parser |
 | **UI Components** | Radix UI / Base UI / Sonner | Accessible modals, toast notifications |
 | **Charts & Stats** | [Recharts 3 + NumberFlow](https://recharts.org/) | Executive analytics dashboards and animated statistics |
 | **State Management** | [Zustand 5](https://github.com/pmndrs/zustand) | Client-side draft persistence and chat history |

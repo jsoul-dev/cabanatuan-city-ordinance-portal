@@ -4,9 +4,9 @@ import { Footer } from "@/components/layout/footer";
 import { ChatbotClient } from "./chatbot-client";
 
 export const metadata: Metadata = {
-  title: "AI Citizen Assistant | Batas Cabanatuan AI",
+  title: "AI Citizen Assistant | Cabanatuan Ordinance AI",
   description:
-    "Magtanong nang libre kay Batas Cabanatuan AI tungkol sa mga ordinansa, curfew, basura, at batas ng Cabanatuan.",
+    "Magtanong nang libre kay Cabanatuan Ordinance AI tungkol sa mga ordinansa, curfew, basura, at regulasyon ng Cabanatuan.",
 };
 
 export default function ChatbotPage() {
