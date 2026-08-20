@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
+import type { PdfReportData } from "@/lib/generate-report-pdf";
 
 interface ReportShellProps {
   title: string;
@@ -12,20 +13,14 @@ interface ReportShellProps {
   generatedBy: string;
   generatedByRole: string;
   totalRecords?: number;
+  /** Structured report data for PDF generation via jsPDF */
+  pdfData?: PdfReportData;
   children: React.ReactNode;
 }
 
 /**
  * Formal report wrapper with official government header, metadata,
- * prepared-by section, and print-ready footer.
- *
- * Mirrors the structure from the professor's sample reports:
- * - Official header with Republic of the Philippines / City of Cabanatuan
- * - Report metadata (date range, grouped by, generated on)
- * - Report title
- * - Children (tables, groups)
- * - Prepared by section
- * - Footer with system name, date printed, page number
+ * prepared-by section, and jsPDF download button.
  */
 export function ReportShell({
   title,
@@ -35,9 +30,10 @@ export function ReportShell({
   filters,
   generatedBy,
   generatedByRole,
+  pdfData,
   children,
 }: ReportShellProps) {
-  const printRef = useRef<HTMLDivElement>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const now = new Date();
   const generatedOn = now.toLocaleDateString("en-US", {
@@ -51,8 +47,15 @@ export function ReportShell({
     hour12: true,
   });
 
-  const handlePrint = () => {
-    window.print();
+  const handleDownloadPdf = async () => {
+    if (!pdfData) return;
+    setIsGenerating(true);
+    try {
+      const { generateReportPdf } = await import("@/lib/generate-report-pdf");
+      await generateReportPdf(pdfData);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -60,37 +63,65 @@ export function ReportShell({
       {/* Screen-only toolbar */}
       <div className="print:hidden flex items-center justify-between gap-4 rounded-[var(--radius-md)] border border-[var(--border-hairline)] bg-[var(--bg-card)] px-4 py-3">
         <p className="text-sm text-[var(--text-body)]">
-          Report preview is shown below. Use the button to print or save as PDF.
+          Report preview is shown below. Click the button to download as PDF.
         </p>
         <button
           type="button"
-          onClick={handlePrint}
-          className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent-primary)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--accent-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)] focus-visible:ring-offset-2 transition-colors shadow-sm min-h-[44px]"
+          onClick={handleDownloadPdf}
+          disabled={!pdfData || isGenerating}
+          className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent-primary)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[var(--accent-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)] focus-visible:ring-offset-2 transition-colors shadow-sm disabled:opacity-60 disabled:cursor-not-allowed min-h-[44px]"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <polyline points="6 9 6 2 18 2 18 9" />
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-            <rect x="6" y="14" width="12" height="8" />
-          </svg>
-          I-print / I-save bilang PDF
+          {isGenerating ? (
+            <>
+              <svg
+                className="animate-spin h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  className="opacity-25"
+                />
+                <path
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  className="opacity-75"
+                />
+              </svg>
+              Generating PDF...
+            </>
+          ) : (
+            <>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              I-download bilang PDF
+            </>
+          )}
         </button>
       </div>
 
-      {/* Printable report document */}
+      {/* On-screen report preview */}
       <div
-        ref={printRef}
-        className="report-document bg-white text-black mx-auto shadow-xl print:shadow-none print:mx-0"
+        className="report-document bg-white text-black mx-auto shadow-xl"
         style={{ maxWidth: "210mm" }}
       >
         {/* ── Official Header ── */}

@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useCallback, useTransition } from "react";
+import React, { useState, useCallback, useTransition, useMemo } from "react";
 import { ReportShell } from "@/components/reports/report-shell";
 import { ReportTable } from "@/components/reports/report-table";
 import { ReportGroup, ReportGrandTotal } from "@/components/reports/report-group";
 import { fetchOrdinancesForReport } from "./actions";
 import type { OrdinanceReportRow, ReportFilters } from "@/lib/ordinance-report-queries";
+import type { PdfReportData, PdfReportSection } from "@/lib/generate-report-pdf";
 
 // ─── Report Type Definitions ────────────────────────────────────────────────
 
@@ -467,6 +468,19 @@ export function OrdinanceReportsClient({
           generatedBy={userName}
           generatedByRole={userRole}
           totalRecords={ordinances.length}
+          pdfData={
+            ordinances.length > 0
+              ? buildPdfData(reportType, ordinances, {
+                  title: reportTitle.toUpperCase(),
+                  subtitle: scopedBarangayId ? "Barangay-Scoped Report" : undefined,
+                  dateRange,
+                  groupedBy: groupedByLabel,
+                  filters: activeFilters.length > 0 ? activeFilters.join(" | ") : undefined,
+                  generatedBy: userName,
+                  generatedByRole: userRole,
+                })
+              : undefined
+          }
         >
           {ordinances.length === 0 ? (
             <div className="py-12 text-center text-sm text-gray-400 italic">
@@ -550,6 +564,198 @@ function toRow(ord: OrdinanceReportRow): Record<string, React.ReactNode> {
     date: formatDate(ord.dateEnacted ?? ord.createdAt),
     status: STATUS_LABELS[ord.status] ?? ord.status,
   };
+}
+
+// ─── PDF Data Builder ───────────────────────────────────────────────────────
+
+function toPdfRow(
+  ord: OrdinanceReportRow,
+  colKeys: string[],
+): string[] {
+  const map: Record<string, string> = {
+    resolutionNumber: ord.resolutionNumber,
+    title: ord.title,
+    type: TYPE_LABELS[ord.type] ?? ord.type,
+    category: ord.category ?? "—",
+    barangay: ord.barangay?.name ?? "City-wide",
+    filedBy: ord.submittedBy.name,
+    date: formatDate(ord.dateEnacted ?? ord.createdAt),
+    status: STATUS_LABELS[ord.status] ?? ord.status,
+  };
+  return colKeys.map((k) => map[k] ?? "—");
+}
+
+interface PdfMeta {
+  title: string;
+  subtitle?: string;
+  dateRange?: string;
+  groupedBy?: string;
+  filters?: string;
+  generatedBy: string;
+  generatedByRole: string;
+}
+
+function buildPdfData(
+  reportType: ReportTypeId,
+  ordinances: OrdinanceReportRow[],
+  meta: PdfMeta,
+): PdfReportData {
+  const base: Omit<PdfReportData, "sections" | "grandTotalLabel"> = {
+    title: meta.title,
+    subtitle: meta.subtitle,
+    dateRange: meta.dateRange,
+    groupedBy: meta.groupedBy,
+    filters: meta.filters,
+    generatedBy: meta.generatedBy,
+    generatedByRole: meta.generatedByRole,
+  };
+
+  switch (reportType) {
+    case "all": {
+      const colKeys = ["resolutionNumber", "title", "type", "category", "barangay", "filedBy", "date", "status"];
+      const colLabels = ["Resolution No.", "Title", "Type", "Category", "Barangay", "Filed By", "Date", "Status"];
+      return {
+        ...base,
+        sections: [{
+          heading: "ALL ORDINANCES",
+          columns: colLabels,
+          rows: ordinances.map((o) => toPdfRow(o, colKeys)),
+        }],
+        grandTotalLabel: `Total Ordinances: ${ordinances.length}`,
+      };
+    }
+
+    case "by-month": {
+      const colKeys = ["resolutionNumber", "title", "filedBy", "barangay", "status"];
+      const colLabels = ["Resolution No.", "Title", "Filed By", "Barangay", "Status"];
+      const groups = groupBy(ordinances, (o) => getMonthYearKey(getEffectiveDate(o)));
+      const sortedKeys = [...groups.keys()].sort();
+      return {
+        ...base,
+        sections: sortedKeys.map((key) => ({
+          heading: getMonthYearLabel(key),
+          subLabel: getMonthDateRange(key),
+          columns: colLabels,
+          rows: groups.get(key)!.map((o) => toPdfRow(o, colKeys)),
+        })),
+        grandTotalLabel: `Total Months: ${sortedKeys.length}  |  Total Ordinances: ${ordinances.length}`,
+      };
+    }
+
+    case "by-barangay": {
+      const colKeys = ["resolutionNumber", "title", "date", "filedBy", "status"];
+      const colLabels = ["Resolution No.", "Title", "Date", "Filed By", "Status"];
+      const groups = groupBy(ordinances, (o) => o.barangay?.name ?? "City-wide (No Barangay)");
+      const sortedKeys = [...groups.keys()].sort();
+      return {
+        ...base,
+        sections: sortedKeys.map((key) => ({
+          heading: key === "City-wide (No Barangay)" ? key : `BARANGAY ${key.toUpperCase()}`,
+          columns: colLabels,
+          rows: groups.get(key)!.map((o) => toPdfRow(o, colKeys)),
+        })),
+        grandTotalLabel: `Total Barangays: ${sortedKeys.length}  |  Total Ordinances: ${ordinances.length}`,
+      };
+    }
+
+    case "by-filed-by": {
+      const colKeys = ["resolutionNumber", "title", "date", "barangay", "status"];
+      const colLabels = ["Resolution No.", "Title", "Date", "Barangay", "Status"];
+      const groups = groupBy(ordinances, (o) => o.submittedBy.name);
+      const sortedKeys = [...groups.keys()].sort();
+      return {
+        ...base,
+        sections: sortedKeys.map((key) => ({
+          heading: `FILED BY: ${key.toUpperCase()}`,
+          columns: colLabels,
+          rows: groups.get(key)!.map((o) => toPdfRow(o, colKeys)),
+        })),
+        grandTotalLabel: `Total Filers: ${sortedKeys.length}  |  Total Ordinances: ${ordinances.length}`,
+      };
+    }
+
+    case "by-category": {
+      const colKeys = ["resolutionNumber", "title", "date", "barangay", "filedBy", "status"];
+      const colLabels = ["Resolution No.", "Title", "Date", "Barangay", "Filed By", "Status"];
+      const groups = groupBy(ordinances, (o) => o.category ?? "Uncategorized");
+      const sortedKeys = [...groups.keys()].sort();
+      return {
+        ...base,
+        sections: sortedKeys.map((key) => ({
+          heading: key.toUpperCase(),
+          columns: colLabels,
+          rows: groups.get(key)!.map((o) => toPdfRow(o, colKeys)),
+        })),
+        grandTotalLabel: `Total Categories: ${sortedKeys.length}  |  Total Ordinances: ${ordinances.length}`,
+      };
+    }
+
+    case "by-status": {
+      const colKeys = ["resolutionNumber", "title", "date", "barangay", "filedBy", "category"];
+      const colLabels = ["Resolution No.", "Title", "Date", "Barangay", "Filed By", "Category"];
+      const groups = groupBy(ordinances, (o) => STATUS_LABELS[o.status] ?? o.status);
+      const statusOrder = ["Draft", "Pending", "Approved", "Rejected"];
+      const sortedKeys = [...groups.keys()].sort((a, b) => statusOrder.indexOf(a) - statusOrder.indexOf(b));
+      const parts = sortedKeys.map((k) => `${k}: ${groups.get(k)!.length}`).join("  |  ");
+      return {
+        ...base,
+        sections: sortedKeys.map((key) => ({
+          heading: `STATUS: ${key.toUpperCase()}`,
+          columns: colLabels,
+          rows: groups.get(key)!.map((o) => toPdfRow(o, colKeys)),
+        })),
+        grandTotalLabel: `${parts}  |  Total: ${ordinances.length}`,
+      };
+    }
+
+    case "by-type": {
+      const colKeys = ["resolutionNumber", "title", "date", "barangay", "filedBy", "status"];
+      const colLabels = ["Resolution No.", "Title", "Date", "Barangay", "Filed By", "Status"];
+      const groups = groupBy(ordinances, (o) => TYPE_LABELS[o.type] ?? o.type);
+      const sortedKeys = [...groups.keys()].sort();
+      const parts = sortedKeys.map((k) => `${k}: ${groups.get(k)!.length}`).join("  |  ");
+      return {
+        ...base,
+        sections: sortedKeys.map((key) => ({
+          heading: `TYPE: ${key.toUpperCase()}`,
+          columns: colLabels,
+          rows: groups.get(key)!.map((o) => toPdfRow(o, colKeys)),
+        })),
+        grandTotalLabel: `${parts}  |  Total: ${ordinances.length}`,
+      };
+    }
+
+    case "by-year": {
+      const colKeys = ["resolutionNumber", "title", "type", "barangay", "filedBy", "status"];
+      const colLabels = ["Resolution No.", "Title", "Type", "Barangay", "Filed By", "Status"];
+      const groups = groupBy(ordinances, (o) => String(o.year ?? getEffectiveDate(o).getFullYear()));
+      const sortedKeys = [...groups.keys()].sort();
+      return {
+        ...base,
+        sections: sortedKeys.map((key) => ({
+          heading: `YEAR ${key}`,
+          subLabel: `January 1, ${key} - December 31, ${key}`,
+          columns: colLabels,
+          rows: groups.get(key)!.map((o) => toPdfRow(o, colKeys)),
+        })),
+        grandTotalLabel: `Total Years: ${sortedKeys.length}  |  Total Ordinances: ${ordinances.length}`,
+      };
+    }
+
+    default:
+      return { ...base, sections: [], grandTotalLabel: `Total: ${ordinances.length}` };
+  }
+}
+
+function groupBy<T>(items: T[], keyFn: (item: T) => string): Map<string, T[]> {
+  const map = new Map<string, T[]>();
+  for (const item of items) {
+    const key = keyFn(item);
+    const list = map.get(key) ?? [];
+    list.push(item);
+    map.set(key, list);
+  }
+  return map;
 }
 
 // ─── Report 1: All Ordinances ───────────────────────────────────────────────
