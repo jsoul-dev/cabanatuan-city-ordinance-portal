@@ -158,7 +158,7 @@ export function LoginForm({ theme, onForgotClick }: LoginFormProps) {
             <span className="text-emerald-500 font-bold shrink-0">🏛️</span>
             <div className="min-w-0 flex-1">
               <div className="font-semibold text-neutral-900 dark:text-white truncate">
-                LGU Admin
+                LGU Super Admin
               </div>
               <div className="text-[10px] truncate text-neutral-500 dark:text-neutral-400">
                 lgu.admin.cabanatuan@gmail.com
@@ -168,7 +168,7 @@ export function LoginForm({ theme, onForgotClick }: LoginFormProps) {
 
           <button
             type="button"
-            onClick={() => handleQuickFill("captain.garcia.cabanatuan@gmail.com")}
+            onClick={() => handleQuickFill("captain.camptinio@gmail.com")}
             className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-left text-xs text-neutral-700 transition-all hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-900 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300 dark:hover:border-emerald-500/50 dark:hover:bg-emerald-500/10 dark:hover:text-white"
           >
             <span className="text-emerald-500 font-bold shrink-0">🛡️</span>
@@ -177,7 +177,7 @@ export function LoginForm({ theme, onForgotClick }: LoginFormProps) {
                 Barangay Admin
               </div>
               <div className="text-[10px] truncate text-neutral-500 dark:text-neutral-400">
-                captain.garcia.cabanatuan@gmail.com
+                captain.camptinio@gmail.com
               </div>
             </div>
           </button>
