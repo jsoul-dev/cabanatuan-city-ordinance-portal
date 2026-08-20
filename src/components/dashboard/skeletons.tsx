@@ -104,7 +104,7 @@ export function FilterBarSkeleton() {
   );
 }
 
-export function OverviewLoadingSkeleton() {
+export function LguOverviewSkeleton() {
   return (
     <div className="space-y-8" role="status" aria-label="Naglo-load ang dashboard...">
       <span className="sr-only">Naglo-load ang dashboard...</span>
@@ -145,6 +145,68 @@ export function OverviewLoadingSkeleton() {
           rows={3}
           cols={5}
           colWidths={["w-44", "flex-1", "w-28", "w-24", "w-16"]}
+        />
+      </div>
+    </div>
+  );
+}
+
+export function BarangayOverviewSkeleton() {
+  return (
+    <div className="space-y-8" role="status" aria-label="Naglo-load ang dashboard...">
+      <span className="sr-only">Naglo-load ang dashboard...</span>
+
+      {/* Barangay Banner Skeleton */}
+      <div className="rounded-[var(--radius-lg)] border border-emerald-500/20 bg-gradient-to-r from-emerald-900/30 via-[var(--bg-card)] to-[var(--bg-card)] p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-3 w-full max-w-lg">
+            <Shimmer className="h-6 w-36 rounded-full" />
+            <Shimmer className="h-8 w-64" />
+            <Shimmer className="h-4 w-full" />
+          </div>
+          <Shimmer className="h-10 w-48 rounded-[var(--radius-sm)] flex-shrink-0" />
+        </div>
+      </div>
+
+      {/* 1. Stat cards */}
+      <div className="space-y-4">
+        <Shimmer className="h-4 w-32" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <StatCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+
+      {/* 2. Status Breakdown */}
+      <div className="space-y-4">
+        <Shimmer className="h-4 w-48" />
+        <StatusBreakdownSkeleton />
+      </div>
+
+      {/* 3. Table 1: Pinakabagong Ordinansa (5 columns) */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Shimmer className="h-4 w-64" />
+          <Shimmer className="h-3 w-28" />
+        </div>
+        <TableSkeleton
+          rows={3}
+          cols={5}
+          colWidths={["w-20", "flex-1", "w-24", "w-24", "w-16"]}
+        />
+      </div>
+
+      {/* 4. Table 2: Pinakabagong Ulat (4 columns) */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Shimmer className="h-4 w-60" />
+          <Shimmer className="h-3 w-28" />
+        </div>
+        <TableSkeleton
+          rows={3}
+          cols={4}
+          colWidths={["flex-1", "w-32", "w-24", "w-16"]}
         />
       </div>
     </div>

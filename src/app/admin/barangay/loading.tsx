@@ -1,5 +1,5 @@
-import { OverviewLoadingSkeleton } from "@/components/dashboard/skeletons";
+import { BarangayOverviewSkeleton } from "@/components/dashboard/skeletons";
 
 export default function BarangayOverviewLoading() {
-  return <OverviewLoadingSkeleton />;
+  return <BarangayOverviewSkeleton />;
 }

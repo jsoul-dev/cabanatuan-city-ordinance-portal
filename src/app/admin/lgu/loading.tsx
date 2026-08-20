@@ -1,5 +1,5 @@
-import { OverviewLoadingSkeleton } from "@/components/dashboard/skeletons";
+import { LguOverviewSkeleton } from "@/components/dashboard/skeletons";
 
 export default function LguOverviewLoading() {
-  return <OverviewLoadingSkeleton />;
+  return <LguOverviewSkeleton />;
 }
