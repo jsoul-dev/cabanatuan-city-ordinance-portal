@@ -174,7 +174,10 @@ export function ReportShell({
             <div className="border-b border-gray-900 min-w-[250px]">
               {/* Blank space for signature and printed name */}
             </div>
-            <p className="text-[10px] text-gray-400 italic mt-1">
+            <p className="text-[10px] text-gray-500 mt-1">
+              {generatedByRole}
+            </p>
+            <p className="text-[10px] text-gray-400 italic mt-0.5">
               Signature over printed name
             </p>
           </div>

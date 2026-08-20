@@ -270,9 +270,13 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
   doc.line(margin.left, y, margin.left + 65, y);
 
   doc.setFontSize(7);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(GRAY_600.r, GRAY_600.g, GRAY_600.b);
+  doc.text(data.generatedByRole, margin.left, y + 4);
+
   doc.setFont("helvetica", "italic");
   doc.setTextColor(150, 150, 150);
-  doc.text("Signature over printed name", margin.left, y + 4);
+  doc.text("Signature over printed name", margin.left, y + 8);
 
   // ── Add footers to all pages ──
   addFooters();
