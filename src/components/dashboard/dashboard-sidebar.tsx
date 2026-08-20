@@ -79,7 +79,7 @@ export function DashboardSidebar({
 
   return (
     <aside
-      className={`relative flex flex-col bg-[var(--bg-card)] border-r border-[var(--border-hairline)] ${
+      className={`relative flex flex-col h-full bg-[var(--bg-card)] border-r border-[var(--border-hairline)] ${
         collapsed ? "w-[72px]" : "w-64"
       } ${mounted ? "transition-[width] duration-200 ease-in-out" : ""} flex-shrink-0 z-30`}
       style={{
