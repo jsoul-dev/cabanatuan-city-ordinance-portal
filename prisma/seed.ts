@@ -89,7 +89,7 @@ async function main() {
         description: `This is a sample description for the ${ord.title}.`,
         content: `Section 1. Title. ${ord.title}\nSection 2. Guidelines...`,
         submittedById: lguAdmin.id,
-        reviewedById: [OrdinanceStatus.APPROVED, OrdinanceStatus.REJECTED].includes(ord.stat) ? lguAdmin.id : null,
+        reviewedById: (ord.stat === OrdinanceStatus.APPROVED || ord.stat === OrdinanceStatus.REJECTED) ? lguAdmin.id : null,
         approvedAt: ord.stat === OrdinanceStatus.APPROVED ? new Date(`${ord.yr}-06-15`) : null,
       }
     });
@@ -126,7 +126,7 @@ async function main() {
           content: `Seksyon 1. Titulo: ${ord.title}\nSeksyon 2. Mga Patakaran...`,
           barangayId: brgy.id,
           submittedById: brgy.admin.id,
-          reviewedById: [OrdinanceStatus.APPROVED, OrdinanceStatus.REJECTED].includes(stat) ? lguAdmin.id : null,
+          reviewedById: (stat === OrdinanceStatus.APPROVED || stat === OrdinanceStatus.REJECTED) ? lguAdmin.id : null,
           approvedAt: stat === OrdinanceStatus.APPROVED ? new Date(`${year}-08-10`) : null,
         }
       });
