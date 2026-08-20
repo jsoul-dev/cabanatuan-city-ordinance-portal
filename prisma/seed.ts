@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { PrismaClient, UserRole, OrdinanceType, OrdinanceStatus, NewsCategory } from "@prisma/client";
+import { PrismaClient, UserRole, OrdinanceType, OrdinanceStatus, ReportType, ReportStatus, NewsCategory } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { hash } from "bcryptjs";
@@ -10,300 +10,176 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log("🌱 Seeding Cabanatuan City Ordinance Hub...");
+  console.log("⚠️  Wiping existing data...");
+  await prisma.chatSession.deleteMany();
+  await prisma.newsItem.deleteMany();
+  await prisma.report.deleteMany();
+  await prisma.ordinance.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.barangay.deleteMany();
+  console.log("🧹 Database wiped!");
 
-  // ─── Barangays (Only those used in seed data) ──────────────────────────
-  const barangays = await Promise.all(
-    [
-      "Dionisio S. Garcia",
-      "Camp Tinio",
-      "Bitas"
-    ].map((name) =>
-      prisma.barangay.upsert({
-        where: { name },
-        update: {},
-        create: { name },
-      })
-    )
-  );
+  console.log("🌱 Seeding Cabanatuan City Ordinance Hub with realistic mock data...");
 
-  const dsGarcia = barangays.find((b) => b.name === "Dionisio S. Garcia")!;
-  const capitalSite = barangays.find((b) => b.name === "Capitol Site")!;
-  const campTinio = barangays.find((b) => b.name === "Camp Tinio")!;
+  // 1. Barangays
+  const brgys = ["Camp Tinio", "Dionisio S. Garcia", "Kapitan Pepe"];
+  const createdBrgys = [];
+  for (const name of brgys) {
+    createdBrgys.push(await prisma.barangay.create({ data: { name } }));
+  }
+  const [campTinio, dsGarcia, kapPepe] = createdBrgys;
 
-  // ─── Users ──────────────────────────────────────────────────────────────
+  // 2. Users
   const passwordHash = await hash("password123", 12);
-
-  const lguAdmin = await prisma.user.upsert({
-    where: { email: "lgu.admin.cabanatuan@gmail.com" },
-    update: {},
-    create: {
-      email: "lgu.admin.cabanatuan@gmail.com",
-      passwordHash,
-      name: "LGU Super Admin",
-      role: UserRole.LGU_ADMIN,
-    },
+  const lguAdmin = await prisma.user.create({
+    data: { email: "lgu.admin.cabanatuan@gmail.com", passwordHash, name: "LGU Super Admin", role: UserRole.LGU_ADMIN }
+  });
+  const capTinio = await prisma.user.create({
+    data: { email: "captain.camptinio@gmail.com", passwordHash, name: "Kap. Anita S. Pascual", role: UserRole.BARANGAY_ADMIN, barangayId: campTinio.id }
+  });
+  const capGarcia = await prisma.user.create({
+    data: { email: "captain.garcia@gmail.com", passwordHash, name: "Kap. Juan Garcia", role: UserRole.BARANGAY_ADMIN, barangayId: dsGarcia.id }
+  });
+  const capPepe = await prisma.user.create({
+    data: { email: "captain.pepe@gmail.com", passwordHash, name: "Kap. Renato Perez", role: UserRole.BARANGAY_ADMIN, barangayId: kapPepe.id }
   });
 
-  const captain = await prisma.user.upsert({
-    where: { email: "captain.garcia.cabanatuan@gmail.com" },
-    update: {},
-    create: {
-      email: "captain.garcia.cabanatuan@gmail.com",
-      passwordHash,
-      name: "Kap. Juan Garcia",
-      role: UserRole.BARANGAY_ADMIN,
-      barangayId: dsGarcia.id,
-    },
-  });
+  // 3. Realistic Ordinance Data
+  const cityOrdinances = [
+    { title: "Comprehensive Traffic Code of Cabanatuan City", res: "045-2023", cat: "Traffic", stat: OrdinanceStatus.APPROVED, yr: 2023 },
+    { title: "City-Wide Plastic Bag Ban and Regulation", res: "112-2022", cat: "Environment", stat: OrdinanceStatus.APPROVED, yr: 2022 },
+    { title: "Establishing the Cabanatuan City Youth Development Council", res: "231-2024", cat: "Youth", stat: OrdinanceStatus.APPROVED, yr: 2024 },
+    { title: "Business Permit Renewal Modernization Act", res: "008-2024", cat: "Business", stat: OrdinanceStatus.PENDING, yr: 2024 },
+    { title: "Strict Enforcement of the Anti-Rabies Act (Dog Impounding)", res: "199-2021", cat: "Health", stat: OrdinanceStatus.APPROVED, yr: 2021 },
+    { title: "Proposed Market Stall Standardization", res: "055-2024", cat: "Business", stat: OrdinanceStatus.DRAFT, yr: 2024 },
+    { title: "Mandatory CCTV Installation for Commercial Establishments", res: "401-2023", cat: "Peace & Order", stat: OrdinanceStatus.APPROVED, yr: 2023 },
+    { title: "Amendment to Tricycle Fare Matrix", res: "011-2024", cat: "Traffic", stat: OrdinanceStatus.REJECTED, yr: 2024 }
+  ];
 
-  const captainAlias = await prisma.user.upsert({
-    where: { email: "captain.kapitan.cabanatuan@gmail.com" },
-    update: {},
-    create: {
-      email: "captain.kapitan.cabanatuan@gmail.com",
-      passwordHash,
-      name: "Kap. Juan Garcia (Alias)",
-      role: UserRole.BARANGAY_ADMIN,
-      barangayId: dsGarcia.id,
-    },
-  });
+  const barangayOrdinances = [
+    { title: "Mahigpit na Pagbabawal sa Pagsusunog ng Basura (Anti-Siga)", cat: "Environment" },
+    { title: "Ordinansa sa Pagtatayo ng Barangay Material Recovery Facility", cat: "Environment" },
+    { title: "Barangay Curfew Hours para sa mga Menor de Edad (10PM - 4AM)", cat: "Peace & Order" },
+    { title: "Pagbabawal sa mga Maiingay na Videoke Mula 10:00 ng Gabi", cat: "Peace & Order" },
+    { title: "One-Side Parking Policy sa mga Pangunahing Kalsada ng Barangay", cat: "Traffic" },
+    { title: "Obligadong Paglilinis ng Bakuran Tuwing Sabado (Tapat Ko, Linis Ko)", cat: "Health" },
+    { title: "Pagrehistro ng mga Nangungupahan (Boarders/Tenants) sa Barangay", cat: "Peace & Order" },
+    { title: "Pagpapataw ng Multa sa mga Asong Pagala-gala (Stray Dogs)", cat: "Health" },
+    { title: "Regulasyon sa Pagtatayo ng mga Sari-Sari Store sa Bangketa", cat: "Business" },
+    { title: "Pagtatalaga ng mga Designated Smoking Areas", cat: "Health" }
+  ];
 
-  const captainCampTinio = await prisma.user.upsert({
-    where: { email: "captain.camptinio.cabanatuan@gmail.com" },
-    update: {},
-    create: {
-      email: "captain.camptinio.cabanatuan@gmail.com",
-      passwordHash,
-      name: "Kap. Anita S. Pascual",
-      role: UserRole.BARANGAY_ADMIN,
-      barangayId: campTinio.id,
-    },
-  });
+  let idCounter = 1;
+  const statuses = [OrdinanceStatus.APPROVED, OrdinanceStatus.APPROVED, OrdinanceStatus.PENDING, OrdinanceStatus.DRAFT, OrdinanceStatus.REJECTED];
 
-  const secretary = await prisma.user.upsert({
-    where: { email: "secretary.garcia.cabanatuan@gmail.com" },
-    update: {},
-    create: {
-      email: "secretary.garcia.cabanatuan@gmail.com",
-      passwordHash,
-      name: "Sec. Maria Santos",
-      role: UserRole.BARANGAY_ADMIN,
-      barangayId: campTinio.id,
-    },
-  });
+  // Insert City Ordinances
+  for (const ord of cityOrdinances) {
+    await prisma.ordinance.create({
+      data: {
+        slug: `city-${ord.res}`,
+        title: ord.title,
+        resolutionNumber: ord.res,
+        ordinanceLabel: `ORDINANCE NO. ${idCounter++} S. ${ord.yr}`,
+        series: `S. ${ord.yr}`,
+        type: OrdinanceType.CITY,
+        status: ord.stat,
+        category: ord.cat,
+        year: ord.yr,
+        dateEnacted: ord.stat === OrdinanceStatus.APPROVED ? new Date(`${ord.yr}-06-15`) : null,
+        description: `This is a sample description for the ${ord.title}.`,
+        content: `Section 1. Title. ${ord.title}\nSection 2. Guidelines...`,
+        submittedById: lguAdmin.id,
+        reviewedById: [OrdinanceStatus.APPROVED, OrdinanceStatus.REJECTED].includes(ord.stat) ? lguAdmin.id : null,
+        approvedAt: ord.stat === OrdinanceStatus.APPROVED ? new Date(`${ord.yr}-06-15`) : null,
+      }
+    });
+  }
 
-  // ─── Ordinances ────────────────────────────────────────────────────────
-  await prisma.ordinance.upsert({
-    where: { id: "seed-ord-001" },
-    update: {
-      ordinanceLabel: "ORDINANCE NO. 009 S. 2024",
-      title: "Ordinansang nag-aatas sa mga residente na may sariling backyard na magkaroon o gumawa ng 'Backyard Composting'",
-      resolutionNumber: "572-2024",
-      category: "Environment & Cleanliness",
-      year: 2024,
-      dateEnacted: new Date("2024-10-09"),
-      coverage: "Barangay Bitas",
-      tags: ["backyard composting", "basura", "pataba", "segregation", "environment"],
-      description: "Ordinansang nag-aatas sa mga residente na may sariling backyard na magkaroon o gumawa ng 'Backyard Composting' sa kanilang lugar upang mabawasan ang bulto ng basurang itinatapon, mapanatili ang pagbubukod-bukod ng basura at upang makapag produce ng pataba na magagamit sa mga halaman at gulayan.",
-      articles: "SEKSYON 1: TITULO (Title)\nAng ordinansang ito ay tatawaging \"Ordinansang nag-aatas sa mga residente na may sariling backyard na magkaroon o gumawa ng 'Backyard Composting' sa kanilang lugar upang mabawasan ang bulto ng basurang itinatapon, mapanatili ang pagbubukod-bukod ng basura at upang makapag produce ng pataba na magagamit sa mga halaman at gulayan.\"\n\nSEKSYON 2: SAKOP NG KAPANGYARIHAN / MGA TAONG MAY PANANAGUTAN (Coverage / Persons Liable)\nAng ordinansang ito ay ukol sa lahat ng mga sumusunod:\n2.1 Para sa lahat ng residente ng barangay - Mga lehitimong naninirahan sa barangay.\n2.2 Mga residente na may sariling backyard - Mga naninirahan na may bakuran.\n2.3 Mga boarders/boarding house na may backyard - Mga nangungupahan sa bahay na may bakuran.\n\nSEKSYON 3: BASEHAN NG ORDINANSA (Ordinance Basis)\nAng ordinansang ito ay pinagtibay alinsunod sa Republika ng Pilipinas R.A. 9003 Ecological Solid Waste Management Act of 2000, ang Sangguniang Barangay ay tumatalima upang ipagtibay sa barangay na nasasakupan ang mga alintuntuning at sumunod sa anumang mga parusa na nakasaad dito.\n\nSEKSYON 4: LAYUNIN (Purpose)\nAng pangunahing layunin ng pagsasabatas ng kautusang ito ay ang mga sumusunod:\n4.1 Nilalayon ng barangay na mapanatili ang wastong pamamahala ng basura,\n4.2 Mapagbukod-bukod ang mga nabubulok sa di-nabubulok\n4.3 Makapag produce ng maraming pataba sa pamamagitan ng composting\n4.4 Makatulong sa mga nag-aalaga ng halaman at gulay na makabawas sa pagbili ng pataba.\n4.5 Protektahan ang kalusugan, panlipunan at moral na kapakanan ng mga naninirahan dito.\n\nSEKSYON 5: KAHULUGAN NG MGA SALITA (Defenition of Terms)\n5.1 Backyard - Sariling bakuran sa likod-bahay.\n5.2 Composting - Pag convert ng organic material patungo sa matabang lupa\n\nSEKSYON 6: MGA IPINAGBABAWAL NA GAWAIN (Prohibited Acts)\nItinakda ang kautusang ito na ipagbawal/ipag-utos sa lahat ng mga tao residente man o hindi na nasa lugar na nasasakupan ng Barangay Bitas ang mga sumusunod na Gawain:\n6.1 Pagtatapon ng basura na hindi magkakabukod.\n6.2 Paglalabas ng mga basura sa hindi oras at araw ng pagkolekta\n6.3 Ilabas lamang ang basurang nakabukod ayon sa araw ng kolekta (Lunes-Nabubulok, Biyernes-Di-Nabubulok at Sabado-Recyclable Materials)\n6.4 Kung meron nang backyard composting, ilagay ang nabubulok sa backyard composting.\n\nSEKSYON 7: MGA PARUSA (Penalties)\nUNANG PAGLABAG:\nWarning o Pagsasabihan\n\nPANGALAWANG PAGLABAG:\nMulta ng halagang hindi bababa sa ₱300.00 na may kasamang isang araw na Community Service o Linis Barangay.\n\nIKATLONG PAGLABAG:\nMulta ng halagang hindi bababa sa ₱500.00 na may kasamang tatlong araw na Community Service o Linis Barangay.",
-      penalties: null,
-      enforcement: "Chairman Committee on Environment, SK Chairperson, Mga Barangay Tanod",
-    },
-    create: {
-      id: "seed-ord-001",
-      slug: "572-2024",
-      ordinanceLabel: "ORDINANCE NO. 009 S. 2024",
-      title: "Ordinansang nag-aatas sa mga residente na may sariling backyard na magkaroon o gumawa ng 'Backyard Composting'",
-      resolutionNumber: "572-2024",
-      series: "S. 2024",
-      type: OrdinanceType.BARANGAY,
-      status: OrdinanceStatus.APPROVED,
-      category: "Environment & Cleanliness",
-      year: 2024,
-      dateEnacted: new Date("2024-10-09"),
-      coverage: "Barangay Bitas",
-      tags: ["backyard composting", "basura", "pataba", "segregation", "environment"],
-      description: "Ordinansang nag-aatas sa mga residente na may sariling backyard na magkaroon o gumawa ng 'Backyard Composting' sa kanilang lugar upang mabawasan ang bulto ng basurang itinatapon, mapanatili ang pagbubukod-bukod ng basura at upang makapag produce ng pataba na magagamit sa mga halaman at gulayan.",
-      content:
-        "Isang ordinansa na nag-aatas sa mga residente na may sariling backyard na magkaroon o gumawa ng 'Backyard Composting' sa kanilang lugar upang mabawasan ang bulto ng basurang itinatapon, mapanatili ang pagbubukod-bukod ng basura at upang makapag produce ng pataba na magagamit sa mga halaman at gulayan.",
-      articles: "SEKSYON 1: TITULO (Title)\nAng ordinansang ito ay tatawaging \"Ordinansang nag-aatas sa mga residente na may sariling backyard na magkaroon o gumawa ng 'Backyard Composting' sa kanilang lugar upang mabawasan ang bulto ng basurang itinatapon, mapanatili ang pagbubukod-bukod ng basura at upang makapag produce ng pataba na magagamit sa mga halaman at gulayan.\"\n\nSEKSYON 2: SAKOP NG KAPANGYARIHAN / MGA TAONG MAY PANANAGUTAN (Coverage / Persons Liable)\nAng ordinansang ito ay ukol sa lahat ng mga sumusunod:\n2.1 Para sa lahat ng residente ng barangay - Mga lehitimong naninirahan sa barangay.\n2.2 Mga residente na may sariling backyard - Mga naninirahan na may bakuran.\n2.3 Mga boarders/boarding house na may backyard - Mga nangungupahan sa bahay na may bakuran.\n\nSEKSYON 3: BASEHAN NG ORDINANSA (Ordinance Basis)\nAng ordinansang ito ay pinagtibay alinsunod sa Republika ng Pilipinas R.A. 9003 Ecological Solid Waste Management Act of 2000, ang Sangguniang Barangay ay tumatalima upang ipagtibay sa barangay na nasasakupan ang mga alintuntuning at sumunod sa anumang mga parusa na nakasaad dito.\n\nSEKSYON 4: LAYUNIN (Purpose)\nAng pangunahing layunin ng pagsasabatas ng kautusang ito ay ang mga sumusunod:\n4.1 Nilalayon ng barangay na mapanatili ang wastong pamamahala ng basura,\n4.2 Mapagbukod-bukod ang mga nabubulok sa di-nabubulok\n4.3 Makapag produce ng maraming pataba sa pamamagitan ng composting\n4.4 Makatulong sa mga nag-aalaga ng halaman at gulay na makabawas sa pagbili ng pataba.\n4.5 Protektahan ang kalusugan, panlipunan at moral na kapakanan ng mga naninirahan dito.\n\nSEKSYON 5: KAHULUGAN NG MGA SALITA (Defenition of Terms)\n5.1 Backyard - Sariling bakuran sa likod-bahay.\n5.2 Composting - Pag convert ng organic material patungo sa matabang lupa\n\nSEKSYON 6: MGA IPINAGBABAWAL NA GAWAIN (Prohibited Acts)\nItinakda ang kautusang ito na ipagbawal/ipag-utos sa lahat ng mga tao residente man o hindi na nasa lugar na nasasakupan ng Barangay Bitas ang mga sumusunod na Gawain:\n6.1 Pagtatapon ng basura na hindi magkakabukod.\n6.2 Paglalabas ng mga basura sa hindi oras at araw ng pagkolekta\n6.3 Ilabas lamang ang basurang nakabukod ayon sa araw ng kolekta (Lunes-Nabubulok, Biyernes-Di-Nabubulok at Sabado-Recyclable Materials)\n6.4 Kung meron nang backyard composting, ilagay ang nabubulok sa backyard composting.\n\nSEKSYON 7: MGA PARUSA (Penalties)\nUNANG PAGLABAG:\nWarning o Pagsasabihan\n\nPANGALAWANG PAGLABAG:\nMulta ng halagang hindi bababa sa ₱300.00 na may kasamang isang araw na Community Service o Linis Barangay.\n\nIKATLONG PAGLABAG:\nMulta ng halagang hindi bababa sa ₱500.00 na may kasamang tatlong araw na Community Service o Linis Barangay.",
-      penalties: null,
-      enforcement: "Chairman Committee on Environment, SK Chairperson, Mga Barangay Tanod",
-      signatories:
-        "Joseph E. Sanggalang, Rodel V. Ferrer, Dhonna Mae Y. Matias, Jeffrey S. Reyes, Jason G. Arcillo, Harrey A. Francisco, Charina M. Salenga, Edward M. Pascual, Crizar Joyce V. Basila, Eduardo C. Acuña Jr.",
-      barangayId: barangays.find(b => b.name === "Bitas")!.id,
-      submittedById: captain.id,
-      reviewedById: lguAdmin.id,
-      approvedAt: new Date("2024-10-09"),
-    },
-  });
+  // Insert Barangay Ordinances
+  for (const brgy of [
+    { admin: capTinio, id: campTinio.id, prefix: "CT" },
+    { admin: capGarcia, id: dsGarcia.id, prefix: "DSG" },
+    { admin: capPepe, id: kapPepe.id, prefix: "KP" }
+  ]) {
+    // Pick 6 to 8 random distinct ordinances for this barangay
+    const numOrds = Math.floor(Math.random() * 3) + 6; // 6 to 8
+    const shuffled = [...barangayOrdinances].sort(() => 0.5 - Math.random()).slice(0, numOrds);
+    
+    for (const ord of shuffled) {
+      const year = 2021 + Math.floor(Math.random() * 4);
+      const resNum = `${Math.floor(Math.random() * 800) + 100}-${year}`;
+      const stat = statuses[Math.floor(Math.random() * statuses.length)];
 
-  await prisma.ordinance.upsert({
-    where: { id: "seed-ord-002" },
-    update: {
-      ordinanceLabel: "ORDINANSA BLG. 05 S. 2024",
-      title: "Tamang Pagtatapon ng Basura at Segregation",
-      resolutionNumber: "310-2024",
-      category: "Environment & Cleanliness",
-      year: 2024,
-      dateEnacted: new Date("2024-05-20"),
-      coverage: "Barangay Dionisio S. Garcia",
-      tags: ["basura", "segregation", "biodegradable", "non-biodegradable", "hazardous", "waste"],
-      description: "Isang ordinansa na nag-aatas ng tamang pagtatapon at paghihiwalay ng basura (waste segregation) sa lahat ng kabahayan at establisyemento.",
-      articles: "Seksyon 1: Kategorisasyon ng Basura\nNararapat na ihiwalay ang basura sa tatlong kategorya: nabubulok (biodegradable), hindi nabubulok (non-biodegradable), at mapanganib (hazardous).\n\nSeksyon 2: Lalagyan ng Basura\nAng bawat kabahayan ay kinakailangang gumamit ng hiwalay na lalagyan para sa bawat uri ng basura.\n\nSeksyon 3: Mga Parusa\nUNANG PAGLABAG:\nBabala\n\nPANGALAWANG PAGLABAG:\nMulta na ₱300.00\n\nPANGATLONG PAGLABAG:\nMulta na ₱1,000.00",
-      penalties: null,
-      enforcement: "Barangay Waste Management Committee, Bantay Bayan",
-    },
-    create: {
-      id: "seed-ord-002",
-      slug: "310-2024",
-      ordinanceLabel: "ORDINANSA BLG. 05 S. 2024",
-      title: "Tamang Pagtatapon ng Basura at Segregation",
-      resolutionNumber: "310-2024",
-      series: "S. 2024",
-      type: OrdinanceType.BARANGAY,
-      status: OrdinanceStatus.APPROVED,
-      category: "Environment & Cleanliness",
-      year: 2024,
-      dateEnacted: new Date("2024-05-20"),
-      coverage: "Barangay Dionisio S. Garcia",
-      tags: ["basura", "segregation", "biodegradable", "non-biodegradable", "hazardous", "waste"],
-      description: "Isang ordinansa na nag-aatas ng tamang pagtatapon at paghihiwalay ng basura (waste segregation) sa lahat ng kabahayan at establisyemento.",
-      content:
-        "Isang ordinansa na nag-aatas ng tamang pagtatapon at paghihiwalay ng basura (waste segregation) sa lahat ng kabahayan at establisyemento sa Barangay Dionisio S. Garcia.\n\nSeksyon 1. Nararapat na ihiwalay ang basura sa tatlong kategorya: nabubulok (biodegradable), hindi nabubulok (non-biodegradable), at mapanganib (hazardous).\n\nSeksyon 2. Ang bawat kabahayan ay kinakailangang gumamit ng hiwalay na lalagyan para sa bawat uri ng basura.",
-      articles: "Seksyon 1: Kategorisasyon ng Basura\nNararapat na ihiwalay ang basura sa tatlong kategorya: nabubulok (biodegradable), hindi nabubulok (non-biodegradable), at mapanganib (hazardous).\n\nSeksyon 2: Lalagyan ng Basura\nAng bawat kabahayan ay kinakailangang gumamit ng hiwalay na lalagyan para sa bawat uri ng basura.\n\nSeksyon 3: Mga Parusa\nUNANG PAGLABAG:\nBabala\n\nPANGALAWANG PAGLABAG:\nMulta na ₱300.00\n\nPANGATLONG PAGLABAG:\nMulta na ₱1,000.00",
-      penalties: null,
-      enforcement: "Barangay Waste Management Committee, Bantay Bayan",
-      signatories:
-        "Kap. Juan Garcia — Punong Barangay\nSec. Maria Santos — Kalihim ng Sangguniang Barangay",
-      barangayId: dsGarcia.id,
-      submittedById: captain.id,
-      reviewedById: lguAdmin.id,
-      approvedAt: new Date("2024-05-20"),
-    },
-  });
+      await prisma.ordinance.create({
+        data: {
+          slug: `brgy-${brgy.prefix}-${resNum}`,
+          title: ord.title,
+          resolutionNumber: resNum,
+          ordinanceLabel: `ORDINANSA BLG. ${Math.floor(Math.random() * 50) + 1} S. ${year}`,
+          series: `S. ${year}`,
+          type: OrdinanceType.BARANGAY,
+          status: stat,
+          category: ord.cat,
+          year: year,
+          dateEnacted: stat === OrdinanceStatus.APPROVED ? new Date(`${year}-08-10`) : null,
+          description: `Ito ay isang halimbawang paglalarawan para sa ${ord.title}.`,
+          content: `Seksyon 1. Titulo: ${ord.title}\nSeksyon 2. Mga Patakaran...`,
+          barangayId: brgy.id,
+          submittedById: brgy.admin.id,
+          reviewedById: [OrdinanceStatus.APPROVED, OrdinanceStatus.REJECTED].includes(stat) ? lguAdmin.id : null,
+          approvedAt: stat === OrdinanceStatus.APPROVED ? new Date(`${year}-08-10`) : null,
+        }
+      });
+    }
+  }
 
-  await prisma.ordinance.upsert({
-    where: { id: "seed-ord-003" },
-    update: {
-      ordinanceLabel: "ORDINANCE NO. 012 S. 2024",
-      title: "Establishing Curfew Hours for Minors",
-      resolutionNumber: "450-2024",
-      category: "Youth & Education",
-      year: 2024,
-      dateEnacted: new Date("2024-06-01"),
-      coverage: "Lungsod ng Cabanatuan",
-      tags: ["curfew", "minors", "kabataan", "17 and below", "security", "peace"],
-      description: "An ordinance establishing curfew hours for minors aged 17 and below within the territorial jurisdiction of Cabanatuan City from 10:00 PM to 4:00 AM.",
-      articles: "Section 1: Coverage\nAll minors aged 17 years old and below.\n\nSection 2: Curfew Hours\n10:00 PM to 4:00 AM daily.\n\nSection 3: Exceptions\nMinors accompanied by parents/guardians, those engaged in legitimate work, and emergencies.\n\nSection 4: Penalties\nFIRST OFFENSE:\nWarning and counseling of minor and parent/guardian\n\nSECOND OFFENSE:\nCommunity service of 4 hours\n\nTHIRD OFFENSE:\nFine of ₱1,000 for parent/guardian",
-      penalties: null,
-      enforcement: "PNP Cabanatuan, Barangay Bantay Bayan, CSWDO",
-    },
-    create: {
-      id: "seed-ord-003",
-      slug: "450-2024",
-      ordinanceLabel: "ORDINANCE NO. 012 S. 2024",
-      title: "Establishing Curfew Hours for Minors",
-      resolutionNumber: "450-2024",
-      series: "S. 2024",
-      type: OrdinanceType.CITY,
-      status: OrdinanceStatus.APPROVED,
-      category: "Youth & Education",
-      year: 2024,
-      dateEnacted: new Date("2024-06-01"),
-      coverage: "Lungsod ng Cabanatuan",
-      tags: ["curfew", "minors", "kabataan", "17 and below", "security", "peace"],
-      description: "An ordinance establishing curfew hours for minors aged 17 and below within the territorial jurisdiction of Cabanatuan City from 10:00 PM to 4:00 AM.",
-      content:
-        "An ordinance establishing curfew hours for minors aged 17 and below within the territorial jurisdiction of Cabanatuan City from 10:00 PM to 4:00 AM.\n\nSection 1. Coverage — All minors aged 17 years old and below.\n\nSection 2. Curfew Hours — 10:00 PM to 4:00 AM daily.\n\nSection 3. Exceptions — Minors accompanied by parents/guardians, those engaged in legitimate work, and emergencies.",
-      articles: "Section 1: Coverage\nAll minors aged 17 years old and below.\n\nSection 2: Curfew Hours\n10:00 PM to 4:00 AM daily.\n\nSection 3: Exceptions\nMinors accompanied by parents/guardians, those engaged in legitimate work, and emergencies.\n\nSection 4: Penalties\nFIRST OFFENSE:\nWarning and counseling of minor and parent/guardian\n\nSECOND OFFENSE:\nCommunity service of 4 hours\n\nTHIRD OFFENSE:\nFine of ₱1,000 for parent/guardian",
-      penalties: null,
-      enforcement: "PNP Cabanatuan, Barangay Bantay Bayan, CSWDO",
-      signatories: "Hon. Mayor — City Mayor\nSangguniang Panlungsod Members",
-      submittedById: lguAdmin.id,
-      reviewedById: lguAdmin.id,
-      approvedAt: new Date("2024-06-01"),
-    },
-  });
+  // 4. Realistic Resident Reports
+  const reportScenarios = [
+    { type: ReportType.TRASH_BURNING, desc: "May nagsusunog ng plastik at gulong sa bakanteng lote tuwing hapon. Sobrang asim ng usok at hindi makahinga ang mga bata." },
+    { type: ReportType.TRASH_BURNING, desc: "Nagsusunog ng tuyong dahon araw-araw ang aming kapitbahay. Papunta lahat ng usok sa bintana namin." },
+    { type: ReportType.NOISE, desc: "Ang lakas mag-videoke hanggang alas-tres ng madaling araw. Kahit weekdays nagkakantahan sila." },
+    { type: ReportType.NOISE, desc: "Nagpapa-andar ng malakas na tambutso (open pipe) ang isang grupo ng riders tuwing gabi." },
+    { type: ReportType.ROAD_OBSTRUCTION, desc: "May nakaparadang sirang jeep sa gitna mismo ng daan kaya hindi makadaan ang mga tricycle at garbage truck." },
+    { type: ReportType.ROAD_OBSTRUCTION, desc: "Nagtayo ng tent sa kalsada ang isang pamilya at hindi pa nililigpit kahit tapos na ang okasyon." },
+    { type: ReportType.OTHER, desc: "May umaaligid na kahina-hinalang indibidwal sa aming kalye tuwing madaling araw na tila sumisilip sa mga gate." },
+    { type: ReportType.OTHER, desc: "Ang daming asong pagala-gala na nanghahabol ng mga naglalakad na estudyante." }
+  ];
 
-  await prisma.ordinance.upsert({
-    where: { id: "seed-ord-004" },
-    update: {
-      ordinanceLabel: "ORDINANSA BLG. 02 S. 2024",
-      title: "Pagbabawal ng Maiingay na Muffler at Modified na Tambutso ng mga Sasakyan Lalo na ang mga Motorsiklo",
-      resolutionNumber: "681-2024",
-      series: "S. 2024",
-      category: "Peace & Order",
-      year: 2024,
-      dateEnacted: new Date("2024-08-26"),
-      coverage: "Barangay Camp Tinio",
-      tags: ["muffler", "maingay", "tambutso", "motorsiklo", "open pipe", "modified", "noise pollution", "80 decibels"],
-      description: "Ordinansang nagbabawal ng maiingay na muffler o modified na tambutso ng mga sasakyan na naglilikha ng tunog higit sa 80 decibels, lalo na sa mga motorsiklo sa Barangay Camp Tinio.",
-      articles: "SEKSYON 1: PANGKALAHATANG TUNTUNIN\nAng lahat ng uri ng sasakyan na bumibiyahe sa loob ng nasasakupan ng barangay ay ipinagbabawal na gumamit ng muffler na nagdudulot ng labis na ingay. Higit lalo na sa mga pangunahing mga lugar;\n- Paaralan\n- Pribadong Establisyemento\n- Barangay Hall\n- Simbahan\n- Pagamutan\n\nSEKSYON 2: DEPINISYON NG MAINGAY NA MUFFLER\nAng 'maingay na muffler' ay tinutukoy bilang anumang bahagi ng Sistema ng tambutso ng sasakyan na nagiging sanhi ng tunog na higit sa 80 decibels.\n- Chicken Pipe\n- Mga tambutso na iminodified\n- Improvised muffler\n\nSEKSYON 3: KALAKIP NA PARUSA\n1. Ang sinumang lalabag sa ordinansang ito ay maaaring ;\n- Ipaalis sa kaniya ang nasabing muffler ora mismo - Unang Paglabag\n- Pagmumultahin ng halagang P 500 piso - Pangalawang Paglabag\n- Kukumpiskahin ng Tanggapan ang nasabing Muffler - Pangatlong Paglabag\n2. Ang mga paulit-ulit na paglabag ay maaring magresulta sa mas mataas na multa o di kaya naman ay maaaring ireport sa tanggapan ng Land Transportation Office (LTO) kasama ang Blotter sa barangay upang mabigyan ng mas mataas na parusa ang mga violators nito.\n3. Sa mga pagawaan at tindahan ng mga piyesa, lalo na ang mga nagsasagawa ng pag-iimprovised, maaari ring mapadalhan ng palibot-liham o di kaya naman a warning dahil sa kasama rin sila sa nilalaman ng ipinasang ordinansa.\n\nSEKSYON 4: MGA TUNGKULIN NG ALAGAD NG BARANGAY\nAng mga alagad ng barangay ay may karapatang humingi ng kopya ng papel may-ari ng motor (OR & CR) na pagkikilanlan ng nasabing sasakyan para nasabing blotter.\n\nAng mga alagad ng barangay (Bantay Bayan) at mga awtoridad (Kapulisan) may tungkulin na magsagawa ng mga inspeksyon at magpatupad ng ordinansang ito.\n\nMaaaring maglagay ng Check Point ang mga alagad ng barangay (Bantay Bayan) sa loob ng nasasakupan ng Barangay.\n\nMaaari parahin o patigilin ng mga alagad ng barangay (Bantay Bayan) ang sinomang aktong lumalabag sa nasabing Ordinansa.\n\nTungkulin ng mga alagad ng Barangay (Bantay Bayan) ang mag bigay ng sipi o kopya ng Ordinansa sa mga establisyemento at mga tindahan ng mga piyesa ng motor lalo na sa mga pwesto ng pagawaan ng mga naturang motor.\n\nSEKSYON 5: PAGPAPATUPAD\nAng ordinansang ito ay magkakaroon ng bisa isang linggo matapos ang opisyal na pag-anunsyo.\n\nSEKSYON 6: PANG WAKAS NA TUNTUNIN\nAng mga nakaraang ordinansa na salungat sa ordinansang ito ay masususpinde.\n\nInaprubahan ng Sangguniang Barangay ng Camp Tinio noong AGOSTO 26, 2024 kasabay ng regular na pagpupulong na ginanap sa bulwagan ng pamahalaang barangay ng Camp Tinio, Lungsod ng Kabanatuan, Lalawigan ng Nuweba Eciha.",
-      enforcement: "Alagad ng Barangay (Bantay Bayan), PNP (Kapulisan), LTO",
-    },
-    create: {
-      id: "seed-ord-004",
-      slug: "681-2024",
-      ordinanceLabel: "ORDINANSA BLG. 02 S. 2024",
-      title: "Pagbabawal ng Maiingay na Muffler at Modified na Tambutso ng mga Sasakyan Lalo na ang mga Motorsiklo",
-      resolutionNumber: "681-2024",
-      series: "S. 2024",
-      type: OrdinanceType.BARANGAY,
-      status: OrdinanceStatus.APPROVED,
-      category: "Peace & Order",
-      year: 2024,
-      dateEnacted: new Date("2024-08-26"),
-      coverage: "Barangay Camp Tinio",
-      tags: ["muffler", "maingay", "tambutso", "motorsiklo", "open pipe", "modified", "noise pollution", "80 decibels"],
-      description: "Ordinansang nagbabawal ng maiingay na muffler o modified na tambutso ng mga sasakyan na naglilikha ng tunog higit sa 80 decibels, lalo na sa mga motorsiklo sa Barangay Camp Tinio.",
-      content:
-        "Isang ordinansa tungkol sa pagbabawal ng maiingay na muffler o pagmodified ng mga tambutso ng mga sasakyan na naglilikha ng malakas at maingay na tunog higit sa 80 decibels, lalo na ang mga motorsiklo (single na motor at tricycle), sa loob ng nasasakupan ng Barangay Camp Tinio.\n\nSEKSYON 1: PANGKALAHATANG TUNTUNIN\nAng lahat ng uri ng sasakyan na bumibiyahe sa loob ng nasasakupan ng barangay ay ipinagbabawal na gumamit ng muffler na nagdudulot ng labis na ingay. Higit lalo na sa mga pangunahing mga lugar;\n- Paaralan\n- Pribadong Establisyemento\n- Barangay Hall\n- Simbahan\n- Pagamutan\n\nSEKSYON 2: DEPINISYON NG MAINGAY NA MUFFLER\nAng 'maingay na muffler' ay tinutukoy bilang anumang bahagi ng Sistema ng tambutso ng sasakyan na nagiging sanhi ng tunog na higit sa 80 decibels.\n- Chicken Pipe\n- Mga tambutso na iminodified\n- Improvised muffler\n\nSEKSYON 4: MGA TUNGKULIN NG ALAGAD NG BARANGAY\nAng mga alagad ng barangay ay may karapatang humingi ng kopya ng papel may-ari ng motor (OR & CR) na pagkikilanlan ng nasabing sasakyan para nasabing blotter.\n\nAng mga alagad ng barangay (Bantay Bayan) at mga awtoridad (Kapulisan) may tungkulin na magsagawa ng mga inspeksyon at magpatupad ng ordinansang ito.\n\nMaaaring maglagay ng Check Point ang mga alagad ng barangay (Bantay Bayan) sa loob ng nasasakupan ng Barangay.\n\nMaaari parahin o patigilin ng mga alagad ng barangay (Bantay Bayan) ang sinomang aktong lumalabag sa nasabing Ordinansa.\n\nTungkulin ng mga alagad ng Barangay (Bantay Bayan) ang mag bigay ng sipi o kopya ng Ordinansa sa mga establisyemento at mga tindahan ng mga piyesa ng motor lalo na sa mga pwesto ng pagawaan ng mga naturang motor.\n\nSEKSYON 5: PAGPAPATUPAD\nAng ordinansang ito ay magkakaroon ng bisa isang linggo matapos ang opisyal na pag-anunsyo.\n\nSEKSYON 6: PANG WAKAS NA TUNTUNIN\nAng mga nakaraang ordinansa na salungat sa ordinansang ito ay masususpinde.\n\nInaprubahan ng Sangguniang Barangay ng Camp Tinio noong AGOSTO 26, 2024 kasabay ng regular na pagpupulong na ginanap sa bulwagan ng pamahalaang barangay ng Camp Tinio, Lungsod ng Kabanatuan, Lalawigan ng Nuweba Eciha.",
-      articles: "SEKSYON 1: PANGKALAHATANG TUNTUNIN\nAng lahat ng uri ng sasakyan na bumibiyahe sa loob ng nasasakupan ng barangay ay ipinagbabawal na gumamit ng muffler na nagdudulot ng labis na ingay. Higit lalo na sa mga pangunahing mga lugar;\n- Paaralan\n- Pribadong Establisyemento\n- Barangay Hall\n- Simbahan\n- Pagamutan\n\nSEKSYON 2: DEPINISYON NG MAINGAY NA MUFFLER\nAng 'maingay na muffler' ay tinutukoy bilang anumang bahagi ng Sistema ng tambutso ng sasakyan na nagiging sanhi ng tunog na higit sa 80 decibels.\n- Chicken Pipe\n- Mga tambutso na iminodified\n- Improvised muffler\n\nSEKSYON 3: KALAKIP NA PARUSA\n1. Ang sinumang lalabag sa ordinansang ito ay maaaring ;\n- Ipaalis sa kaniya ang nasabing muffler ora mismo - Unang Paglabag\n- Pagmumultahin ng halagang P 500 piso - Pangalawang Paglabag\n- Kukumpiskahin ng Tanggapan ang nasabing Muffler - Pangatlong Paglabag\n2. Ang mga paulit-ulit na paglabag ay maaring magresulta sa mas mataas na multa o di kaya naman ay maaaring ireport sa tanggapan ng Land Transportation Office (LTO) kasama ang Blotter sa barangay upang mabigyan ng mas mataas na parusa ang mga violators nito.\n3. Sa mga pagawaan at tindahan ng mga piyesa, lalo na ang mga nagsasagawa ng pag-iimprovised, maaari ring mapadalhan ng palibot-liham o di kaya naman a warning dahil sa kasama rin sila sa nilalaman ng ipinasang ordinansa.\n\nSEKSYON 4: MGA TUNGKULIN NG ALAGAD NG BARANGAY\nAng mga alagad ng barangay ay may karapatang humingi ng kopya ng papel may-ari ng motor (OR & CR) na pagkikilanlan ng nasabing sasakyan para nasabing blotter.\n\nAng mga alagad ng barangay (Bantay Bayan) at mga awtoridad (Kapulisan) may tungkulin na magsagawa ng mga inspeksyon at magpatupad ng ordinansang ito.\n\nMaaaring maglagay ng Check Point ang mga alagad ng barangay (Bantay Bayan) sa loob ng nasasakupan ng Barangay.\n\nMaaari parahin o patigilin ng mga alagad ng barangay (Bantay Bayan) ang sinomang aktong lumalabag sa nasabing Ordinansa.\n\nTungkulin ng mga alagad ng Barangay (Bantay Bayan) ang mag bigay ng sipi o kopya ng Ordinansa sa mga establisyemento at mga tindahan ng mga piyesa ng motor lalo na sa mga pwesto ng pagawaan ng mga naturang motor.\n\nSEKSYON 5: PAGPAPATUPAD\nAng ordinansang ito ay magkakaroon ng bisa isang linggo matapos ang opisyal na pag-anunsyo.\n\nSEKSYON 6: PANG WAKAS NA TUNTUNIN\nAng mga nakaraang ordinansa na salungat sa ordinansang ito ay masususpinde.\n\nInaprubahan ng Sangguniang Barangay ng Camp Tinio noong AGOSTO 26, 2024 kasabay ng regular na pagpupulong na ginanap sa bulwagan ng pamahalaang barangay ng Camp Tinio, Lungsod ng Kabanatuan, Lalawigan ng Nuweba Eciha.",
-      enforcement: "Alagad ng Barangay (Bantay Bayan), PNP (Kapulisan), LTO",
-      signatories:
-        "Punong Barangay Anita S. Pascual, Kagawad Estrella P. Lucido, Kagawad Eduardo P. Langag, Kagawad Rodolfo SP. Baldava, Kagawad Jerome Y. Cajucom, Kagawad Jenny C. Javier, Kagawad Isidro A. Gayla, Kagawad Marcelo R. Pacun, SK Chairman Mark Lester O. Yee",
-      pdfUrl: "data:application/pdf;base64,JVBERi0xLjEKJcKlwrHDqwoKMSAwIG9iagogIDw8IC9UeXBlIC9DYXRhbG9nCiAgICAgL1BhZ2VzIDIgMCBSCiAgPj4KZW5kb2JqCgoyIDAgb2JqCiAgPDwgL1R5cGUgL1BhZ2VzCiAgICAgL0tpZHMgWzMgMCBSXQogICAgIC9Db3VudCAxCiAgICAgL01lZGlhQm94IFswIDAgMzAwIDE0NF0KICA+PgplbmRvYmoKCjMgMCBvYmoKICA8PCAgL1R5cGUgL1BhZ2UKICAgICAgL1BhcmVudCAyIDAgUgogICAgICAvUmVzb3VyY2VzCiAgICAgICA8PCAvRm9udAogICAgICAgICAgIDw8IC9GMQogICAgICAgICAgICAgICA8PCAvVHlwZSAvRm9udAogICAgICAgICAgICAgICAgICAvU3VidHlwZSAvVHlwZTEKICAgICAgICAgICAgICAgICAgL0Jhc2VGb250IC9UaW1lcy1Sb21hbgogICAgICAgICAgICAgICA+PgogICAgICAgICAgID4+CiAgICAgICA+PgogICAgICAvQ29udGVudHMgNCAwIFIKICA+PgplbmRvYmoKCjQgMCBvYmoKICA8PCAvTGVuZ3RoIDU1ID4+CnN0cmVhbQogIEJUCiAgICAvRjEgMTggVGYKICAgIDAgMCAwIHJnCiAgICA1MCA1MCBUZAogICAgKEhlbGxvIFdvcmxkKSBUagogIEVUCmVuZHN0cmVhbQplbmRvYmoKCnhyZWYKMCA1CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAxOCAwMDAwMCBuIAowMDAwMDAwMDc3IDAwMDAwIG4gCjAwMDAwMDAxNzggMDAwMDAgbiAKMDAwMDAwMDQ1NyAwMDAwMCBuIAp0cmFpbGVyCiAgPDwgIC9Sb290IDEgMCBSCiAgICAgIC9TaXplIDUKICA+PgpzdGFydHhyZWYKNTY1CiUlRU9GCg==",
-      barangayId: campTinio.id,
-      submittedById: captainCampTinio.id,
-      reviewedById: lguAdmin.id,
-      approvedAt: new Date("2024-12-04"),
-    },
-  });
+  const reportStatuses = [ReportStatus.NEW, ReportStatus.IN_PROGRESS, ReportStatus.RESOLVED, ReportStatus.DISMISSED];
 
-  // ─── News Items ────────────────────────────────────────────────────────────
-  await prisma.newsItem.upsert({
-    where: { id: "seed-news-001" },
-    update: {},
-    create: {
-      id: "seed-news-001",
-      title: "Bagong Ordinansa Laban sa Pagsusunog ng Basura, Inaprubahan",
-      content:
-        "Ang Barangay Dionisio S. Garcia ay opisyal nang nag-apruba ng Ordinance No. 003, S. 2024, na nagbabawal sa pagsusunog ng basura sa buong nasasakupan ng barangay. Ang mga lumalabag ay papatawan ng multa mula ₱500 hanggang ₱2,500.",
-      category: NewsCategory.BARANGAY,
-      isPinned: true,
-    },
-  });
+  for (const brgy of [campTinio, dsGarcia, kapPepe]) {
+    // 4 to 5 reports per barangay
+    const numReps = Math.floor(Math.random() * 2) + 4; // 4 to 5
+    const shuffled = [...reportScenarios].sort(() => 0.5 - Math.random()).slice(0, numReps);
+    
+    for (const rep of shuffled) {
+      const isAnon = Math.random() > 0.4;
+      await prisma.report.create({
+        data: {
+          type: rep.type,
+          description: rep.desc,
+          status: reportStatuses[Math.floor(Math.random() * reportStatuses.length)],
+          barangayId: brgy.id,
+          isAnonymous: isAnon,
+          contactName: isAnon ? null : "Resident " + Math.floor(Math.random() * 100),
+          contactPhone: isAnon ? null : "0917" + Math.floor(Math.random() * 9000000 + 1000000),
+          submittedAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000), // Random time within last 30 days
+        }
+      });
+    }
+  }
 
-  await prisma.newsItem.upsert({
-    where: { id: "seed-news-002" },
-    update: {},
-    create: {
-      id: "seed-news-002",
-      title: "Cabanatuan City Ordinance Hub Officially Launched",
-      content:
-        "The City Government of Cabanatuan proudly launches the Cabanatuan City Ordinance Information System & AI Citizen Hub — a digital platform making local ordinances transparent, accessible, and queryable in both Tagalog and English.",
+  // Add 1 news item just so the dashboard isn't completely empty for news
+  await prisma.newsItem.create({
+    data: {
+      title: "Barangay Cleanup Drive at Anti-Siga Campaign Inilunsad",
+      content: "Sabay-sabay nating panatilihing malinis at ligtas ang ating kapaligiran. Ipapatupad na nang mas mahigpit ang mga ordinansa kontra basura at pagsusunog.",
       category: NewsCategory.CITY,
-      isPinned: true,
-    },
+      isPinned: true
+    }
   });
 
   console.log("✅ Seed completed successfully!");
-  console.log(`   • ${barangays.length} barangays`);
-  console.log("   • 8 users (admin, captains, secretary, kagawad, and aliases)");
-  console.log("   • 4 ordinances");
-  console.log("   • 2 news items");
 }
 
 main()
