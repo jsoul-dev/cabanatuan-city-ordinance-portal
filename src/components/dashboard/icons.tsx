@@ -610,6 +610,30 @@ export function BarChart3Icon({ size = 18, className = "", ...props }: IconProps
   );
 }
 
+export function OrdinanceReportsIcon({ size = 18, className = "", ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+      <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+      <path d="M8 13h8" />
+      <path d="M8 17h8" />
+      <path d="M8 9h2" />
+    </svg>
+  );
+}
+
 export const IconMap: Record<string, React.FC<IconProps>> = {
   overview: LayoutDashboardIcon,
   ordinances: FileTextIcon,
@@ -618,6 +642,7 @@ export const IconMap: Record<string, React.FC<IconProps>> = {
   analytics: BarChart3Icon,
   news: NewspaperIcon,
   reports: AlertTriangleIcon,
+  ordinanceReports: OrdinanceReportsIcon,
   search: SearchIcon,
   sun: SunIcon,
   moon: MoonIcon,

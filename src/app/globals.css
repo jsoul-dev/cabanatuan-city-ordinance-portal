@@ -296,3 +296,67 @@ body {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-floating);
 }
+
+/* ─── Print Styles (Ordinance Reports) ────────────────────────────────────── */
+
+@media print {
+  /* Hide everything except the report */
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide sidebar, header, and non-print elements */
+  aside,
+  header,
+  nav,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Make the main content area full-width */
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    max-width: none !important;
+  }
+
+  /* Remove the flex layout constraints */
+  main > *:not(.report-document) {
+    display: none !important;
+  }
+
+  .report-document {
+    box-shadow: none !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+
+  /* Prevent page breaks inside groups and tables */
+  .report-group {
+    break-inside: avoid;
+  }
+
+  table {
+    break-inside: auto;
+  }
+
+  tr {
+    break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+}
+
