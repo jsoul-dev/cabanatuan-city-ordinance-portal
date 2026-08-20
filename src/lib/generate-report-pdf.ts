@@ -35,29 +35,6 @@ const GRAY_900 = { r: 17, g: 24, b: 39 } as const;
 
 const GROUP_COLORS = [GREEN, BLUE, AMBER];
 
-// ─── Logo Loader ────────────────────────────────────────────────────────────
-
-let cachedLogo: string | null = null;
-
-async function loadLogo(): Promise<string | null> {
-  if (cachedLogo) return cachedLogo;
-  try {
-    const res = await fetch("/lgu-logo.png");
-    const blob = await res.blob();
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        cachedLogo = reader.result as string;
-        resolve(cachedLogo);
-      };
-      reader.onerror = () => resolve(null);
-      reader.readAsDataURL(blob);
-    });
-  } catch {
-    return null;
-  }
-}
-
 // ─── Main Generator ─────────────────────────────────────────────────────────
 
 export async function generateReportPdf(data: PdfReportData): Promise<void> {
@@ -78,8 +55,6 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
     minute: "2-digit",
     hour12: true,
   });
-
-  const logo = await loadLogo();
 
   // ── Helper: add footer to every page ──
   const addFooters = () => {
@@ -140,24 +115,6 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
 
   y += metaLines.length * 3.5 + 4;
 
-  // Logos and centered text
-  const logoSize = 14;
-  if (logo) {
-    try {
-      doc.addImage(logo, "PNG", margin.left, y - 2, logoSize, logoSize);
-      doc.addImage(
-        logo,
-        "PNG",
-        pageWidth - margin.right - logoSize,
-        y - 2,
-        logoSize,
-        logoSize,
-      );
-    } catch {
-      // logo loading failed, skip it
-    }
-  }
-
   // Center header text
   const centerX = pageWidth / 2;
   doc.setFontSize(7);
@@ -175,7 +132,7 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
   doc.setTextColor(GRAY_600.r, GRAY_600.g, GRAY_600.b);
   doc.text("Province of Nueva Ecija", centerX, y + 12, { align: "center" });
 
-  y += logoSize + 3;
+  y += 17;
 
   // Header bottom line
   doc.setDrawColor(GREEN.r, GREEN.g, GREEN.b);
@@ -256,6 +213,7 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
       },
       columnStyles: {
         0: { cellWidth: 8, halign: "center" },
+        1: { cellWidth: 26 }, // Ensure Resolution No. has enough space
       },
     });
 
@@ -285,7 +243,8 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
 
   doc.setDrawColor(GRAY_900.r, GRAY_900.g, GRAY_900.b);
   doc.setLineWidth(0.5);
-  doc.line(margin.left + contentWidth * 0.2, y, pageWidth - margin.right - contentWidth * 0.2, y);
+  // Full width line for grand total
+  doc.line(margin.left, y, pageWidth - margin.right, y);
   y += 5;
   doc.setFontSize(9);
   doc.setFont("helvetica", "bold");
@@ -303,26 +262,17 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
   doc.setFont("helvetica", "normal");
   doc.setTextColor(GRAY_600.r, GRAY_600.g, GRAY_600.b);
   doc.text("Prepared by:", margin.left, y);
-  y += 10;
+  y += 20; // Increased spacing for signature
 
   // Signature line
   doc.setDrawColor(GRAY_900.r, GRAY_900.g, GRAY_900.b);
   doc.setLineWidth(0.3);
-  doc.line(margin.left, y, margin.left + 55, y);
-
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(GRAY_900.r, GRAY_900.g, GRAY_900.b);
-  doc.text(data.generatedBy, margin.left, y + 4);
+  doc.line(margin.left, y, margin.left + 65, y);
 
   doc.setFontSize(7);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(GRAY_600.r, GRAY_600.g, GRAY_600.b);
-  doc.text(data.generatedByRole, margin.left, y + 7.5);
-
   doc.setFont("helvetica", "italic");
   doc.setTextColor(150, 150, 150);
-  doc.text("Signature over printed name", margin.left, y + 11);
+  doc.text("Signature over printed name", margin.left, y + 4);
 
   // ── Add footers to all pages ──
   addFooters();

@@ -138,20 +138,9 @@ export function ReportShell({
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            {/* Left logo */}
-            <div className="w-14 h-14 flex-shrink-0">
-              <Image
-                src="/lgu-logo.png"
-                alt="Cabanatuan City LGU Seal"
-                width={56}
-                height={56}
-                className="rounded-full object-contain"
-              />
-            </div>
-
+          <div className="flex items-center justify-center">
             {/* Center text */}
-            <div className="text-center flex-1 px-4">
+            <div className="text-center px-4">
               <p className="text-[10px] uppercase tracking-[0.2em] text-gray-600 font-sans">
                 Republic of the Philippines
               </p>
@@ -161,18 +150,6 @@ export function ReportShell({
               <p className="text-[10px] text-gray-500 font-sans">
                 Province of Nueva Ecija
               </p>
-            </div>
-
-            {/* Right logo */}
-            <div className="w-14 h-14 flex-shrink-0">
-              <Image
-                src="/lgu-logo.png"
-                alt=""
-                width={56}
-                height={56}
-                className="rounded-full object-contain"
-                aria-hidden="true"
-              />
             </div>
           </div>
         </div>
@@ -192,13 +169,12 @@ export function ReportShell({
 
         {/* ── Prepared By ── */}
         <div className="px-8 pb-6 mt-4">
-          <p className="text-xs text-gray-600 mb-6">Prepared by:</p>
+          <p className="text-xs text-gray-600 mb-10">Prepared by:</p>
           <div className="inline-block">
-            <div className="border-b border-gray-900 pb-0.5 min-w-[200px]">
-              <p className="text-sm font-bold text-gray-900">{generatedBy}</p>
+            <div className="border-b border-gray-900 min-w-[250px]">
+              {/* Blank space for signature and printed name */}
             </div>
-            <p className="text-[10px] text-gray-500 mt-0.5">{generatedByRole}</p>
-            <p className="text-[10px] text-gray-400 italic">
+            <p className="text-[10px] text-gray-400 italic mt-1">
               Signature over printed name
             </p>
           </div>

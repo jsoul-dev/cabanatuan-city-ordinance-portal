@@ -514,7 +514,7 @@ function BarangayReportBody({
   reportType: ReportTypeId;
   ordinances: OrdinanceReportRow[];
 }) {
-  const COL_RES_NO = { key: "resolutionNumber", label: "Resolution No.", width: "100px" };
+  const COL_RES_NO = { key: "resolutionNumber", label: "Resolution No.", width: "130px" };
   const COL_TITLE = { key: "title", label: "Title" };
   const COL_TYPE = { key: "type", label: "Type", width: "80px" };
   const COL_CATEGORY = { key: "category", label: "Category", width: "120px" };
