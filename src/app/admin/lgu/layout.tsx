@@ -23,7 +23,7 @@ export default async function LguLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen w-full bg-[var(--bg-canvas)] overflow-hidden">
+    <div className="flex h-[100dvh] w-full bg-[var(--bg-canvas)] overflow-hidden">
       <DashboardSidebar
         navItems={LGU_NAV}
         portalLabel="LGU Super Admin"
@@ -36,7 +36,7 @@ export default async function LguLayout({ children }: { children: ReactNode }) {
         }}
       />
 
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         <DashboardHeader
           title="LGU Super Admin Portal"
           subtitle="Cabanatuan City Ordinance & Governance Dashboard"
