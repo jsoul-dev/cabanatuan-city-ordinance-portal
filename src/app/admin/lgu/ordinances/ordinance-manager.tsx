@@ -214,7 +214,7 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
       if (warnings.length > 0) {
         toast.warning(`Na-extract ngunit may kulang: ${warnings.join("; ")}`);
       } else {
-        toast.success("⚡ Matagumpay na na-extract ang mga detalye!");
+        toast.success("Matagumpay na na-extract ang mga detalye!");
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Aberya sa AI extraction. Subukan muli.";

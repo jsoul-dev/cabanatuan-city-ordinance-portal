@@ -107,7 +107,7 @@ export function UserManager({ initialUsers, barangays }: Props) {
           <h2 className="text-sm font-bold text-[var(--text-ink)]">Bagong Opisyal</h2>
           {formError && (
             <p role="alert" className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-[var(--radius-sm)] px-3 py-2">
-              ❌ {formError}
+              {formError}
             </p>
           )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

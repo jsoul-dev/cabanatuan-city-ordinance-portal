@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
+import { AlertTriangleIcon, XCircleIcon } from "@/components/dashboard/icons";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -20,18 +21,27 @@ interface ConfirmDialogProps {
 }
 
 const variantMap = {
-  danger:  { btn: "bg-red-600 hover:bg-red-500 text-white font-bold ring-2 ring-red-500 ring-offset-2 ring-offset-[var(--bg-card)] shadow-lg shadow-red-500/30", icon: "⚠️" },
-  warning: { btn: "bg-amber-500 hover:bg-amber-600 text-white font-bold ring-2 ring-amber-400 ring-offset-2 ring-offset-[var(--bg-card)] shadow-lg shadow-amber-500/30", icon: "❗" },
-  default: { btn: "bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/90 text-white font-bold ring-2 ring-[var(--accent-primary)] ring-offset-2 ring-offset-[var(--bg-card)] shadow-lg", icon: "ℹ️" },
+  danger: {
+    btn: "bg-red-600 hover:bg-red-500 text-white font-bold ring-2 ring-red-500 ring-offset-2 ring-offset-[var(--bg-card)] shadow-lg shadow-red-500/30",
+    icon: <XCircleIcon size={24} className="text-red-500 shrink-0 mt-0.5" />,
+  },
+  warning: {
+    btn: "bg-amber-500 hover:bg-amber-600 text-white font-bold ring-2 ring-amber-400 ring-offset-2 ring-offset-[var(--bg-card)] shadow-lg shadow-amber-500/30",
+    icon: <AlertTriangleIcon size={24} className="text-amber-500 shrink-0 mt-0.5" />,
+  },
+  default: {
+    btn: "bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/90 text-white font-bold ring-2 ring-[var(--accent-primary)] ring-offset-2 ring-offset-[var(--bg-card)] shadow-lg",
+    icon: <AlertTriangleIcon size={24} className="text-emerald-500 shrink-0 mt-0.5" />,
+  },
 };
 
 /**
  * A11Y-compliant modal dialog.
- * – role="alertdialog" for destructive confirmations
- * – Full focus trap (Tab/Shift-Tab loop)
- * – Escape key cancels, Enter key confirms
- * – Click outside backdrop cancels
- * – Focus defaults to Confirm button with highlight
+ * - role="alertdialog" for destructive confirmations
+ * - Full focus trap (Tab/Shift-Tab loop)
+ * - Escape key cancels, Enter key confirms
+ * - Click outside backdrop cancels
+ * - Focus defaults to Confirm button with highlight
  */
 export function ConfirmDialog({
   open,
@@ -128,7 +138,7 @@ export function ConfirmDialog({
         className="relative w-full max-w-md rounded-[var(--radius-lg)] bg-[var(--bg-card)] border border-[var(--border-hairline)] shadow-2xl p-6 flex flex-col gap-4 cursor-default animate-in zoom-in-95 duration-150"
       >
         <div className="flex items-start gap-3">
-          <span className="text-2xl flex-shrink-0 mt-0.5" aria-hidden="true">{style.icon}</span>
+          <div className="shrink-0" aria-hidden="true">{style.icon}</div>
           <div>
             <h2
               id="confirm-dialog-title"

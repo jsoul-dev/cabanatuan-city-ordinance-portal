@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import type { Barangay } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { CheckCircle2Icon } from "@/components/dashboard/icons";
 import { clsx } from "clsx";
 import { submitCommunityReport } from "./actions";
 
@@ -123,9 +124,7 @@ export function ReportClientForm({ barangays }: ReportClientFormProps) {
           role="alert"
           className="mb-6 rounded-[var(--radius-md)] border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-300 flex items-start gap-3"
         >
-          <span className="text-lg" aria-hidden="true">
-            ✅
-          </span>
+          <CheckCircle2Icon size={20} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold">Naisumite na ang Ulat!</p>
             <p className="mt-1">{successMessage}</p>

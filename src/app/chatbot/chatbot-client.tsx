@@ -146,7 +146,7 @@ export function ChatbotClient() {
         {
           id: createMessageId(),
           role: "assistant",
-          content: `⚠️ **Error:** ${errorMessage}`,
+          content: `**Error:** ${errorMessage}`,
         },
       ];
       setMessages(updatedMessages);

@@ -37,13 +37,13 @@ async function warmupRoute(route) {
 }
 
 async function main() {
-  console.log(`\n🔥 Warming up Cabanatuan City Ordinance Portal routes at ${BASE_URL}...\n`);
+  console.log(`\n[warmup] Warming up Cabanatuan City Ordinance Portal routes at ${BASE_URL}...\n`);
   
   for (const route of ROUTES) {
     await warmupRoute(route);
   }
 
-  console.log("\n⚡ Warm-up complete! Server caches primed for smooth live presentation.\n");
+  console.log("\n[warmup] Warm-up complete! Server caches primed for smooth live presentation.\n");
 }
 
 main().catch((err) => {

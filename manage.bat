@@ -21,7 +21,7 @@ if "%~1" == "restart" goto restart_dev
 :menu
 cls
 echo ==============================================================
-echo   🏛️  Cabanatuan City Ordinance Portal - Local Manager
+echo   Cabanatuan City Ordinance Portal - Local Manager
 echo ==============================================================
 echo.
 echo   Local Portal  : http://localhost:3000

@@ -162,9 +162,9 @@ export function AiOrdinanceExtractorModal({
 
       const warnings: string[] = json._debug?.validationWarnings || [];
       if (warnings.length > 0) {
-        toast.warning(`⚡ Na-extract ang mga detalye ngunit may ilang natukoy na kulang: ${warnings.join("; ")}`);
+        toast.warning(`Na-extract ang mga detalye ngunit may ilang natukoy na kulang: ${warnings.join("; ")}`);
       } else {
-        toast.success("⚡ Matagumpay na na-extract ng AI ang mga detalye!");
+        toast.success("Matagumpay na na-extract ng AI ang mga detalye!");
       }
 
       onExtract({

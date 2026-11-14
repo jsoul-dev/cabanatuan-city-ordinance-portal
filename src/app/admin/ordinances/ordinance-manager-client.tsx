@@ -137,7 +137,7 @@ export function OrdinanceManagerClient({
                 role="alert"
                 className="mb-4 text-sm font-medium text-red-600 dark:text-red-400"
               >
-                ⚠️ {errorMessage}
+                {errorMessage}
               </p>
             )}
 
