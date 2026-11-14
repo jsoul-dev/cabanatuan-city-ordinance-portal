@@ -1,4 +1,4 @@
-// Cabanatuan City Ordinance Hub — Prisma Schema
+// Cabanatuan City Ordinance Portal: Prisma Schema
 // Local SQLite configuration
 // Prisma 7: Connection URLs configured in prisma.config.ts
 
@@ -10,7 +10,7 @@ datasource db {
   provider = "sqlite"
 }
 
-// ─── Enums ──────────────────────────────────────────────────────────────────
+// Enums
 
 enum UserRole {
   CITIZEN
@@ -49,7 +49,7 @@ enum NewsCategory {
   BARANGAY
 }
 
-// ─── Models ─────────────────────────────────────────────────────────────────
+// Models
 
 model User {
   id           String   @id @default(cuid())

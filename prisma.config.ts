@@ -5,8 +5,8 @@ import { defineConfig } from "prisma/config";
 dotenv.config({ path: path.join(__dirname, ".env") });
 
 /**
- * Prisma 7 configuration file — connection URLs and migration settings.
- * Configured for 100% local zero-config SQLite development & demo.
+ * Prisma 7 configuration file: connection URLs and migration settings.
+ * Configured for 100% local zero-config SQLite development and demo.
  */
 export default defineConfig({
   schema: path.join(__dirname, "prisma", "schema.prisma"),

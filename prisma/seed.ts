@@ -4,16 +4,16 @@ import { hash } from "bcryptjs";
 import { prisma } from "../src/lib/prisma";
 
 async function main() {
-  console.log("⚠️  Wiping existing data for idempotent seed...");
+  console.log("[db:seed] Wiping existing data for idempotent seed...");
   await prisma.chatSession.deleteMany();
   await prisma.newsItem.deleteMany();
   await prisma.report.deleteMany();
   await prisma.ordinance.deleteMany();
   await prisma.user.deleteMany();
   await prisma.barangay.deleteMany();
-  console.log("🧹 Database wiped!");
+  console.log("[db:seed] Database wiped successfully.");
 
-  console.log("🌱 Seeding Cabanatuan City Ordinance Hub with comprehensive local data...");
+  console.log("[db:seed] Seeding Cabanatuan City Ordinance Portal with comprehensive local data...");
 
   // 1. Barangays (Participating + Non-Participating)
   const participatingNames = [
@@ -569,12 +569,12 @@ async function main() {
     },
   });
 
-  console.log("✅ Seed completed successfully! All README and administrative accounts ready.");
+  console.log("[db:seed] Seed completed successfully. All administrative and test accounts ready.");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Seed failed:", e);
+    console.error("[db:seed] Seed failed:", e);
     process.exit(1);
   })
   .finally(async () => {
