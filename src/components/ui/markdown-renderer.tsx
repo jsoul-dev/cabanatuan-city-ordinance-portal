@@ -7,15 +7,7 @@ interface MarkdownRendererProps {
   className?: string;
 }
 
-/**
- * Custom lightweight Markdown renderer safe for React 19 / Next.js 16.
- * Supports headings (#, ##, ###), bold (**text**), italic (*text*),
- * bullet lists (*, -, •), numbered lists (1., 2.), inline code (`code`),
- * and paragraphs.
- */
-export function MarkdownRenderer({ content, className = "" }: MarkdownRendererProps) {
-  if (!content) return null;
-
+function renderMarkdownContent(content: string): React.ReactNode[] {
   const lines = content.split(/\r?\n/);
   const elements: React.ReactNode[] = [];
   let listBuffer: { type: "ul" | "ol"; items: string[] } | null = null;
@@ -148,6 +140,18 @@ export function MarkdownRenderer({ content, className = "" }: MarkdownRendererPr
   const finalFlushed = flushList("line-final");
   if (finalFlushed) elements.push(finalFlushed);
 
+  return elements;
+}
+
+/**
+ * Custom lightweight Markdown renderer safe for React 19 / Next.js 16.
+ * Supports headings (#, ##, ###), bold (**text**), italic (*text*),
+ * bullet lists (*, -, •), numbered lists (1., 2.), inline code (`code`),
+ * and paragraphs.
+ */
+export function MarkdownRenderer({ content, className = "" }: MarkdownRendererProps) {
+  if (!content) return null;
+  const elements = renderMarkdownContent(content);
   return <div className={`space-y-1 ${className}`}>{elements}</div>;
 }
 
@@ -155,8 +159,6 @@ export function MarkdownRenderer({ content, className = "" }: MarkdownRendererPr
  * Parses bold (** or __), italic (* or _), and inline code (`code`) tokens.
  */
 function parseInlineMarkdown(text: string): React.ReactNode[] {
-  // Regex pattern matching inline code, bold, italic
-  // Order matters: code first, then bold, then italic
   const parts: React.ReactNode[] = [];
   const regex = /(`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|(?<!\*)\*[^*]+\*(?!\*)|(?<!_)_[^_]+_(?!_))/g;
 

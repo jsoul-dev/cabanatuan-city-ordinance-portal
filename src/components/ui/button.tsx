@@ -3,7 +3,7 @@ import { clsx } from "clsx";
 import { forwardRef, type ButtonHTMLAttributes } from "react";
 
 /**
- * Button component — Geist bimodal system (pills for marketing, squares for app).
+ * Button component: Geist bimodal system (pills for marketing, squares for app).
  * Cabanatuan LGU brand colors: emerald green primary, gold secondary.
  *
  * A11Y: Uses native <button>, minimum 44×44px touch target (House Rule).

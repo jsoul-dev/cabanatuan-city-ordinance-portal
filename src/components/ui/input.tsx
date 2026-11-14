@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from "react";
 
 /**
- * Input component — Geist text-input spec with explicit label association.
+ * Input component: Geist text-input spec with explicit label association.
  *
  * A11Y §3 Understandable: Forms MUST have explicit labels connected via id/for.
  * A11Y §6: MUST NOT use placeholder as sole label.

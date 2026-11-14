@@ -70,13 +70,6 @@ const REPORT_STATUS_LABELS: Record<string, string> = {
   DISMISSED: "Hindi Tanggap",
 };
 
-const REPORT_TYPE_LABELS: Record<string, string> = {
-  TRASH_BURNING: "Pagsusunog ng Basura",
-  NOISE: "Ingay (Noise Complaint)",
-  ROAD_OBSTRUCTION: "Harang sa Daan",
-  OTHER: "Iba pa",
-};
-
 const PIE_COLORS = ["#10B981", "#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4"];
 
 export function LguAnalyticsView({

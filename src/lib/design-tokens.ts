@@ -1,9 +1,9 @@
 /**
- * Design tokens — typed constants for use in JS/TS when CSS variables aren't sufficient.
+ * Design tokens: typed constants for use in JS/TS when CSS variables aren't sufficient.
  * These mirror the CSS custom properties defined in globals.css.
  */
 
-// ─── Cabanatuan LGU Brand Palette ────────────────────────────────────────────
+// Cabanatuan LGU Brand Palette
 
 export const lgu = {
   green: {
@@ -19,7 +19,7 @@ export const lgu = {
   black: "#050706",
 } as const;
 
-// ─── Spacing Scale (4px base) ────────────────────────────────────────────────
+// Spacing Scale (4px base)
 
 export const spacing = {
   xxs: 4,
@@ -34,7 +34,7 @@ export const spacing = {
   section: 128,
 } as const;
 
-// ─── Border Radius ───────────────────────────────────────────────────────────
+// Border Radius
 
 export const rounded = {
   none: "0px",
@@ -46,7 +46,7 @@ export const rounded = {
   full: "9999px",
 } as const;
 
-// ─── Breakpoints ─────────────────────────────────────────────────────────────
+// Breakpoints
 
 export const breakpoints = {
   mobile: 640,
@@ -55,7 +55,7 @@ export const breakpoints = {
   desktop: 1200,
 } as const;
 
-// ─── Elevation Shadows (Geist system) ────────────────────────────────────────
+// Elevation Shadows (Geist system)
 
 export const shadows = {
   whisper: "0px 1px 1px rgba(0, 0, 0, 0.04)",

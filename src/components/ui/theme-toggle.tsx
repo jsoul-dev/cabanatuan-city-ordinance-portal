@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { SunIcon, MoonIcon } from "@/components/dashboard/icons";
 
@@ -9,13 +9,15 @@ interface ThemeToggleProps {
   size?: number;
 }
 
+const emptySubscribe = () => () => {};
+
 export function ThemeToggle({ className = "", size = 18 }: ThemeToggleProps) {
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   const currentTheme = resolvedTheme || theme;
   const isDark = currentTheme === "dark";

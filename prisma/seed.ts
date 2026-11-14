@@ -36,7 +36,7 @@ async function main() {
     "Zulueta",
   ];
 
-  const barangayMap = new Map<string, any>();
+  const barangayMap = new Map<string, { id: string; name: string }>();
 
   for (const name of [...participatingNames, ...nonParticipatingNames]) {
     const created = await prisma.barangay.create({
@@ -50,11 +50,11 @@ async function main() {
     barangayMap.set(name, created);
   }
 
-  const campTinio = barangayMap.get("Camp Tinio");
-  const dsGarcia = barangayMap.get("Dionisio S. Garcia");
-  const kapPepe = barangayMap.get("Kapitan Pepe");
-  const magsaysay = barangayMap.get("Magsaysay Norte");
-  const sanJosef = barangayMap.get("San Josef Sur");
+  const campTinio = barangayMap.get("Camp Tinio")!;
+  const dsGarcia = barangayMap.get("Dionisio S. Garcia")!;
+  const kapPepe = barangayMap.get("Kapitan Pepe")!;
+  const magsaysay = barangayMap.get("Magsaysay Norte")!;
+  const sanJosef = barangayMap.get("San Josef Sur")!;
 
   // 2. Users (Mandatory README accounts + existing test accounts)
   const [adminHash, kapitanHash, citizenHash, defaultHash] = await Promise.all([
@@ -95,7 +95,7 @@ async function main() {
   });
 
   // Additional realistic administrative accounts
-  const legacyAdmin = await prisma.user.create({
+  await prisma.user.create({
     data: {
       email: "lgu.admin.cabanatuan@gmail.com",
       passwordHash: defaultHash,
@@ -104,7 +104,7 @@ async function main() {
     },
   });
 
-  const capTinio = await prisma.user.create({
+  await prisma.user.create({
     data: {
       email: "captain.camptinio@gmail.com",
       passwordHash: defaultHash,

@@ -124,7 +124,7 @@ const ORDINANCE_SCHEMA: Schema = {
 
 const RECONSTRUCTION_PROMPT = `Please faithfully reconstruct this document as normalized Markdown.
 Preserve ALL visible content: headings, ordinance numbers, titles, sections, subsections, numbered lists, paragraphs, tables, names, dates, signatures, penalties, references.
-Do NOT summarize — reproduce the document structure faithfully.
+Do NOT summarize; reproduce the document structure faithfully.
 Use [UNREADABLE] for genuinely unreadable text.
 Use Markdown headers (##, ###) for section breaks.
 Preserve page boundaries with --- horizontal rules.
@@ -168,8 +168,10 @@ export async function POST(request: Request) {
     const pipelineMode = uploadedFiles.length > 0 ? 'two-stage' : 'text-only';
     let markdown = "";
 
+    type ContentItem = string | { inlineData: { data: string; mimeType: string } };
+
     if (uploadedFiles.length > 0) {
-      const reconContents: any[] = uploadedFiles.map(f => ({
+      const reconContents: ContentItem[] = uploadedFiles.map(f => ({
         inlineData: { data: f.data, mimeType: f.mimeType },
       }));
       reconContents.push(RECONSTRUCTION_PROMPT);
@@ -196,12 +198,12 @@ export async function POST(request: Request) {
       console.log('=== STAGE 1: RECONSTRUCTED MARKDOWN ===\n', markdown);
     }
 
-    const extContents: any[] = [];
+    const extContents: ContentItem[] = [];
     if (text) extContents.push(text);
     if (markdown) extContents.push(markdown);
     extContents.push(EXTRACTION_PROMPT);
 
-    let extracted: any = {};
+    let extracted: Record<string, unknown> = {};
     try {
       const result = await ai.models.generateContent({
         model: GEMINI_MODEL,
@@ -219,11 +221,11 @@ export async function POST(request: Request) {
       }
 
       extracted = JSON.parse(responseText);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Stage 2 Extraction Error:", error);
       if (pipelineMode === 'two-stage') {
         console.log("Attempting single-stage fallback...");
-        const fallbackContents: any[] = uploadedFiles.map(f => ({
+        const fallbackContents: ContentItem[] = uploadedFiles.map(f => ({
           inlineData: { data: f.data, mimeType: f.mimeType },
         }));
         if (text) fallbackContents.push(text);
@@ -247,11 +249,11 @@ export async function POST(request: Request) {
     }
 
     // Apply deterministic post-processing cleanups to guarantee consistency
-    extracted.title = cleanOrdinanceTitle(extracted.title);
-    extracted.ordinanceNumber = formatResolutionNumber(extracted.ordinanceNumber);
-    extracted.enforcement = formatEnforcementAgencies(extracted.enforcement);
+    extracted.title = cleanOrdinanceTitle(String(extracted.title || ""));
+    extracted.ordinanceNumber = formatResolutionNumber(String(extracted.ordinanceNumber || ""));
+    extracted.enforcement = formatEnforcementAgencies(String(extracted.enforcement || ""));
 
-    const { valid, warnings } = validateExtractionResult(extracted);
+    const { warnings } = validateExtractionResult(extracted);
 
     if (process.env.NODE_ENV !== "production") {
       console.log(`⏱️ [/api/ordinances/extract] Extraction completed in ${(performance.now() - startTime).toFixed(1)}ms`);
@@ -267,12 +269,12 @@ export async function POST(request: Request) {
         validationWarnings: warnings,
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("AI Ordinance Extraction Error:", error);
+    const msg = error instanceof Error ? error.message : "Nagkaroon ng aberya sa AI auto-extraction.";
     return NextResponse.json(
       {
-        error:
-          error?.message || "Nagkaroon ng aberya sa AI auto-extraction.",
+        error: msg,
       },
       { status: 500 }
     );

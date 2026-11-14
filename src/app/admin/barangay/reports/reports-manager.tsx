@@ -155,7 +155,7 @@ export function BarangayReportsManager({ initialReports }: Props) {
                     <td className="px-4 py-3 text-xs text-[var(--text-mute)]">
                       {report.isAnonymous
                         ? <span className="italic">Anonymous</span>
-                        : <div><p>{report.contactName ?? "—"}</p>{report.contactPhone && <p className="text-[10px]">{report.contactPhone}</p>}</div>
+                        : <div><p>{report.contactName ?? "-"}</p>{report.contactPhone && <p className="text-[10px]">{report.contactPhone}</p>}</div>
                       }
                     </td>
                     <td className="px-4 py-3">

@@ -36,7 +36,7 @@ interface Ordinance {
   coverage?: string | null;
   enforcement?: string | null;
   signatories?: string | null;
-  tags?: any;
+  tags?: unknown;
   pdfUrl?: string | null;
   status: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED";
   createdAt: Date;
@@ -255,8 +255,9 @@ export function BarangayOrdinanceManager({ initialOrdinances, canSubmit }: Props
       } else {
         toast.success("⚡ Matagumpay na na-extract ang mga detalye!");
       }
-    } catch (err: any) {
-      toast.error(err.message || "Aberya sa AI extraction. Subukan muli.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Aberya sa AI extraction. Subukan muli.";
+      toast.error(msg);
     } finally {
       if (extractionIntervalRef.current) clearInterval(extractionIntervalRef.current);
       setExtracting(false);

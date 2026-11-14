@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useCallback, useEffect, useRef } from "react";
+import { useState, useTransition, useCallback, useRef } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/dashboard/status-badge";
@@ -17,7 +17,6 @@ import {
   InboxEmptyIcon,
   EyeIcon,
   Trash2Icon,
-  SearchIcon,
   CheckIcon,
 } from "@/components/dashboard/icons";
 
@@ -217,8 +216,9 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
       } else {
         toast.success("⚡ Matagumpay na na-extract ang mga detalye!");
       }
-    } catch (err: any) {
-      toast.error(err.message || "Aberya sa AI extraction. Subukan muli.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Aberya sa AI extraction. Subukan muli.";
+      toast.error(msg);
     } finally {
       if (extractionIntervalRef.current) clearInterval(extractionIntervalRef.current);
       setExtracting(false);
@@ -248,20 +248,17 @@ export function LguOrdinanceManager({ initialOrdinances, defaultReviewId }: Prop
     type: "approve" | "reject" | "revision" | "delete" | null;
     id: string;
     title: string;
-  }>({ type: null, id: "", title: "" });
-  const [rejectReason, setRejectReason] = useState("");
-  const [triggerRef, setTriggerRef] = useState<HTMLButtonElement | null>(null);
-
-  // Auto-open review dialog if URL has ?review=id
-  useEffect(() => {
+  }>(() => {
     if (defaultReviewId) {
       const ord = initialOrdinances.find((o) => o.id === defaultReviewId);
       if (ord && ord.status === "PENDING") {
-        setDialogState({ type: "approve", id: ord.id, title: ord.title });
+        return { type: "approve", id: ord.id, title: ord.title };
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return { type: null, id: "", title: "" };
+  });
+  const [rejectReason, setRejectReason] = useState("");
+  const [triggerRef, setTriggerRef] = useState<HTMLButtonElement | null>(null);
 
   const openDialog = useCallback(
     (type: "approve" | "reject" | "revision" | "delete", id: string, title: string, btn: HTMLButtonElement) => {

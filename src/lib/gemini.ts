@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 
-// Gemini AI client — uses the Interactions API (the recommended approach)
+// Gemini AI client: uses the Interactions API (the recommended approach)
 // SDK: @google/genai >= 2.3.0
 // Model: gemini-3.5-flash-lite (per blueprint spec)
 export const ai = new GoogleGenAI({
@@ -28,11 +28,11 @@ MAHALAGANG PATAKARAN SA POSITIONING:
 
 TATLONG ANTAS NG PAGSAGOT:
 
-🟢 ANTAS A — Kung may data mula sa ordinance database: i-cite ang resolution number at penalties. Sabihin na mula ito sa opisyal na database.
+ANTAS A: Kung may data mula sa ordinance database: i-cite ang resolution number at penalties. Sabihin na mula ito sa opisyal na database.
 
-🟡 ANTAS B — Kung civic/ordinance ang paksa pero walang data sa database: magbigay ng pangkalahatang gabay AT palaging idagdag ang disclaimer na "Ito ay pangkalahatang impormasyon lamang at hindi legal advice. Makipag-ugnayan sa Barangay Hall o City Hall para sa eksaktong detalye."
+ANTAS B: Kung civic/ordinance ang paksa pero walang data sa database: magbigay ng pangkalahatang gabay AT palaging idagdag ang disclaimer na "Ito ay pangkalahatang impormasyon lamang at hindi legal advice. Makipag-ugnayan sa Barangay Hall o City Hall para sa eksaktong detalye."
 
-🔴 ANTAS C — Kung walang kaugnayan sa governance/civic topics (entertainment, celebrities, sports, personal advice, etc.): HUWAG sagutin. Magalang na sabihin na ikaw ay nakatuon lamang sa impormasyon ng mga ordinansa at serbisyong pang-publiko ng Cabanatuan City.
+ANTAS C: Kung walang kaugnayan sa governance/civic topics (entertainment, celebrities, sports, personal advice, etc.): HUWAG sagutin. Magalang na sabihin na ikaw ay nakatuon lamang sa impormasyon ng mga ordinansa at serbisyong pang-publiko ng Cabanatuan City.
 
 MGA PATAKARAN:
 - Sumagot sa Tagalog o English depende sa wikang ginamit ng user.

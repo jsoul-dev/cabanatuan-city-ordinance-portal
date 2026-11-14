@@ -5,15 +5,14 @@ import { login, type LoginResult } from "@/lib/auth-actions";
 import { CivicHallIcon, ShieldCheckIcon } from "@/components/dashboard/icons";
 
 interface LoginFormProps {
-  theme?: "dark" | "light";
   onForgotClick?: () => void;
 }
 
 /**
- * Premium Login Form — modeled after ultra-sleek dark glassmorphic auth portals (winauth.net style).
+ * Premium Login Form: modeled after ultra-sleek dark glassmorphic auth portals (winauth.net style).
  * Includes global theme sync via Tailwind dark: utilities and quick-fill test account chips.
  */
-export function LoginForm({ theme, onForgotClick }: LoginFormProps) {
+export function LoginForm({ onForgotClick }: LoginFormProps) {
   const [state, formAction, isPending] = useActionState<
     LoginResult | undefined,
     FormData

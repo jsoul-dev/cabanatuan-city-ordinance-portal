@@ -6,7 +6,7 @@ import { getSession } from "@/lib/auth";
 import { hash } from "bcryptjs";
 import { generateOrdinanceSlug } from "@/lib/ordinance-utils";
 
-// ─── Ordinance Actions ───────────────────────────────────────────────────────
+// Ordinance Actions
 
 export async function approveOrdinance(ordinanceId: string): Promise<{ error?: string }> {
   const session = await getSession();
@@ -139,7 +139,7 @@ export async function deleteOrdinance(ordinanceId: string): Promise<{ error?: st
   return {};
 }
 
-// ─── User Actions ────────────────────────────────────────────────────────────
+// User Actions
 
 export async function createUser(formData: FormData): Promise<{ error?: string }> {
   const session = await getSession();
@@ -188,7 +188,7 @@ export async function deleteUser(userId: string): Promise<{ error?: string }> {
   return {};
 }
 
-// ─── Barangay Actions ─────────────────────────────────────────────────────────
+// Barangay Actions
 
 export async function createBarangay(formData: FormData): Promise<{ error?: string }> {
   const session = await getSession();
@@ -321,7 +321,7 @@ export async function upsertBarangayAdminAccount(formData: FormData): Promise<{ 
   return {};
 }
 
-// ─── Report Actions ───────────────────────────────────────────────────────────
+// Report Actions
 
 export async function updateReportStatus(reportId: string, status: string): Promise<{ error?: string }> {
   const session = await getSession();

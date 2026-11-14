@@ -5,7 +5,7 @@ import { getBarangayReports } from "@/lib/dashboard-queries";
 import { BarangayReportsManager } from "./reports-manager";
 
 export const metadata: Metadata = {
-  title: "Mga Ulat ng Komunidad — Barangay Dashboard",
+  title: "Mga Ulat ng Komunidad | Barangay Dashboard",
   description: "Tingnan at i-update ang status ng mga ulat mula sa inyong komunidad.",
 };
 

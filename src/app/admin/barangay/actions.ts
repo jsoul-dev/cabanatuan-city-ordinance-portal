@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import { getSession } from "@/lib/auth";
 import { generateOrdinanceSlug } from "@/lib/ordinance-utils";
 
@@ -127,7 +128,7 @@ export async function resubmitBarangayOrdinance(
   const enforcement = (formData.get("enforcement") as string)?.trim() || ordinance.enforcement;
   const signatories = (formData.get("signatories") as string)?.trim() || ordinance.signatories;
   const tagsStr = (formData.get("tags") as string)?.trim();
-  const tags = tagsStr !== undefined ? tagsStr.split(",").map((t) => t.trim()).filter(Boolean) : (ordinance.tags as any);
+  const tags = tagsStr !== undefined ? tagsStr.split(",").map((t) => t.trim()).filter(Boolean) : (ordinance.tags as Prisma.InputJsonValue);
   const dateEnactedStr = (formData.get("dateEnacted") as string)?.trim();
   const dateEnacted = dateEnactedStr ? new Date(dateEnactedStr) : ordinance.dateEnacted;
   const yearStr = (formData.get("year") as string)?.trim();

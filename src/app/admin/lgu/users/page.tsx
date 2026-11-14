@@ -3,7 +3,7 @@ import { getLguAllUsers, getAllBarangays } from "@/lib/dashboard-queries";
 import { UserManager } from "./user-manager";
 
 export const metadata: Metadata = {
-  title: "Mga Opisyal — LGU Admin",
+  title: "Mga Opisyal | LGU Admin",
   description: "Pamahalaan ang mga barangay at LGU officials sa sistema.",
 };
 

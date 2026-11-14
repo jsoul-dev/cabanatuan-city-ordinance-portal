@@ -147,7 +147,7 @@ export function formatCoverage(
 ): string {
   if (coverage) {
     // Strip trailing ", Cabanatuan City" or ", Lungsod ng Cabanatuan" if present
-    let clean = coverage
+    const clean = coverage
       .replace(/,?\s*(?:Lungsod ng )?Cabanatuan(?:\s+City)?$/i, "")
       .trim();
     // If after stripping we have nothing left, it was city-level

@@ -14,7 +14,7 @@ import {
 } from "@/components/dashboard/icons";
 
 /**
- * Badge component — status indicators for ordinance workflow.
+ * Badge component: status indicators for ordinance workflow.
  *
  * A11Y §3 Perceivable: MUST NOT convey state using color alone.
  * Each variant uses icon + text + color for semantic redundancy.

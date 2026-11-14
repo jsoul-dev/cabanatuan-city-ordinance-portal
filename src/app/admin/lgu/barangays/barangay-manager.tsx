@@ -32,10 +32,6 @@ interface BarangayManagerProps {
   initialBarangays: BarangayWithDetails[];
 }
 
-const roleLabel: Record<string, string> = {
-  BARANGAY_ADMIN: "Barangay Admin",
-};
-
 export function BarangayManager({ initialBarangays }: BarangayManagerProps) {
   const [barangays] = useState<BarangayWithDetails[]>(initialBarangays);
   const [search, setSearch] = useState("");
@@ -316,7 +312,7 @@ export function BarangayManager({ initialBarangays }: BarangayManagerProps) {
                             <span className="inline-flex mt-1">
                               <StatusBadge
                                 type="role"
-                                status={adminUser.role as any}
+                                status={adminUser.role as "LGU_ADMIN" | "BARANGAY_ADMIN" | "CITIZEN"}
                               />
                             </span>
                           </div>

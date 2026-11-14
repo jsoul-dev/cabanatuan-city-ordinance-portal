@@ -6,7 +6,7 @@ import { BarangayAnalyticsView } from "./barangay-analytics-view";
 import { AlertTriangleIcon } from "@/components/dashboard/icons";
 
 export const metadata: Metadata = {
-  title: "Analytics — Barangay Admin",
+  title: "Analytics | Barangay Admin",
   description: "Lokal na pagsusuri sa mga ordinansa at ulat ng inyong barangay.",
 };
 

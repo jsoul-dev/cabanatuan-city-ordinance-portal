@@ -74,14 +74,14 @@ export function AiOrdinanceExtractorModal({
 
   // Cycle through extraction steps while loading
   useEffect(() => {
-    if (!loading) {
-      setExtractionStep(0);
-      return;
-    }
+    if (!loading) return;
     const interval = setInterval(() => {
       setExtractionStep((prev) => (prev + 1) % EXTRACTION_STEPS.length);
     }, 2200);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      setExtractionStep(0);
+    };
   }, [loading]);
 
   if (!open) return null;
@@ -172,8 +172,9 @@ export function AiOrdinanceExtractorModal({
         pdfUrl: attachedUrl,
       });
       onClose();
-    } catch (err: any) {
-      toast.error(err.message || "Aberya sa AI extraction. Subukan muli.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Aberya sa AI extraction. Subukan muli.";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

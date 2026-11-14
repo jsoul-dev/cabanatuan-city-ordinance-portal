@@ -1,6 +1,6 @@
 /**
- * StatusBadge — always uses SVG Icon + Text + Color (never color alone).
- * A11Y: SC 1.4.1 — information not conveyed by color alone.
+ * StatusBadge: always uses SVG Icon + Text + Color (never color alone).
+ * A11Y: SC 1.4.1: information not conveyed by color alone.
  */
 
 import React from "react";
@@ -13,7 +13,6 @@ import {
   ShieldCheckIcon,
   UsersIcon,
   Building2Icon,
-  FileTextIcon,
 } from "./icons";
 
 type OrdinanceStatus = "DRAFT" | "PENDING" | "APPROVED" | "REJECTED";

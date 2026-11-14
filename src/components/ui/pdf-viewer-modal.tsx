@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
@@ -39,13 +39,14 @@ interface PdfViewerModalProps {
   slug?: string;
 }
 
+const emptySubscribe = () => () => {};
+
 export function PdfViewerModal({
   isOpen,
   onClose,
   pdfUrl,
   title,
   resolutionNumber,
-  series,
   dateEnacted,
   category,
   coverage,
@@ -58,11 +59,11 @@ export function PdfViewerModal({
   const printRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   useEffect(() => {
     if (!isOpen) return;

@@ -6,7 +6,7 @@ import { ReportTable } from "@/components/reports/report-table";
 import { ReportGroup, ReportGrandTotal } from "@/components/reports/report-group";
 import { fetchOrdinancesForReport } from "./actions";
 import type { OrdinanceReportRow, ReportFilters } from "@/lib/ordinance-report-queries";
-import type { PdfReportData, PdfReportSection } from "@/lib/generate-report-pdf";
+import type { PdfReportData } from "@/lib/generate-report-pdf";
 
 import {
   FileTextIcon,
@@ -17,7 +17,7 @@ import {
   ClockIcon,
 } from "@/components/dashboard/icons";
 
-// ─── Report Type Definitions ────────────────────────────────────────────────
+// Report Type Definitions
 
 const REPORT_TYPES = [
   { id: "all", label: "List of All Ordinances", icon: FileTextIcon },
@@ -42,7 +42,7 @@ const TYPE_LABELS: Record<string, string> = {
   BARANGAY: "Barangay",
 };
 
-// ─── Props ──────────────────────────────────────────────────────────────────
+// Props
 
 interface FilterOptions {
   barangays: { id: string; name: string }[];
@@ -58,10 +58,10 @@ interface BarangayOrdinanceReportsClientProps {
   scopedBarangayId: string;
 }
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// Helpers
 
 function formatDate(date: Date | string | null): string {
-  if (!date) return "—";
+  if (!date) return "-";
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleDateString("en-US", {
     year: "numeric",
@@ -95,7 +95,7 @@ function getMonthDateRange(key: string): string {
   return `${fmt(start)} - ${fmt(end)}`;
 }
 
-// ─── Component ──────────────────────────────────────────────────────────────
+// Component
 
 export function BarangayOrdinanceReportsClient({
   filterOptions,
@@ -378,19 +378,19 @@ export function BarangayOrdinanceReportsClient({
   );
 }
 
-// ─── PDF Data Builder (Barangay) ────────────────────────────────────────────
+// PDF Data Builder (Barangay)
 
 function toPdfRow(ord: OrdinanceReportRow, colKeys: string[]): string[] {
   const map: Record<string, string> = {
     resolutionNumber: ord.resolutionNumber,
     title: ord.title,
     type: TYPE_LABELS[ord.type] ?? ord.type,
-    category: ord.category ?? "—",
+    category: ord.category ?? "-",
     filedBy: ord.submittedBy.name,
     date: formatDate(ord.dateEnacted ?? ord.createdAt),
     status: STATUS_LABELS[ord.status] ?? ord.status,
   };
-  return colKeys.map((k) => map[k] ?? "—");
+  return colKeys.map((k) => map[k] ?? "-");
 }
 
 interface PdfMeta {
@@ -516,7 +516,7 @@ function buildBarangayPdfData(
   }
 }
 
-// ─── Report Body ────────────────────────────────────────────────────────────
+// Report Body
 
 function BarangayReportBody({
   reportType,
@@ -539,7 +539,7 @@ function BarangayReportBody({
       resolutionNumber: ord.resolutionNumber,
       title: ord.title,
       type: TYPE_LABELS[ord.type] ?? ord.type,
-      category: ord.category ?? "—",
+      category: ord.category ?? "-",
       filedBy: ord.submittedBy.name,
       date: formatDate(ord.dateEnacted ?? ord.createdAt),
       status: STATUS_LABELS[ord.status] ?? ord.status,

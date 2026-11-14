@@ -149,7 +149,7 @@ export function UserManager({ initialUsers, barangays }: Props) {
               <select id="user-barangay" name="barangayId" required
                 className="min-h-[44px] rounded-[var(--radius-sm)] border border-[var(--border-hairline)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--text-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
               >
-                <option value="">— Pumili ng Barangay —</option>
+                <option value="">Pumili ng Barangay</option>
                 {barangays.map((b) => {
                   const hasAdmin = users.some(u => u.barangay?.id === b.id && u.role === "BARANGAY_ADMIN");
                   return (

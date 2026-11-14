@@ -3,7 +3,7 @@ import { getAllBarangaysWithDetails } from "@/lib/dashboard-queries";
 import { BarangayManager } from "./barangay-manager";
 
 export const metadata: Metadata = {
-  title: "Mga Barangay — LGU Super Admin",
+  title: "Mga Barangay | LGU Super Admin",
   description: "Pamahalaan ang rehistrasyon ng mga Barangay at kani-kanilang Admin Accounts.",
 };
 

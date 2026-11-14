@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * Login Page — Server Component wrapper around the interactive LoginClient.
+ * Login Page: Server Component wrapper around the interactive LoginClient.
  * Features winauth.net-inspired split aurora layout and light/dark theme toggling.
  */
 export default async function LoginPage() {

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
+// Types
 
 export interface ReportFilters {
   year?: number;
@@ -29,7 +29,7 @@ export interface OrdinanceReportRow {
   submittedBy: { id: string; name: string };
 }
 
-// ─── Main Report Query ──────────────────────────────────────────────────────
+// Main Report Query
 
 export async function getOrdinancesForReports(
   filters?: ReportFilters,
@@ -67,7 +67,7 @@ export async function getOrdinancesForReports(
     where.submittedById = filters.submittedById;
   }
 
-  // Date range filter — use dateEnacted, fallback to createdAt
+  // Date range filter: use dateEnacted, fallback to createdAt
   if (filters?.dateFrom || filters?.dateTo) {
     const dateConditions: Record<string, unknown>[] = [];
 
@@ -114,7 +114,7 @@ export async function getOrdinancesForReports(
   }) as Promise<OrdinanceReportRow[]>;
 }
 
-// ─── Filter Options ─────────────────────────────────────────────────────────
+// Filter Options
 
 export async function getReportFilterOptions(scopedBarangayId?: string) {
   const barangayWhere = scopedBarangayId ? { barangayId: scopedBarangayId } : {};

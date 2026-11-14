@@ -3,7 +3,7 @@ import { getLguAllOrdinances } from "@/lib/dashboard-queries";
 import { LguOrdinanceManager } from "./ordinance-manager";
 
 export const metadata: Metadata = {
-  title: "Pamamahala ng Ordinansa — LGU Admin",
+  title: "Pamamahala ng Ordinansa | LGU Admin",
   description: "Suriin, aprubahan, o tanggihan ang mga ordinansa ng barangay.",
 };
 
@@ -24,7 +24,7 @@ export default async function LguOrdinancesPage({
         </p>
       </div>
       <LguOrdinanceManager
-        initialOrdinances={ordinances as any}
+        initialOrdinances={ordinances as unknown as React.ComponentProps<typeof LguOrdinanceManager>["initialOrdinances"]}
         defaultReviewId={params.review}
       />
     </div>

@@ -41,17 +41,20 @@ export function ReportClientForm({ barangays }: ReportClientFormProps) {
 
   // Load draft on mount
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setFormData({ ...DEFAULT_DRAFT, ...parsed });
+    const timer = setTimeout(() => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setFormData({ ...DEFAULT_DRAFT, ...parsed });
+        }
+      } catch (e) {
+        console.error("Failed to load report draft from localStorage:", e);
+      } finally {
+        setIsLoaded(true);
       }
-    } catch (e) {
-      console.error("Failed to load report draft from localStorage:", e);
-    } finally {
-      setIsLoaded(true);
-    }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Save draft on change

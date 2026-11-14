@@ -3,7 +3,7 @@ import { getLguAnalyticsData } from "@/lib/dashboard-queries";
 import { LguAnalyticsView } from "./lgu-analytics-view";
 
 export const metadata: Metadata = {
-  title: "LGU Executive Analytics — LGU Super Admin",
+  title: "LGU Executive Analytics | LGU Super Admin",
   description: "Komprehensibong pagsusuri sa mga ordinansa at ulat ng komunidad sa buong lungsod.",
 };
 

@@ -173,7 +173,7 @@ export function BarangayAnalyticsView({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 card-elevated p-4">
         <div>
           <h2 className="text-base font-bold text-[var(--text-ink)]">
-            Barangay {barangayName} — Analytics
+            Barangay {barangayName} | Analytics
           </h2>
           <p className="text-xs text-[var(--text-mute)]">
             Lokal na pagsusuri ng mga ordinansa at ulat ng mamamayan sa inyong barangay.

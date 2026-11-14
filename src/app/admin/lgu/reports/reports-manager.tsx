@@ -52,7 +52,7 @@ interface Props {
 }
 
 export function ReportsManager({ initialReports }: Props) {
-  const [reports, setReports] = useState(initialReports);
+  const [reports] = useState(initialReports);
   const [statusFilter, setStatusFilter] = useState<ReportStatus | "ALL">("ALL");
 
   const filtered = reports.filter((r) =>
@@ -135,7 +135,7 @@ export function ReportsManager({ initialReports }: Props) {
                         <span className="italic">Anonymous</span>
                       ) : (
                         <div>
-                          <p>{report.contactName ?? "—"}</p>
+                          <p>{report.contactName ?? "-"}</p>
                           {report.contactPhone && <p className="text-[10px]">{report.contactPhone}</p>}
                         </div>
                       )}

@@ -81,14 +81,12 @@ export function OrdinanceSectionsView({
 
 interface OrdinanceEnforcementViewProps {
   enforcement?: string | null;
-  coverage?: string | null;
 }
 
 export function OrdinanceEnforcementView({
   enforcement,
-  coverage,
 }: OrdinanceEnforcementViewProps) {
-  const { personnel, actions } = parseEnforcement(enforcement, coverage);
+  const { personnel, actions } = parseEnforcement(enforcement);
 
   return (
     <div className="mb-6">
@@ -322,8 +320,7 @@ function parseSections(text: string): ParsedSection[] {
 }
 
 function parseEnforcement(
-  enforcementText?: string | null,
-  coverage?: string | null
+  enforcementText?: string | null
 ): { personnel: string[]; actions: string[] } {
   let personnel: string[] = [];
   let actions: string[] = [];

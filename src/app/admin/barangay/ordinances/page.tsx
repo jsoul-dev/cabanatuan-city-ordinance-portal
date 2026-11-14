@@ -5,7 +5,7 @@ import { getBarangayAllOrdinances } from "@/lib/dashboard-queries";
 import { BarangayOrdinanceManager } from "./ordinance-manager";
 
 export const metadata: Metadata = {
-  title: "Mga Ordinansa ng Barangay — Dashboard",
+  title: "Mga Ordinansa ng Barangay | Dashboard",
   description: "Pamahalaan ang mga ordinansa ng iyong barangay.",
 };
 

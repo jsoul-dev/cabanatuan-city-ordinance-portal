@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-// ─── LGU Admin Stats (city-wide) ────────────────────────────────────────────
+// LGU Admin Stats (city-wide)
 
 export async function getLguOverviewStats() {
   const [
@@ -77,7 +77,7 @@ export async function getLguAllReports() {
   });
 }
 
-// ─── Barangay Official Stats (scoped) ───────────────────────────────────────
+// Barangay Official Stats (scoped)
 
 export async function getBarangayOverviewStats(barangayId: string) {
   const [
@@ -160,7 +160,7 @@ export async function getAllBarangaysWithDetails() {
   });
 }
 
-// ─── Analytics Queries ────────────────────────────────────────────────────────
+// Analytics Queries
 
 export async function getLguAnalyticsData() {
   const [

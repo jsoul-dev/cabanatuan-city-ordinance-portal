@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Ordinance, Barangay } from "@prisma/client";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { clsx } from "clsx";
-import { cleanOrdinanceTitle, formatOrdinanceYear, formatResolutionNumber, formatResolutionDisplay, formatCoverage } from "@/lib/ordinance-utils";
+import { cleanOrdinanceTitle, formatOrdinanceYear, formatResolutionDisplay, formatCoverage } from "@/lib/ordinance-utils";
 import { OrdinancePdfButton } from "./[slug]/ordinance-pdf-button";
 
 type OrdinanceWithBarangay = Omit<Ordinance, "pdfUrl" | "tags"> & {

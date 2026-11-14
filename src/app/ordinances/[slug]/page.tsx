@@ -259,7 +259,6 @@ export default async function OrdinanceDetailPage({
           {/* Enforcement Actions Block */}
           <OrdinanceEnforcementView
             enforcement={ord.enforcement}
-            coverage={coverageText}
           />
 
           {/* Signatories Block */}

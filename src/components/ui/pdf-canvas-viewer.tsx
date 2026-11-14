@@ -2,6 +2,25 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
+interface PDFRenderTask {
+  cancel: () => void;
+  promise: Promise<void>;
+}
+
+interface PDFPageProxy {
+  getViewport: (params: { scale: number }) => { width: number; height: number };
+  render: (params: {
+    canvasContext: CanvasRenderingContext2D;
+    viewport: { width: number; height: number };
+    transform?: number[];
+  }) => PDFRenderTask;
+}
+
+interface PDFDocumentProxy {
+  numPages: number;
+  getPage: (pageNumber: number) => Promise<PDFPageProxy>;
+}
+
 interface PdfCanvasViewerProps {
   pdfUrl: string;
   title?: string;
@@ -11,14 +30,14 @@ interface PdfCanvasViewerProps {
 }
 
 interface PdfPageProps {
-  pdfDoc: any;
+  pdfDoc: PDFDocumentProxy;
   pageNumber: number;
   scale: number;
 }
 
 function PdfPage({ pdfDoc, pageNumber, scale }: PdfPageProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const renderTaskRef = useRef<any>(null);
+  const renderTaskRef = useRef<PDFRenderTask | null>(null);
   const [pageSize, setPageSize] = useState<{ width: number; height: number } | null>(null);
 
   useEffect(() => {
@@ -32,7 +51,7 @@ function PdfPage({ pdfDoc, pageNumber, scale }: PdfPageProps) {
           try {
             renderTaskRef.current.cancel();
           } catch {
-            // ignore
+            // Cancel task silently if already finished
           }
         }
 
@@ -54,7 +73,11 @@ function PdfPage({ pdfDoc, pageNumber, scale }: PdfPageProps) {
         const ctx = canvas.getContext("2d", { alpha: false });
         if (!ctx) return;
 
-        const renderContext: any = {
+        const renderContext: {
+          canvasContext: CanvasRenderingContext2D;
+          viewport: { width: number; height: number };
+          transform?: number[];
+        } = {
           canvasContext: ctx,
           viewport,
         };
@@ -66,8 +89,9 @@ function PdfPage({ pdfDoc, pageNumber, scale }: PdfPageProps) {
         const renderTask = page.render(renderContext);
         renderTaskRef.current = renderTask;
         await renderTask.promise;
-      } catch (err: any) {
-        if (err?.name !== "RenderingCancelledException") {
+      } catch (err: unknown) {
+        const errorName = typeof err === "object" && err !== null && "name" in err ? (err as { name: string }).name : "";
+        if (errorName !== "RenderingCancelledException") {
           console.error(`Error rendering page ${pageNumber}:`, err);
         }
       }
@@ -81,7 +105,7 @@ function PdfPage({ pdfDoc, pageNumber, scale }: PdfPageProps) {
         try {
           renderTaskRef.current.cancel();
         } catch {
-          // ignore
+          // Cancel task silently if component unmounts
         }
       }
     };
@@ -117,7 +141,7 @@ export function PdfCanvasViewer({
   onDownload,
   onOpenNewTab,
 }: PdfCanvasViewerProps) {
-  const [pdfDoc, setPdfDoc] = useState<any>(null);
+  const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
   const [scale, setScale] = useState<number>(1.15);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -158,7 +182,6 @@ export function PdfCanvasViewer({
           }
           pdfData = bytes;
         } else {
-          // Fetch the PDF using fetch API
           const response = await fetch(pdfUrl);
           if (!response.ok) {
             throw new Error(`Failed to load PDF (${response.status})`);
@@ -175,16 +198,17 @@ export function PdfCanvasViewer({
           cMapPacked: true,
         });
 
-        const doc = await loadingTask.promise;
+        const doc = (await loadingTask.promise) as unknown as PDFDocumentProxy;
         if (isCancelled) return;
 
         setPdfDoc(doc);
         setNumPages(doc.numPages);
         setIsLoading(false);
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!isCancelled) {
           console.error("PDF loading error:", err);
-          setErrorMessage(err.message || "Hindi ma-load ang dokumento.");
+          const msg = err instanceof Error ? err.message : "Hindi ma-load ang dokumento.";
+          setErrorMessage(msg);
           setIsLoading(false);
         }
       }
@@ -233,7 +257,7 @@ export function PdfCanvasViewer({
             title="Mag-zoom In"
             aria-label="Mag-zoom In"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
           </button>
           <button
             type="button"
@@ -243,6 +267,17 @@ export function PdfCanvasViewer({
           >
             Reset
           </button>
+          {onOpenNewTab && (
+            <button
+              type="button"
+              onClick={onOpenNewTab}
+              className="rounded p-1.5 text-neutral-300 hover:bg-white/10 hover:text-white transition-colors ml-1"
+              title="Buksan sa Bagong Tab"
+              aria-label="Buksan sa Bagong Tab"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </button>
+          )}
         </div>
       </div>
 

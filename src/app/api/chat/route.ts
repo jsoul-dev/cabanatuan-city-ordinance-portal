@@ -9,7 +9,7 @@ import type { Prisma } from "@prisma/client";
  * multi-tier abuse defense, streaming with mid-stream error handling, and JSON fallback.
  */
 
-// ─── Rate Limiting & Abuse Defense In-Memory Store ───────────────────────────
+// Rate Limiting & Abuse Defense In-Memory Store
 interface RateLimitRecord {
   count: number;
   resetAt: number;
@@ -56,7 +56,7 @@ function getClientIp(req: Request): string {
         return cfIp.trim();
       }
       // Untrusted direct hit attempting to spoof Cloudflare header
-      console.warn("⚠️ [/api/chat] CF-Connecting-IP present without valid x-cf-secret; ignoring spoofable header.");
+      console.warn("[/api/chat] CF-Connecting-IP present without valid x-cf-secret; ignoring spoofable header.");
     } else {
       return cfIp.trim();
     }
@@ -301,7 +301,7 @@ export async function POST(request: Request) {
       console.warn("Could not fetch ordinance context from DB:", searchErr);
     }
 
-    const systemInstruction = `Ikaw ang "Cabanatuan Ordinance AI" — ang opisyal na information assistant ng Cabanatuan City Ordinance Portal.
+    const systemInstruction = `Ikaw ang "Cabanatuan Ordinance AI", ang opisyal na information assistant ng Cabanatuan City Ordinance Portal.
 
 PANGUNAHING PATAKARAN SA PAGSAGOT (MAIKLI, DIREKTA, AT HINDI MALIGOY):
 1. MAGING MAIKLI AT DIREKTA SA PUNTO:
@@ -372,10 +372,10 @@ ${dbContext}`;
             // An in-band notification is injected directly into the response stream for graceful client rendering.
             const parsed = parseGeminiError(midStreamErr);
             const errNotice = parsed.is429
-              ? "\n\n⚠️ *[Kasalukuyang naabot ang upstream rate limit habang binubuo ang sagot. Mangyaring maghintay ng ilang sandali.]*"
+              ? "\n\n*[Kasalukuyang naabot ang upstream rate limit habang binubuo ang sagot. Mangyaring maghintay ng ilang sandali.]*"
               : parsed.is402
-              ? "\n\n⚠️ *[Pansamantalang naputol ang serbisyo ng AI assistant dahil sa billing quota limitation. Mangyaring sumangguni sa City Secretariat.]*"
-              : "\n\n⚠️ *[Naputol ang koneksyon sa AI assistant habang bumubuo ng tugon. Mangyaring subukang muli.]*";
+              ? "\n\n*[Pansamantalang naputol ang serbisyo ng AI assistant dahil sa billing quota limitation. Mangyaring sumangguni sa City Secretariat.]*"
+              : "\n\n*[Naputol ang koneksyon sa AI assistant habang bumubuo ng tugon. Mangyaring subukang muli.]*";
             controller.enqueue(encoder.encode(errNotice));
             controller.close();
           }
@@ -406,7 +406,7 @@ ${dbContext}`;
       response.text || "Paumanhin, hindi ako nakabuo ng sagot sa ngayon.";
 
     if (process.env.NODE_ENV !== "production") {
-      console.log(`⏱️ [/api/chat] Responded in ${(performance.now() - startTime).toFixed(1)}ms`);
+      console.log(`[/api/chat] Responded in ${(performance.now() - startTime).toFixed(1)}ms`);
     }
 
     return NextResponse.json({ reply: replyText });
@@ -415,7 +415,7 @@ ${dbContext}`;
 
     // Graceful Pre-Stream Error Handling
     if (parsed.is429) {
-      console.warn("⚠️ [/api/chat] Upstream Gemini 429 rate limit reached.");
+      console.warn("[/api/chat] Upstream Gemini 429 rate limit reached.");
       return NextResponse.json(
         {
           error:

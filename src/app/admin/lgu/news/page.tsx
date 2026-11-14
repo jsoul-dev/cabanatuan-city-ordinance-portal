@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NewsManagerClient } from "../../news/news-manager-client";
 
 export const metadata: Metadata = {
-  title: "Balita at Anunsyo — LGU Admin",
+  title: "Balita at Anunsyo | LGU Admin",
   description: "Magpaskil ng opisyal na anunsyo para sa Lungsod ng Cabanatuan.",
 };
 

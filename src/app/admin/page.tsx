@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 
 /**
- * /admin root — redirect to the correct portal based on role.
+ * /admin root: redirect to the correct portal based on role.
  * - LGU_ADMIN → /admin/lgu
  * - BARANGAY_ADMIN → /admin/barangay
  */

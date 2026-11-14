@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 import { forwardRef, type HTMLAttributes } from "react";
 
 /**
- * Card component — winauth.net-inspired glassmorphic obsidian card.
+ * Card component: winauth.net-inspired glassmorphic obsidian card.
  * Hairline-bordered surface with ambient emerald shadow glow in dark mode.
  */
 

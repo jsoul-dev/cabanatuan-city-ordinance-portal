@@ -82,7 +82,7 @@ export function ReportTable({
                       : "text-left"
                 }`}
               >
-                {row[col.key] ?? "—"}
+                {row[col.key] ?? "-"}
               </td>
             ))}
           </tr>

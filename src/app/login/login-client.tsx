@@ -8,7 +8,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PhoneIcon, ClockIcon, MailIcon } from "@/components/dashboard/icons";
 
 /**
- * Client Wrapper for Login Page — integrated with global next-themes,
+ * Client Wrapper for Login Page: integrated with global next-themes,
  * zero hydration theme flash, winauth.net-inspired aurora mesh, and sleek civic branding.
  */
 export function LoginClient() {
@@ -316,7 +316,7 @@ export function LoginClient() {
                   Request LGU Account Access
                 </h3>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                  City Mayor&apos;s Office — Administration
+                  City Mayor&apos;s Office: Administration
                 </p>
               </div>
             </div>
@@ -333,7 +333,7 @@ export function LoginClient() {
                 </div>
                 <div>
                   <div className="font-semibold text-neutral-900 dark:text-white">
-                    City Mayor&apos;s Office — Admin
+                    City Mayor&apos;s Office: Admin
                   </div>
                   <a
                     href="tel:09190813749"

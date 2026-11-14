@@ -31,7 +31,7 @@ const footerLinks = {
 };
 
 /**
- * Site footer — supports both Light Mode and winauth.net Dark Mode.
+ * Site footer: supports both Light Mode and winauth.net Dark Mode.
  * High-contrast text, official Cabanatuan LGU Seal, and official city links.
  */
 export function Footer() {

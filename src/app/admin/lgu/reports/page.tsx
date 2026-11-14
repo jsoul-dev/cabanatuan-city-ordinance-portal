@@ -3,7 +3,7 @@ import { getLguAllReports } from "@/lib/dashboard-queries";
 import { ReportsManager } from "./reports-manager";
 
 export const metadata: Metadata = {
-  title: "Mga Ulat ng Komunidad — LGU Admin",
+  title: "Mga Ulat ng Komunidad | LGU Admin",
   description: "Suriin at pamahalaan ang mga ulat mula sa komunidad ng Lungsod ng Cabanatuan.",
 };
 

@@ -1,7 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
+// Types
 
 export interface PdfReportSection {
   heading: string;
@@ -23,7 +23,7 @@ export interface PdfReportData {
   grandTotalLabel: string;
 }
 
-// ─── Colors ─────────────────────────────────────────────────────────────────
+// Colors
 
 const GREEN = { r: 26, g: 86, b: 50 } as const;         // #1a5632
 const GREEN_LIGHT = { r: 232, g: 240, b: 235 } as const; // #e8f0eb
@@ -35,7 +35,7 @@ const GRAY_900 = { r: 17, g: 24, b: 39 } as const;
 
 const GROUP_COLORS = [GREEN, BLUE, AMBER];
 
-// ─── Main Generator ─────────────────────────────────────────────────────────
+// Main Generator
 
 export async function generateReportPdf(data: PdfReportData): Promise<void> {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
@@ -56,7 +56,7 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
     hour12: true,
   });
 
-  // ── Helper: add footer to every page ──
+  // Helper: add footer to every page
   const addFooters = () => {
     const totalPages = doc.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
@@ -95,7 +95,7 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
     }
   };
 
-  // ── Header ──
+  // Header
   let y = margin.top;
 
   // Metadata (top right)
@@ -140,7 +140,7 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
   doc.line(margin.left, y, pageWidth - margin.right, y);
   y += 8;
 
-  // ── Title ──
+  // Title
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(GRAY_900.r, GRAY_900.g, GRAY_900.b);
@@ -155,9 +155,7 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
   }
   y += 5;
 
-  // ── Sections (tables) ──
-  let totalRows = 0;
-
+  // Sections (tables)
   data.sections.forEach((section, sectionIdx) => {
     const groupColor = GROUP_COLORS[sectionIdx % GROUP_COLORS.length];
 
@@ -231,11 +229,9 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
       { align: "right" },
     );
     y += 6;
-
-    totalRows += section.rows.length;
   });
 
-  // ── Grand Total ──
+  // Grand Total
   if (y > pageHeight - 40) {
     doc.addPage();
     y = margin.top + 5;
@@ -252,7 +248,7 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
   doc.text(data.grandTotalLabel, centerX, y, { align: "center" });
   y += 10;
 
-  // ── Prepared By ──
+  // Prepared By
   if (y > pageHeight - 40) {
     doc.addPage();
     y = margin.top + 5;
@@ -262,7 +258,7 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
   doc.setFont("helvetica", "normal");
   doc.setTextColor(GRAY_600.r, GRAY_600.g, GRAY_600.b);
   doc.text("Prepared by:", margin.left, y);
-  y += 20; // Increased spacing for signature
+  y += 20; // Spacing for signature
 
   // Signature line
   doc.setDrawColor(GRAY_900.r, GRAY_900.g, GRAY_900.b);
@@ -278,10 +274,10 @@ export async function generateReportPdf(data: PdfReportData): Promise<void> {
   doc.setTextColor(150, 150, 150);
   doc.text("Signature over printed name", margin.left, y + 8);
 
-  // ── Add footers to all pages ──
+  // Add footers to all pages
   addFooters();
 
-  // ── Save ──
+  // Save
   const filename = data.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
   doc.save(`${filename}-${generatedOn.replace(/,?\s+/g, "-").toLowerCase()}.pdf`);
 }

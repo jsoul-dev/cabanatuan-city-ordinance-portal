@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { ShieldCheckIcon, HomeIcon } from "./icons";
+import { ShieldCheckIcon } from "./icons";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface DashboardHeaderProps {

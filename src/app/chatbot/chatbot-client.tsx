@@ -51,6 +51,13 @@ const QUICK_ACTIONS = [
   },
 ];
 
+function createMessageId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
 export function ChatbotClient() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -68,10 +75,13 @@ export function ChatbotClient() {
   };
 
   useEffect(() => {
-    const saved = loadChatHistory();
-    if (saved.length > 0) {
-      setMessages(saved);
-    }
+    const timer = setTimeout(() => {
+      const saved = loadChatHistory();
+      if (saved.length > 0) {
+        setMessages(saved);
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -86,7 +96,7 @@ export function ChatbotClient() {
     if (!text.trim() || isLoading) return;
 
     const userMsg: Message = {
-      id: Date.now().toString(),
+      id: createMessageId(),
       role: "user",
       content: text.trim(),
     };
@@ -119,7 +129,7 @@ export function ChatbotClient() {
       const updatedMessages: Message[] = [
         ...newMessages,
         {
-          id: (Date.now() + 1).toString(),
+          id: createMessageId(),
           role: "assistant",
           content: data.reply,
         },
@@ -134,7 +144,7 @@ export function ChatbotClient() {
       const updatedMessages: Message[] = [
         ...newMessages,
         {
-          id: (Date.now() + 1).toString(),
+          id: createMessageId(),
           role: "assistant",
           content: `⚠️ **Error:** ${errorMessage}`,
         },

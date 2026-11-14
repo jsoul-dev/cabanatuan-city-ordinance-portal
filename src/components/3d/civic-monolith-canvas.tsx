@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useSyncExternalStore } from "react";
 import * as THREE from "three";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
@@ -20,9 +20,7 @@ export interface OrdinanceArchiveCanvasProps {
   onSelect?: (item: OrdinanceItem, index: number) => void;
 }
 
-// ---------------------------------------------------------------------------
 // Layout constants
-// ---------------------------------------------------------------------------
 const VARIANTS = 4; // number of distinct page textures
 const DEFAULT_PAGES = 48;
 const MAX_PAGES = 60;
@@ -33,9 +31,7 @@ const STEP = 0.5; // radians between consecutive pages (~12.5 pages per turn)
 const TOWER_HEIGHT = 5.0;
 const CAMERA_Y = 2.4;
 
-// ---------------------------------------------------------------------------
 // Procedural textures (no image assets needed)
-// ---------------------------------------------------------------------------
 function mulberry32(seed: number) {
   return () => {
     seed |= 0;
@@ -157,9 +153,7 @@ function placeholderItem(i: number): OrdinanceItem {
   return { id: `Ordinance No. ${year}-${num}`, title: "Sample entry" };
 }
 
-// ---------------------------------------------------------------------------
 // Component
-// ---------------------------------------------------------------------------
 export function OrdinanceArchiveCanvas({
   className = "",
   interactive = true,
@@ -171,26 +165,29 @@ export function OrdinanceArchiveCanvas({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tipIdRef = useRef<HTMLDivElement>(null);
   const tipTitleRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const { resolvedTheme } = useTheme();
 
   // Latest props/theme without re-building the scene
-  const darkRef = useRef(false);
-  darkRef.current = resolvedTheme === "dark";
+  const darkRef = useRef(resolvedTheme === "dark");
   const ordinancesRef = useRef(ordinances);
-  ordinancesRef.current = ordinances;
   const onSelectRef = useRef(onSelect);
-  onSelectRef.current = onSelect;
   const applyThemeRef = useRef<((dark: boolean) => void) | null>(null);
+
+  useEffect(() => {
+    darkRef.current = resolvedTheme === "dark";
+    ordinancesRef.current = ordinances;
+    onSelectRef.current = onSelect;
+  });
 
   const pageCount = Math.max(
     6,
     Math.min(ordinances?.length ?? DEFAULT_PAGES, MAX_PAGES)
   );
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Theme changes only recolour; they don't rebuild the scene
   useEffect(() => {
@@ -206,7 +203,7 @@ export function OrdinanceArchiveCanvas({
     let vw = container.clientWidth || 400;
     let vh = container.clientHeight || 400;
 
-    // ---- Renderer / camera -------------------------------------------------
+    // Renderer / camera
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, vw / vh, 0.1, 100);
 
@@ -228,7 +225,7 @@ export function OrdinanceArchiveCanvas({
       camera.updateProjectionMatrix();
     };
 
-    // ---- Tower of pages ----------------------------------------------------
+    // Tower of pages
     const helix = new THREE.Group();
     scene.add(helix);
 
@@ -258,7 +255,7 @@ export function OrdinanceArchiveCanvas({
       return mesh;
     });
 
-    // ---- Light inside the tower (shows through the gaps) -------------------
+    // Light inside the tower (shows through the gaps)
     const glowTex = makeGlowTexture();
     const coreMat = new THREE.SpriteMaterial({
       map: glowTex,
@@ -278,7 +275,7 @@ export function OrdinanceArchiveCanvas({
     beam.scale.set(1.1, halfTower * 2 + 3, 1);
     scene.add(beam);
 
-    // ---- Scanner ring that "indexes" the pages as it travels ---------------
+    // Scanner ring that indexes pages as it travels
     const scanGeom = new THREE.TorusGeometry(RADIUS + 0.5, 0.012, 6, 96);
     const scanMat = new THREE.MeshBasicMaterial({
       transparent: true,
@@ -289,7 +286,7 @@ export function OrdinanceArchiveCanvas({
     helix.add(scanRing);
     scanRing.visible = !reduced;
 
-    // ---- Drifting dust -----------------------------------------------------
+    // Drifting dust
     const dustCount = 140;
     const dustSpan = halfTower * 2 + 2;
     const dustPos = new Float32Array(dustCount * 3);
@@ -315,7 +312,7 @@ export function OrdinanceArchiveCanvas({
     dust.frustumCulled = false;
     scene.add(dust);
 
-    // ---- Theme -------------------------------------------------------------
+    // Theme
     const baseTint = new THREE.Color();
     const hoverCol = new THREE.Color(0xfcd34d);
     const scanCol = new THREE.Color();
@@ -351,7 +348,7 @@ export function OrdinanceArchiveCanvas({
     applyThemeRef.current = applyTheme;
     applyTheme(darkRef.current);
 
-    // ---- Per-page layout ---------------------------------------------------
+    // Per-page layout
     const dummy = new THREE.Object3D();
     dummy.rotation.order = "YXZ";
     const tmpColor = new THREE.Color();
@@ -393,7 +390,7 @@ export function OrdinanceArchiveCanvas({
       }
     };
 
-    // ---- Hover / drag / click ---------------------------------------------
+    // Hover / drag / click
     const raycaster = new THREE.Raycaster();
     const ndc = new THREE.Vector2();
     const tmpV = new THREE.Vector3();
@@ -417,7 +414,7 @@ export function OrdinanceArchiveCanvas({
       raycaster.setFromCamera(ndc, camera);
       const hit = raycaster.intersectObjects(meshes, false)[0];
       if (!hit || hit.instanceId === undefined) return -1;
-      const m = meshes.indexOf(hit.object as any);
+      const m = meshes.indexOf(hit.object as (typeof meshes)[number]);
       const idx = hit.instanceId * VARIANTS + m;
       return idx < pageCount ? idx : -1;
     };
@@ -513,7 +510,7 @@ export function OrdinanceArchiveCanvas({
       container.addEventListener("pointerleave", onPointerLeave);
     }
 
-    // ---- Resize / visibility ----------------------------------------------
+    // Resize / visibility
     const resizeObserver = new ResizeObserver((entries) => {
       const rect = entries[0]?.contentRect;
       if (!rect || rect.width <= 0 || rect.height <= 0) return;
@@ -534,7 +531,7 @@ export function OrdinanceArchiveCanvas({
     );
     intersectionObserver.observe(container);
 
-    // ---- Loop --------------------------------------------------------------
+    // Animation loop
     let raf = 0;
     let last = performance.now();
     let t = 0;
@@ -609,7 +606,7 @@ export function OrdinanceArchiveCanvas({
     };
     animate();
 
-    // ---- Cleanup -----------------------------------------------------------
+    // Cleanup
     return () => {
       cancelAnimationFrame(raf);
       applyThemeRef.current = null;

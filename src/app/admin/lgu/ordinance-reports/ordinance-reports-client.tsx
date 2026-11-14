@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useCallback, useTransition, useMemo } from "react";
+import React, { useState, useCallback, useTransition } from "react";
 import { ReportShell } from "@/components/reports/report-shell";
 import { ReportTable } from "@/components/reports/report-table";
 import { ReportGroup, ReportGrandTotal } from "@/components/reports/report-group";
 import { fetchOrdinancesForReport } from "./actions";
 import type { OrdinanceReportRow, ReportFilters } from "@/lib/ordinance-report-queries";
-import type { PdfReportData, PdfReportSection } from "@/lib/generate-report-pdf";
+import type { PdfReportData } from "@/lib/generate-report-pdf";
 
 import {
   FileTextIcon,
@@ -19,7 +19,7 @@ import {
   ClockIcon,
 } from "@/components/dashboard/icons";
 
-// ─── Report Type Definitions ────────────────────────────────────────────────
+// Report Type Definitions
 
 const REPORT_TYPES = [
   { id: "all", label: "List of All Ordinances", icon: FileTextIcon },
@@ -46,7 +46,7 @@ const TYPE_LABELS: Record<string, string> = {
   BARANGAY: "Barangay",
 };
 
-// ─── Props ──────────────────────────────────────────────────────────────────
+// Props
 
 interface FilterOptions {
   barangays: { id: string; name: string }[];
@@ -63,10 +63,10 @@ interface OrdinanceReportsClientProps {
   scopedBarangayId?: string;
 }
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// Helpers
 
 function formatDate(date: Date | string | null): string {
-  if (!date) return "—";
+  if (!date) return "-";
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleDateString("en-US", {
     year: "numeric",
@@ -100,7 +100,7 @@ function getMonthDateRange(key: string): string {
   return `${fmt(start)} - ${fmt(end)}`;
 }
 
-// ─── Component ──────────────────────────────────────────────────────────────
+// Component
 
 export function OrdinanceReportsClient({
   filterOptions,
@@ -523,7 +523,7 @@ export function OrdinanceReportsClient({
   );
 }
 
-// ─── Report Body (renders based on report type) ─────────────────────────────
+// Report Body (renders based on report type)
 
 function ReportBody({
   reportType,
@@ -554,7 +554,7 @@ function ReportBody({
   }
 }
 
-// ─── Column Definitions ─────────────────────────────────────────────────────
+// Column Definitions
 
 const COL_RES_NO = { key: "resolutionNumber", label: "Resolution No.", width: "130px" };
 const COL_TITLE = { key: "title", label: "Title" };
@@ -571,7 +571,7 @@ function toRow(ord: OrdinanceReportRow): Record<string, React.ReactNode> {
     resolutionNumber: ord.resolutionNumber,
     title: ord.title,
     type: TYPE_LABELS[ord.type] ?? ord.type,
-    category: ord.category ?? "—",
+    category: ord.category ?? "-",
     barangay: ord.barangay?.name ?? "City-wide",
     filedBy: ord.submittedBy.name,
     date: formatDate(ord.dateEnacted ?? ord.createdAt),
@@ -579,7 +579,7 @@ function toRow(ord: OrdinanceReportRow): Record<string, React.ReactNode> {
   };
 }
 
-// ─── PDF Data Builder ───────────────────────────────────────────────────────
+// PDF Data Builder
 
 function toPdfRow(
   ord: OrdinanceReportRow,
@@ -589,13 +589,13 @@ function toPdfRow(
     resolutionNumber: ord.resolutionNumber,
     title: ord.title,
     type: TYPE_LABELS[ord.type] ?? ord.type,
-    category: ord.category ?? "—",
+    category: ord.category ?? "-",
     barangay: ord.barangay?.name ?? "City-wide",
     filedBy: ord.submittedBy.name,
     date: formatDate(ord.dateEnacted ?? ord.createdAt),
     status: STATUS_LABELS[ord.status] ?? ord.status,
   };
-  return colKeys.map((k) => map[k] ?? "—");
+  return colKeys.map((k) => map[k] ?? "-");
 }
 
 interface PdfMeta {
@@ -771,7 +771,7 @@ function groupBy<T>(items: T[], keyFn: (item: T) => string): Map<string, T[]> {
   return map;
 }
 
-// ─── Report 1: All Ordinances ───────────────────────────────────────────────
+// Report 1: All Ordinances
 
 function AllOrdinancesReport({ ordinances }: { ordinances: OrdinanceReportRow[] }) {
   const columns = [COL_RES_NO, COL_TITLE, COL_TYPE, COL_CATEGORY, COL_BARANGAY, COL_FILED_BY, COL_DATE, COL_STATUS];
@@ -785,7 +785,7 @@ function AllOrdinancesReport({ ordinances }: { ordinances: OrdinanceReportRow[] 
   );
 }
 
-// ─── Report 2: Grouped by Month ─────────────────────────────────────────────
+// Report 2: Grouped by Month
 
 function GroupedByMonthReport({ ordinances }: { ordinances: OrdinanceReportRow[] }) {
   const columns = [COL_RES_NO, COL_TITLE, COL_FILED_BY, COL_BARANGAY, COL_STATUS];
@@ -824,7 +824,7 @@ function GroupedByMonthReport({ ordinances }: { ordinances: OrdinanceReportRow[]
   );
 }
 
-// ─── Report 3: Grouped by Barangay ──────────────────────────────────────────
+// Report 3: Grouped by Barangay
 
 function GroupedByBarangayReport({ ordinances }: { ordinances: OrdinanceReportRow[] }) {
   const columns = [COL_RES_NO, COL_TITLE, COL_DATE, COL_FILED_BY, COL_STATUS];
@@ -860,7 +860,7 @@ function GroupedByBarangayReport({ ordinances }: { ordinances: OrdinanceReportRo
   );
 }
 
-// ─── Report 4: Grouped by Filed By ─────────────────────────────────────────
+// Report 4: Grouped by Filed By
 
 function GroupedByFiledByReport({ ordinances }: { ordinances: OrdinanceReportRow[] }) {
   const columns = [COL_RES_NO, COL_TITLE, COL_DATE, COL_BARANGAY, COL_STATUS];
@@ -896,7 +896,7 @@ function GroupedByFiledByReport({ ordinances }: { ordinances: OrdinanceReportRow
   );
 }
 
-// ─── Report 5: Grouped by Category ──────────────────────────────────────────
+// Report 5: Grouped by Category
 
 function GroupedByCategoryReport({ ordinances }: { ordinances: OrdinanceReportRow[] }) {
   const columns = [COL_RES_NO, COL_TITLE, COL_DATE, COL_BARANGAY, COL_FILED_BY, COL_STATUS];
@@ -932,7 +932,7 @@ function GroupedByCategoryReport({ ordinances }: { ordinances: OrdinanceReportRo
   );
 }
 
-// ─── Report 6: Grouped by Status ────────────────────────────────────────────
+// Report 6: Grouped by Status
 
 function GroupedByStatusReport({ ordinances }: { ordinances: OrdinanceReportRow[] }) {
   const columns = [COL_RES_NO, COL_TITLE, COL_DATE, COL_BARANGAY, COL_FILED_BY, COL_CATEGORY];
@@ -975,7 +975,7 @@ function GroupedByStatusReport({ ordinances }: { ordinances: OrdinanceReportRow[
   );
 }
 
-// ─── Report 7: Grouped by Type ──────────────────────────────────────────────
+// Report 7: Grouped by Type
 
 function GroupedByTypeReport({ ordinances }: { ordinances: OrdinanceReportRow[] }) {
   const columns = [COL_RES_NO, COL_TITLE, COL_DATE, COL_BARANGAY, COL_FILED_BY, COL_STATUS];
@@ -1014,7 +1014,7 @@ function GroupedByTypeReport({ ordinances }: { ordinances: OrdinanceReportRow[] 
   );
 }
 
-// ─── Report 8: Grouped by Year ──────────────────────────────────────────────
+// Report 8: Grouped by Year
 
 function GroupedByYearReport({ ordinances }: { ordinances: OrdinanceReportRow[] }) {
   const columns = [COL_RES_NO, COL_TITLE, COL_TYPE, COL_BARANGAY, COL_FILED_BY, COL_STATUS];

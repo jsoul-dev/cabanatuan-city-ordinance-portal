@@ -18,7 +18,7 @@ const navLinks = [
 ];
 
 /**
- * Main navigation bar — supports both crisp Light Mode and winauth.net Dark Mode.
+ * Main navigation bar: supports both crisp Light Mode and winauth.net Dark Mode.
  * Displays official Cabanatuan City LGU Seal and "Cabanatuan City / Ordinance Portal" branding.
  * Includes interactive Light / Dark Theme Toggle button and high-contrast Portal Access CTA.
  */
@@ -51,7 +51,7 @@ export function Navbar() {
     handleScroll();
     
     // Enable transitions after first paint to prevent visible snaps
-    let frameId = requestAnimationFrame(() => {
+    const frameId = requestAnimationFrame(() => {
       setIsMounted(true);
     });
 

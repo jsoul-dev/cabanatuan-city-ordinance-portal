@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import type { PdfReportData } from "@/lib/generate-report-pdf";
 
 interface ReportShellProps {
@@ -171,8 +170,8 @@ export function ReportShell({
         <div className="px-8 pb-6 mt-4">
           <p className="text-xs text-gray-600 mb-10">Prepared by:</p>
           <div className="inline-block">
-            <div className="border-b border-gray-900 min-w-[250px]">
-              {/* Blank space for signature and printed name */}
+            <div className="border-b border-gray-900 min-w-[250px] pb-1 text-xs font-semibold text-gray-900">
+              {generatedBy}
             </div>
             <p className="text-[10px] text-gray-500 mt-1">
               {generatedByRole}
