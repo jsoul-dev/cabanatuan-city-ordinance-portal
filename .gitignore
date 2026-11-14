@@ -1,4 +1,4 @@
-# Dependencies
+# Dependencies & Package Managers
 node_modules/
 /.pnp
 .pnp.*
@@ -8,37 +8,42 @@ node_modules/
 !.yarn/releases
 !.yarn/versions
 
-# Next.js build output
+# Next.js Build Output
 .next/
 out/
 build/
+*.tsbuildinfo
+next-env.d.ts
 
-# Testing & logs
+# Testing & Coverage
 coverage/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+test-report/
+test-fixtures/
+scratch/
 
-# System & OS files
+# System & OS Files
 .DS_Store
 *.pem
 Thumbs.db
 
-# Environment variables & secrets
+# Environment Variables & Secrets
 .env*
 !.env.example
 *.local
+TEST_ACCOUNTS.md
+*test_accounts*.md
 
 # Vercel & IDE
 .vercel
 .idea
 .vscode
-*.tsbuildinfo
-next-env.d.ts
 
-# Local SQLite database
+# Local SQLite Database
 prisma/*.db
 prisma/*.db-journal
 prisma/*.db-wal
@@ -48,13 +53,11 @@ prisma/*.db-shm
 *.db-wal
 *.db-shm
 
-# Local uploads
+# Local Uploads
 public/uploads/*
 !public/uploads/.gitkeep
 
-# Custom project excludes (Agent rules, skills, internal docs, and unrelated markdown)
-*.pdf
-!docs/user_manual/output/*.pdf
+# Presentation, Academic & Agent Artifacts
 .agents/
 .assets/
 .gemini/
@@ -63,8 +66,19 @@ public/uploads/*
 .manuscript/
 AGENTS.md
 CLAUDE.md
-TEST_ACCOUNTS.md
-*test_accounts*.md
 graphify-out/
-/demo/output/
-/demo/temp-recordings/
+demo/
+docs/
+
+# Ad-hoc & Test Scripts
+test-*.ts
+test-*.js
+scratch_*.ts
+query.js
+rewrite.ps1
+update_db.*
+temp_msg.txt
+TECHNICAL_DEFENSE_GUIDE.md
+TEST_REPORT.md
+openscreen-demo-plan.md
+DATA_DICTIONARY.md
